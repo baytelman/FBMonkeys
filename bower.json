@@ -1,0 +1,28 @@
+{
+  "name": "city",
+  "version": "0.0.1",
+  "authors": [
+    "Felipe Baytelman"
+  ],
+  "main": "index.html",
+  "license": "MIT",
+  "homepage": "https://bitbucket.org/baytelman/heroes/overview",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "react": "^15.3.0",
+    "uuid-js": "^0.7.5"
+  },
+  "overrides": {
+    "react": {
+      "main": [
+        "react.js"
+      ]
+    }
+  }
+}
