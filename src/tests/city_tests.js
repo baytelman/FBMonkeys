@@ -29,7 +29,7 @@ tests.push(function testOverLappingBuildings() {
     }
 });
 
-tests.push(function testBuildAction() {
+tests.push(function testBuildActionCost() {
 	let resource = Resource.gold(100);
     let player = new Player();
 	let building = new Building({
@@ -37,7 +37,6 @@ tests.push(function testBuildAction() {
 	});
 
 	let action = new BuildingConstructionAction({
-		city: player.city,
 		building: building,
 		location: new SquareCoordinate(1,0)
 	});
@@ -51,7 +50,40 @@ tests.push(function testBuildAction() {
     if (!action.isAffordable(player)) {
         throw new Error("Player can afford this yet");
     }
+
+    action.executeForPlayer(player);
+
+    if (player.city.buildings.length != 2) {
+        throw new Error("City should have 2 buildings now");
+    }
 });
+
+tests.push(function testBuildActionLocation() {
+	let resource = Resource.gold(100);
+    let player = new Player();
+	let building = new Building({
+		costs: [resource]
+	});
+
+	let action = new BuildingConstructionAction({
+		building: building,
+		location: new SquareCoordinate(1,0)
+	});
+
+    player.earnResource(resource);
+    player.earnResource(resource);
+
+    action.executeForPlayer(player);
+    try {
+	    action.executeForPlayer(player);
+        throw Error("City cannot have overlapping buildings");
+    } catch (e) {
+        if (!(e instanceof UnavailableActionError)) {
+            throw e;
+        }
+    }
+});
+
 
 tests.push(function testBuildingTime() {
 	let timeRequired = 100;

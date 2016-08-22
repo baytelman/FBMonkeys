@@ -94,8 +94,8 @@ class ResourceConsumingAction {
     displayName() {
         return this.displayNameFunction();
     }
-    isAvailable() {
-        return this.availabilityFunction();
+    isAvailable(player) {
+        return this.availabilityFunction(player);
     }
     isAffordable(player) {
         if (player) {
@@ -108,7 +108,7 @@ class ResourceConsumingAction {
         return this.costCalculationFunction();
     }
     executeForPlayer(player) {
-        if (!this.isAvailable()) {
+        if (!this.isAvailable(player)) {
             throw new UnavailableActionError();
         }
         if (!this.isAffordable(player)) {
@@ -118,7 +118,7 @@ class ResourceConsumingAction {
         costs.forEach(function(cost) {
             player.spendResource(cost);
         });
-        this.actionFunction();
+        this.actionFunction(player);
         if (player.resourceConsumingActionExecuted) {
             player.resourceConsumingActionExecuted(this, costs);
         }
@@ -126,13 +126,13 @@ class ResourceConsumingAction {
 }
 
 class BuildingConstructionAction extends ResourceConsumingAction {
-  constructor({ city, building, location }) {
+  constructor({ building, location }) {
     super(
       "Build",
-      function() { return true; },
-      function() { return building.costs; },
-      function() {
-        city.addBuilding({
+      function(player) { return player.city.canBuildAtLocation(location); },
+      function(player) { return building.costs; },
+      function(player) {
+        player.city.addBuilding({
             building: building,
             location: location
         });

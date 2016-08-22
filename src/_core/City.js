@@ -14,13 +14,21 @@ class City {
   }
 
   addBuilding({ building = building, location = new SquareCoordinate(0,0) } = { }) {
-    this.buildings.forEach(function(existingBuilding) {
-      if (existingBuilding.location.isEqualTo(location)) {
-        throw new OverlappingBuildingError("Existing building on " + location);
-      }
-    });
+    if (!this.canBuildAtLocation(location)) {
+      throw new OverlappingBuildingError("Existing building on " + location);
+    }
     building.location = location;
     this.buildings.push(building);
+  }
+
+  canBuildAtLocation(location) {
+    let canBuild = true;
+    this.buildings.forEach(function(existingBuilding) {
+      if (existingBuilding.location.isEqualTo(location)) {
+        canBuild = false;
+      }
+    });
+    return canBuild;
   }
 
   updateTime(deltaSeconds) {
