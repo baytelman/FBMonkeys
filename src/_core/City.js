@@ -24,7 +24,7 @@ class City {
   canBuildAtLocation(location) {
     let canBuild = true;
     this.buildings.forEach(function(existingBuilding) {
-      if (existingBuilding.location.isEqualTo(location)) {
+      if (existingBuilding.location.is(location)) {
         canBuild = false;
       }
     });

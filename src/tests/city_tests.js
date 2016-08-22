@@ -8,7 +8,7 @@ tests.push(function testNewCityHasOneBuilding() {
 	}
 
 	let location = city.buildings[0].location;
-	if (!location.isEqualTo(new SquareCoordinate(0,0))) {
+	if (!location.is(new SquareCoordinate(0,0))) {
 		throw new Error("City's first building is always in the center");
 	}
 });

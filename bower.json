@@ -20,9 +20,7 @@
   },
   "overrides": {
     "react": {
-      "main": [
-        "react.js"
-      ]
+      "main": ["react.js", "react-dom.js"]
     }
   }
 }
