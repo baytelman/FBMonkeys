@@ -124,3 +124,20 @@ class ResourceConsumingAction {
         }
     }
 }
+
+
+class BuildingConstructionAction extends ResourceConsumingAction {
+  constructor({ city, building, location }) {
+    super(
+      "Build",
+      function() { return true; },
+      function() { return building.costs; },
+      function() {
+        city.addBuilding({
+            building: building,
+            location: location
+        });
+      });
+    }
+}
+

@@ -20,36 +20,36 @@ tests.push(function testResourcesBasicTests() {
     }
 });
 
-// tests.push(function testHealTests() {
-//     let obj = {};
-//     testArmySetup(obj);
-//
-//     let hca = new HealCharacterAction(obj.m);
-//     let c = hca.costs();
-//     obj.m.receiveDamage(obj.m.maxHealth());
-//     if (c.length != 1 || c[0].type != kResourceGold || c[0].amount <= 0) {
-//         throw new Error("Wrong cost to heal");
-//     }
-//     if (Resource.playerCanAfford(obj.player, c)) {
-//         throw new Error("Player cannot afford");
-//     }
-//     try {
-//         hca.executeForPlayer(obj.player);
-//         throw Error("Player cannot afford");
-//     } catch (e) {
-//         if (!(e instanceof InsuficientResourcesError)) {
-//             throw e;
-//         }
-//     }
-//
-//     obj.player.earnResources(c);
-//     hca.executeForPlayer(obj.player);
-//     if (obj.m.health < obj.m.maxHealth()) {
-//         throw new Error("Healing action did not take place");
-//     }
-//
-//     if (Resource.playerCanAfford(obj.player, c)) {
-//         throw new Error("Player cannot afford it twice");
-//     }
-// });
-//
+tests.push(function testResourceConsumingAction() {
+    let actionCalled = false;
+    let resources = [ Resource.gold(100) ];
+
+    let player = new Player("Name");
+    let action = new ResourceConsumingAction(
+        "Action",
+        function() { return true; },
+        function() { return resources; },
+        function() { actionCalled = true; }
+        );
+    if (action.isAffordable(player)) {
+        throw new Error("Player cannot afford");
+    }
+    try {
+        action.executeForPlayer(player);
+        throw Error("Player cannot afford");
+    } catch (e) {
+        if (!(e instanceof InsuficientResourcesError)) {
+            throw e;
+        }
+    }
+
+    player.earnResources(resources);
+    action.executeForPlayer(player);
+    if (!actionCalled) {
+        throw new Error("Action did not take place");
+    }
+
+    if (action.isAffordable(player)) {
+        throw new Error("Player cannot afford it twice");
+    }
+});
