@@ -5,15 +5,19 @@ class City {
     this.addBuilding();
   }
 
-  addBuilding({ building = new Building(), location = new SquareCoordinate(0,0) } = { }) {
+  addBuilding({ building = new Building(), location = new SquareCoordinate(0,0) } = {}) {
     building.location = location;
     this.buildings.push(building);
   }
 }
 
 class Building {
-  constructor() {
+  constructor({ name = "Just a building", costs = [] } = {}) {
     this.id = UUIDjs.create().toString();
-    this.location = null;
+    this.name = name;
+    this.costs = costs; 
+
+    this.location = null;    
   }
 }
+
