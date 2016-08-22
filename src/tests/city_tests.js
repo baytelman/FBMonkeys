@@ -13,18 +13,15 @@ tests.push(function testNewCityHasOneBuilding() {
 	}
 });
 
-tests.push(function testBuildABuilding() {
-
+tests.push(function testBuildAction() {
 	let resource = Resource.gold(100);
-    let player = new Player()
-
-	let city = new City();
+    let player = new Player();
 	let building = new Building({
 		costs: [resource]
 	});
 
 	let action = new BuildingConstructionAction({
-		city: city,
+		city: player.city,
 		building: building,
 		location: new SquareCoordinate(0,0)
 	});
@@ -37,6 +34,42 @@ tests.push(function testBuildABuilding() {
 
     if (!action.isAffordable(player)) {
         throw new Error("Player can afford this yet");
+    }
+});
+
+tests.push(function testBuildingTime() {
+	let timeRequired = 100;
+    let player = new Player();
+	let building = new Building({
+		buildTime: timeRequired
+	});
+
+	player.city.addBuilding({
+		building: building
+	});
+    
+    let updated = player.updateTime(timeRequired / 2);
+
+    if (updated.length != 0) {
+        throw new Error("There should be no updates");
+    }
+    if (building.isBuilt()) {
+        throw new Error("Building should not been built yet");
+    }
+
+    updated = player.updateTime(timeRequired / 2);
+
+    if (updated.length != 1 || updated[0] != building) {
+        throw new Error("Building should be updated");
+    }
+    if (! building.isBuilt()) {
+        throw new Error("Building should be built already");
+    }
+    
+    updated = player.updateTime(timeRequired / 2);
+
+    if (updated.length != 0) {
+        throw new Error("There should be no updates");
     }
 
 });

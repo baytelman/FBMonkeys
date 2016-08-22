@@ -125,7 +125,6 @@ class ResourceConsumingAction {
     }
 }
 
-
 class BuildingConstructionAction extends ResourceConsumingAction {
   constructor({ city, building, location }) {
     super(

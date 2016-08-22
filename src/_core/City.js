@@ -1,23 +1,55 @@
 class City {
-  constructor() {
+  constructor({ defaultBuilding = new Building() } = {}) {
     this.id = UUIDjs.create().toString();
     this.buildings = [];
-    this.addBuilding();
+    this.time = 0;
+
+    if (defaultBuilding) {
+      this.addBuilding({
+        building: defaultBuilding
+      });
+    }
   }
 
-  addBuilding({ building = new Building(), location = new SquareCoordinate(0,0) } = {}) {
+  addBuilding({ building = building, location = new SquareCoordinate(0,0) } = { }) {
     building.location = location;
     this.buildings.push(building);
+  }
+
+  updateTime(deltaSeconds) {
+    this.time += deltaSeconds;
+    var updated = [];
+    this.buildings.forEach(function(building) {
+      building.updateTime(deltaSeconds).forEach(function(u) {
+        updated.push(u);
+      });
+    });
+    return updated;
   }
 }
 
 class Building {
-  constructor({ name = "Just a building", costs = [] } = {}) {
+  constructor({ name = "Just a building", costs = [], buildTime = 0 } = { }) {
     this.id = UUIDjs.create().toString();
     this.name = name;
     this.costs = costs; 
+    this.buildTime = buildTime;
 
     this.location = null;    
+    this.time = 0;
+  }
+
+  isBuilt() {
+    return this.time >= this.buildTime;
+  }
+
+  updateTime(deltaSeconds) {
+    let wasBuild = this.isBuilt();
+    this.time += deltaSeconds;
+
+    if (wasBuild != this.isBuilt()) {
+      return [this];
+    }
+    return [];
   }
 }
-

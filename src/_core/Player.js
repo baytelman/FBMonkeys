@@ -9,8 +9,9 @@ class Player {
         this.resources = {};
     }
     updateTime(deltaSeconds) {
-        var updated = [];
         this.time += deltaSeconds;
+        var updated = this.city.updateTime(deltaSeconds);
+        return updated;
     }
     /* Resources */
     earnResources(resources) {
