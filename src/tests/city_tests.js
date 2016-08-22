@@ -13,6 +13,22 @@ tests.push(function testNewCityHasOneBuilding() {
 	}
 });
 
+
+tests.push(function testOverLappingBuildings() {
+	let city = new City();
+	let location = city.buildings[0].location;
+	let building = new Building();
+
+    try {
+        city.addBuilding({building:building});
+        throw Error("City cannot have overlapping buildings");
+    } catch (e) {
+        if (!(e instanceof OverlappingBuildingError)) {
+            throw e;
+        }
+    }
+});
+
 tests.push(function testBuildAction() {
 	let resource = Resource.gold(100);
     let player = new Player();
@@ -23,7 +39,7 @@ tests.push(function testBuildAction() {
 	let action = new BuildingConstructionAction({
 		city: player.city,
 		building: building,
-		location: new SquareCoordinate(0,0)
+		location: new SquareCoordinate(1,0)
 	});
 
     if (action.isAffordable(player)) {
@@ -45,7 +61,8 @@ tests.push(function testBuildingTime() {
 	});
 
 	player.city.addBuilding({
-		building: building
+		building: building,
+		location: new SquareCoordinate(1,0)
 	});
     
     let updated = player.updateTime(timeRequired / 2);
@@ -65,7 +82,7 @@ tests.push(function testBuildingTime() {
     if (! building.isBuilt()) {
         throw new Error("Building should be built already");
     }
-    
+
     updated = player.updateTime(timeRequired / 2);
 
     if (updated.length != 0) {

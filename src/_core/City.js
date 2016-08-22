@@ -1,3 +1,5 @@
+class OverlappingBuildingError extends Error {
+}
 class City {
   constructor({ defaultBuilding = new Building() } = {}) {
     this.id = UUIDjs.create().toString();
@@ -12,6 +14,11 @@ class City {
   }
 
   addBuilding({ building = building, location = new SquareCoordinate(0,0) } = { }) {
+    this.buildings.forEach(function(existingBuilding) {
+      if (existingBuilding.location.isEqualTo(location)) {
+        throw new OverlappingBuildingError("Existing building on " + location);
+      }
+    });
     building.location = location;
     this.buildings.push(building);
   }
