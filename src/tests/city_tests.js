@@ -13,7 +13,7 @@ tests.push(function testNewCityHasOneBuilding() {
 	}
 });
 
-tests.push(function testNewCityHasOneBuilding() {
+tests.push(function testCityCanGetBuildingsByLocation() {
 	let city = new City();
 	let locations = [
 		city.buildings[0].location,
