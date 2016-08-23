@@ -70,6 +70,13 @@ class Building {
     return this.time >= this.buildTime;
   }
 
+  buildProgress() {
+    if (this.isBuilt()) {
+      return 1.0;
+    }
+    return this.time / (1.0 * this.buildTime);
+  }
+
   updateTime(deltaSeconds) {
     let wasBuild = this.isBuilt();
     this.time += deltaSeconds;

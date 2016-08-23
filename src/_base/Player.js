@@ -3,7 +3,7 @@ class Player {
         this.id = UUIDjs.create().toString();
         this.time = 0;
 
-        this.name = name;
+        this.name = name || "Player";
 
         this.resources = {};
     }

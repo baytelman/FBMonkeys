@@ -152,6 +152,10 @@ tests.push(function testBuildingTime() {
 		throw new Error("Building should not been built yet");
 	}
 
+	if (building.buildProgress() !== 0.5) {
+		throw new Error("Building should have 50% progress");
+	}
+
 	updated = player.updateTime(timeRequired / 2);
 
 	if (updated.length != 1 || updated[0] != building) {
