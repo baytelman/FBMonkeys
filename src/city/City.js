@@ -4,6 +4,7 @@ class OverlappingBuildingError extends Error {
 class City {
   constructor({ defaultBuilding = new Building() } = {}) {
     this.id = UUIDjs.create().toString();
+    this.limits = [0, 0, 0, 0];
     this.buildings = [];
     this.time = 0;
 
@@ -20,6 +21,12 @@ class City {
     }
     building.location = location;
     this.buildings.push(building);
+    this.limits = [
+      Math.min(this.limits[0], location.x),
+      Math.min(this.limits[1], location.y),
+      Math.max(this.limits[2], location.x),
+      Math.max(this.limits[3], location.y),
+    ];
   }
 
   buildingAtLocation(location) {

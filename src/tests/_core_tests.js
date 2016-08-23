@@ -9,16 +9,16 @@ function runTests() {
     var failed = 0;
     var t_start = new Date().getTime();
     tests.forEach(function (obj) {
-        try {
+        // try {
             var start = new Date().getTime();
             obj();
             var end = new Date().getTime();
             console.log("{0} pass {1}ms".format(getFunctionName(obj), end - start));
             passed++;
-        } catch (e) {
-            console.log("{0} fail: {1} ({2})".format(getFunctionName(obj), (e.message?e.message:e.constructor.name), e.line));
-            failed++;
-        }
+        // } catch (e) {
+        //     console.log("{0} fail: {1} ({2})".format(getFunctionName(obj), (e.message?e.message:e.constructor.name), e.line));
+        //     failed++;
+        // }
     });
     var t_end = new Date().getTime();
     console.log("==== {0}ms ====".format(t_end - t_start));

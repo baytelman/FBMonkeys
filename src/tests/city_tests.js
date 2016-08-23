@@ -38,6 +38,28 @@ tests.push(function testNewCityHasOneBuilding() {
 	});
 });
 
+tests.push(function testCityLimits() {
+	let city = new City();
+	let locations = [
+		new SquareCoordinate(8,0),
+		new SquareCoordinate(0,10),
+		new SquareCoordinate(4,-10),
+		new SquareCoordinate(-8,5),
+	];
+	locations.forEach(function(location, index) {
+		city.addBuilding({
+			building: new Building(),
+			location: location,
+		});
+	});
+
+	let [minX, minY, maxX, maxY] = city.limits;
+
+	if (minX != -8 || minY != -10 || maxX != 8 || maxY != 10) {
+		throw new Error("Wrong city limits.");
+	}
+});
+
 tests.push(function testOverLappingBuildings() {
 	let city = new City();
 	let location = city.buildings[0].location;
