@@ -124,19 +124,3 @@ class ResourceConsumingAction {
         }
     }
 }
-
-class BuildingConstructionAction extends ResourceConsumingAction {
-  constructor({ building, location }) {
-    super(
-      "Build",
-      function(player) { return player.city.canBuildAtLocation(location); },
-      function(player) { return building.costs; },
-      function(player) {
-        player.city.addBuilding({
-            building: building,
-            location: location
-        });
-      });
-    }
-}
-

@@ -31,7 +31,7 @@ tests.push(function testOverLappingBuildings() {
 
 tests.push(function testBuildActionCost() {
 	let resource = Resource.gold(100);
-    let player = new Player();
+    let player = new CityPlayer();
 	let building = new Building({
 		costs: [resource]
 	});
@@ -60,7 +60,7 @@ tests.push(function testBuildActionCost() {
 
 tests.push(function testBuildActionLocation() {
 	let resource = Resource.gold(100);
-    let player = new Player();
+    let player = new CityPlayer();
 	let building = new Building({
 		costs: [resource]
 	});
@@ -87,7 +87,7 @@ tests.push(function testBuildActionLocation() {
 
 tests.push(function testBuildingTime() {
 	let timeRequired = 100;
-    let player = new Player();
+    let player = new CityPlayer();
 	let building = new Building({
 		buildTime: timeRequired
 	});

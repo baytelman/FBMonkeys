@@ -11,6 +11,6 @@ var DemoComponent = React.createClass({
 });
 
 var renderDemo = function() {
-  let component = <DemoComponent data={new Player()}/>;
+  let component = <DemoComponent data={new CityPlayer()}/>;
   ReactDOM.render(component, document.getElementById('demo'));
 };

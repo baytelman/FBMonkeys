@@ -1,7 +1,6 @@
 class Player {
     constructor(name) {
         this.id = UUIDjs.create().toString();
-        this.city = new City();
         this.time = 0;
 
         this.name = name;
@@ -10,8 +9,7 @@ class Player {
     }
     updateTime(deltaSeconds) {
         this.time += deltaSeconds;
-        var updated = this.city.updateTime(deltaSeconds);
-        return updated;
+        return [];
     }
     /* Resources */
     earnResources(resources) {
@@ -39,12 +37,5 @@ class Player {
             return this.resources[type] = 0;
         }
         return this.resources[type];
-    }
-    /* Equipment */
-    earnItem(item) {
-        this.equipment.push(item);
-    }
-    getAllEquipment() {
-        return this.equipment;
     }
 }

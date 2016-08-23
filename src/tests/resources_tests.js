@@ -1,6 +1,6 @@
 
 function testPlayerSetup(obj) {
-    obj.player = new Player("test_player");
+    obj.player = new CityPlayer("test_player");
 }
 
 tests.push(function testResourcesBasicTests() {
@@ -24,7 +24,7 @@ tests.push(function testResourceConsumingAction() {
     let actionCalled = false;
     let resources = [ Resource.gold(100) ];
 
-    let player = new Player("Name");
+    let player = new CityPlayer("Name");
     let action = new ResourceConsumingAction(
         "Action",
         function() { return true; },

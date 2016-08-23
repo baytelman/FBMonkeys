@@ -1,5 +1,6 @@
 class OverlappingBuildingError extends Error {
 }
+
 class City {
   constructor({ defaultBuilding = new Building() } = {}) {
     this.id = UUIDjs.create().toString();
@@ -47,10 +48,10 @@ class Building {
   constructor({ name = "Just a building", costs = [], buildTime = 0 } = { }) {
     this.id = UUIDjs.create().toString();
     this.name = name;
-    this.costs = costs; 
+    this.costs = costs;
     this.buildTime = buildTime;
 
-    this.location = null;    
+    this.location = null;
     this.time = 0;
   }
 
@@ -67,4 +68,20 @@ class Building {
     }
     return [];
   }
+}
+
+
+class BuildingConstructionAction extends ResourceConsumingAction {
+  constructor({ building, location }) {
+    super(
+      "Build",
+      function(player) { return player.city.canBuildAtLocation(location); },
+      function(player) { return building.costs; },
+      function(player) {
+        player.city.addBuilding({
+            building: building,
+            location: location
+        });
+      });
+    }
 }
