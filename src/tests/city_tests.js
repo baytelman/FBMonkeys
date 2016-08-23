@@ -13,25 +13,49 @@ tests.push(function testNewCityHasOneBuilding() {
 	}
 });
 
+tests.push(function testNewCityHasOneBuilding() {
+	let city = new City();
+	let locations = [
+		city.buildings[0].location,
+		new SquareCoordinate(1,0),
+		new SquareCoordinate(0,-1),
+	];
+	let buildings = [
+		city.buildings[0],
+		new Building(),
+		new Building(),
+	];
+	for (var i = 1; i < buildings.length; i++) {
+		city.addBuilding({
+			building: buildings[i],
+			location: locations[i],
+		});
+	}
+	locations.forEach(function(location, index) {
+		if (city.buildingAtLocation(location) !== buildings[index]) {
+			throw new Error("Building should be found at its location.");
+		}
+	});
+});
 
 tests.push(function testOverLappingBuildings() {
 	let city = new City();
 	let location = city.buildings[0].location;
 	let building = new Building();
 
-    try {
-        city.addBuilding({building:building});
-        throw Error("City cannot have overlapping buildings");
-    } catch (e) {
-        if (!(e instanceof OverlappingBuildingError)) {
-            throw e;
-        }
-    }
+	try {
+		city.addBuilding({building:building});
+		throw Error("City cannot have overlapping buildings");
+	} catch (e) {
+		if (!(e instanceof OverlappingBuildingError)) {
+			throw e;
+		}
+	}
 });
 
 tests.push(function testBuildActionCost() {
 	let resource = Resource.gold(100);
-    let player = new CityPlayer();
+	let player = new CityPlayer();
 	let building = new Building({
 		costs: [resource]
 	});
@@ -41,26 +65,26 @@ tests.push(function testBuildActionCost() {
 		location: new SquareCoordinate(1,0)
 	});
 
-    if (action.isAffordable(player)) {
-        throw new Error("Player cannot afford this yet");
-    }
-    
-    player.earnResource(resource);
+	if (action.isAffordable(player)) {
+		throw new Error("Player cannot afford this yet");
+	}
 
-    if (!action.isAffordable(player)) {
-        throw new Error("Player can afford this yet");
-    }
+	player.earnResource(resource);
 
-    action.executeForPlayer(player);
+	if (!action.isAffordable(player)) {
+		throw new Error("Player can afford this yet");
+	}
 
-    if (player.city.buildings.length != 2) {
-        throw new Error("City should have 2 buildings now");
-    }
+	action.executeForPlayer(player);
+
+	if (player.city.buildings.length != 2) {
+		throw new Error("City should have 2 buildings now");
+	}
 });
 
 tests.push(function testBuildActionLocation() {
 	let resource = Resource.gold(100);
-    let player = new CityPlayer();
+	let player = new CityPlayer();
 	let building = new Building({
 		costs: [resource]
 	});
@@ -70,24 +94,24 @@ tests.push(function testBuildActionLocation() {
 		location: new SquareCoordinate(1,0)
 	});
 
-    player.earnResource(resource);
-    player.earnResource(resource);
+	player.earnResource(resource);
+	player.earnResource(resource);
 
-    action.executeForPlayer(player);
-    try {
-	    action.executeForPlayer(player);
-        throw Error("City cannot have overlapping buildings");
-    } catch (e) {
-        if (!(e instanceof UnavailableActionError)) {
-            throw e;
-        }
-    }
+	action.executeForPlayer(player);
+	try {
+		action.executeForPlayer(player);
+		throw Error("City cannot have overlapping buildings");
+	} catch (e) {
+		if (!(e instanceof UnavailableActionError)) {
+			throw e;
+		}
+	}
 });
 
 
 tests.push(function testBuildingTime() {
 	let timeRequired = 100;
-    let player = new CityPlayer();
+	let player = new CityPlayer();
 	let building = new Building({
 		buildTime: timeRequired
 	});
@@ -96,29 +120,29 @@ tests.push(function testBuildingTime() {
 		building: building,
 		location: new SquareCoordinate(1,0)
 	});
-    
-    let updated = player.updateTime(timeRequired / 2);
 
-    if (updated.length != 0) {
-        throw new Error("There should be no updates");
-    }
-    if (building.isBuilt()) {
-        throw new Error("Building should not been built yet");
-    }
+	let updated = player.updateTime(timeRequired / 2);
 
-    updated = player.updateTime(timeRequired / 2);
+	if (updated.length != 0) {
+		throw new Error("There should be no updates");
+	}
+	if (building.isBuilt()) {
+		throw new Error("Building should not been built yet");
+	}
 
-    if (updated.length != 1 || updated[0] != building) {
-        throw new Error("Building should be updated");
-    }
-    if (! building.isBuilt()) {
-        throw new Error("Building should be built already");
-    }
+	updated = player.updateTime(timeRequired / 2);
 
-    updated = player.updateTime(timeRequired / 2);
+	if (updated.length != 1 || updated[0] != building) {
+		throw new Error("Building should be updated");
+	}
+	if (! building.isBuilt()) {
+		throw new Error("Building should be built already");
+	}
 
-    if (updated.length != 0) {
-        throw new Error("There should be no updates");
-    }
+	updated = player.updateTime(timeRequired / 2);
+
+	if (updated.length != 0) {
+		throw new Error("There should be no updates");
+	}
 
 });

@@ -22,14 +22,18 @@ class City {
     this.buildings.push(building);
   }
 
-  canBuildAtLocation(location) {
-    let canBuild = true;
-    this.buildings.forEach(function(existingBuilding) {
+  buildingAtLocation(location) {
+    for (var i = 0; i < this.buildings.length; i++) {
+      let existingBuilding = this.buildings[i];
       if (existingBuilding.location.is(location)) {
-        canBuild = false;
+        return existingBuilding;
       }
-    });
-    return canBuild;
+    }
+    return null;
+  }
+
+  canBuildAtLocation(location) {
+    return this.buildingAtLocation(location) === null;
   }
 
   updateTime(deltaSeconds) {
