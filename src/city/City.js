@@ -56,7 +56,7 @@ class City {
 }
 
 class Building {
-  constructor({ name = "Just a building", costs = [], buildTime = 0 } = { }) {
+  constructor({ name = "City Hall", costs = [], buildTime = 0 } = { }) {
     this.id = UUIDjs.create().toString();
     this.name = name;
     this.costs = costs;
@@ -80,7 +80,6 @@ class Building {
     return [];
   }
 }
-
 
 class BuildingConstructionAction extends ResourceConsumingAction {
   constructor({ building, location }) {
