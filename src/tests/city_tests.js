@@ -38,6 +38,37 @@ tests.push(function testCityCanGetBuildingsByLocation() {
 	});
 });
 
+tests.push(function testBuildingCreatingResources() {
+	let resources = [Resource.gold(100)];
+	let time = 10;
+	let building = new Building({
+		generateResources: resources,
+		resourcesFrequency: time,
+	});
+	let city = new City({
+		defaultBuilding: building
+	});
+	let player = new CityPlayer("Player", city);
+	let multiplier = 4;
+	let moreResources = Resource.resourcesWithMultiplier(resources, multiplier);
+
+	if (Resource.playerCanAfford(player, moreResources)) {
+		throw new Error("User has not earned resources yet");
+	}
+
+	player.updateTime(time * (multiplier - 1));
+
+	if (Resource.playerCanAfford(player, moreResources)) {
+		throw new Error("User has not earned enough resources yet");
+	}
+
+	player.updateTime(time);
+
+	if (! Resource.playerCanAfford(player, moreResources)) {
+		throw new Error("User should have enough resources");
+	}
+});
+
 tests.push(function testCityLimits() {
 	let city = new City();
 	let locations = [
@@ -129,7 +160,6 @@ tests.push(function testBuildActionLocation() {
 		}
 	}
 });
-
 
 tests.push(function testBuildingTime() {
 	let timeRequired = 100;

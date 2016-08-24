@@ -1,11 +1,13 @@
 class CityPlayer extends Player {
-    constructor(name) {
-      super(name);
-        this.city = new City();
-    }
-    updateTime(deltaSeconds) {
-      let updated = super.updateTime(deltaSeconds);
-        updated = updated.concat(this.city.updateTime(deltaSeconds));
-        return updated;
-    }
+  constructor(name, city) {
+    super(name);
+    this.city = city || new City();
+  }
+  updateTime(deltaSeconds, parents) {
+    let updated = super.updateTime(deltaSeconds);
+    updated = updated.concat(this.city.updateTime(deltaSeconds, {
+      player: this
+    }));
+    return updated;
+  }
 }

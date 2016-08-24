@@ -43,62 +43,15 @@ class City {
     return this.buildingAtLocation(location) === null;
   }
 
-  updateTime(deltaSeconds) {
+  updateTime(deltaSeconds, parents) {
+    parents = Object.assign(parents, { city: this });
     this.time += deltaSeconds;
     var updated = [];
-    this.buildings.forEach(function(building) {
-      building.updateTime(deltaSeconds).forEach(function(u) {
-        updated.push(u);
-      });
+    this.buildings.map(function(building) {
+      return building.updateTime(deltaSeconds, parents);
+    }).forEach(function(_updated) {
+      updated = updated.concat(_updated);
     });
     return updated;
   }
-}
-
-class Building {
-  constructor({ name = "City Hall", costs = [], buildTime = 0 } = { }) {
-    this.id = UUIDjs.create().toString();
-    this.name = name;
-    this.costs = costs;
-    this.buildTime = buildTime;
-
-    this.location = null;
-    this.time = 0;
-  }
-
-  isBuilt() {
-    return this.time >= this.buildTime;
-  }
-
-  buildProgress() {
-    if (this.isBuilt()) {
-      return 1.0;
-    }
-    return this.time / (1.0 * this.buildTime);
-  }
-
-  updateTime(deltaSeconds) {
-    let wasBuild = this.isBuilt();
-    this.time += deltaSeconds;
-
-    if (wasBuild != this.isBuilt()) {
-      return [this];
-    }
-    return [];
-  }
-}
-
-class BuildingConstructionAction extends ResourceConsumingAction {
-  constructor({ building, location }) {
-    super(
-      "Build",
-      function(player) { return player.city.canBuildAtLocation(location); },
-      function(player) { return building.costs; },
-      function(player) {
-        player.city.addBuilding({
-            building: building,
-            location: location
-        });
-      });
-    }
 }

@@ -4,8 +4,8 @@ var ResourceComponent= React.createClass({
   },
   render: function() {
     return <resource>
-    <type>{this.state.type}</type>
-    <amount>{this.state.amount}</amount>
+    <type>{this.props.data.type}</type>
+    <amount>{this.props.data.amount}</amount>
     </resource>;
   }
 });
@@ -15,14 +15,15 @@ var PlayerComponent = React.createClass({
     return this.props.data;
   },
   render: function() {
-    let resources = Object.keys(this.state.resources).map(function(key) {
-      return <ResourceComponent data={this.state.resources[key]} />;
+    let resources = this.props.data.resources;
+    let resourcesComponents = Object.keys(resources).map(function(key) {
+      return <ResourceComponent key={key} data={ new Resource(key, resources[key]) } />;
     });
     return <player id={this.state.id}>
     <name>{this.state.name}</name>
     <time>{Math.round(this.state.time)}</time>
     <resources>
-    {resources}
+    {resourcesComponents}
     </resources>
     </player>;
   }
@@ -83,7 +84,9 @@ var renderDemo = function() {
   player.city.addBuilding({
     building: new Building({
       name: "Gold Mine",
-      buildTime: 30
+      buildTime: 10,
+      generateResources: [Resource.gold(1)],
+      resourcesFrequency: 3,
     }),
     location: new SquareCoordinate(0,-1)
   });
