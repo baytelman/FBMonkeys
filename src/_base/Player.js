@@ -1,11 +1,10 @@
 class Player {
-    constructor(name) {
+    constructor({name="PlayerName", resources=[]} = {}) {
         this.id = UUIDjs.create().toString();
         this.time = 0;
+        this.name = name;
 
-        this.name = name || "Player";
-
-        this.resources = {};
+        this.resources = resources;
     }
     updateTime(deltaSeconds) {
         this.time += deltaSeconds;
