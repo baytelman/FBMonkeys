@@ -7,19 +7,15 @@ class UnavailableActionError extends ResourceError {
 }
 
 class Resource {
-    constructor(type, amount, max) {
+    constructor(type, amount) {
         this.type = type;
         this.amount = amount;
-        this.max = max;
     }
     toString() {
         return this.type + " x " + this.amount.toFixed(1);
     }
     resourceWithMultiplier(resources) {
         let m = this.amount * resources;
-        if (this.max && m > this.max) {
-            m = this.max * 1;
-        }
         return new Resource(this.type, m);
     }
     static resourcesWithMultiplier(resources, multiplier) {
