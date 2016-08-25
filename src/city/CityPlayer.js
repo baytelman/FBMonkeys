@@ -1,6 +1,6 @@
 class CityPlayer extends Player {
-  constructor({name, resources, city = new City()} = {}) {
-    super(name);
+    constructor({city = new City()} = {}) {
+    super(arguments[0]);
     this.city = city;
   }
   updateTime(deltaSeconds, parents) {

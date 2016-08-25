@@ -1,4 +1,23 @@
+let maxResourceDefault = 1000;
 
+function enabledCityPlayer(city, maxResource) {
+  if (!maxResource) {
+    maxResource = maxResourceDefault;
+  }
+	let values = {
+    name: "Name",
+    effects: [
+      new EnableResourceEffect({
+        type: kResourceGold,
+        amount: maxResource
+      })
+    ]
+  };
+	if (city) {
+		values.city = city;
+	}
+  return new CityPlayer(values);
+};
 
 tests.push(function testBuildingCreatingResources() {
 	let resources = [CityResource.gold(100)];
@@ -10,7 +29,7 @@ tests.push(function testBuildingCreatingResources() {
 	let city = new City({
 		defaultBuilding: building
 	});
-	let player = new CityPlayer({city:city});
+	let player = enabledCityPlayer(city);
 	let multiplier = 4;
 	let moreResources = Resource.resourcesWithMultiplier(resources, multiplier);
 
@@ -33,7 +52,7 @@ tests.push(function testBuildingCreatingResources() {
 
 tests.push(function testBuildActionCost() {
 	let resource = CityResource.gold(100);
-	let player = new CityPlayer();
+	let player = enabledCityPlayer();
 	let building = new Building({
 		costs: [resource]
 	});
@@ -62,7 +81,7 @@ tests.push(function testBuildActionCost() {
 
 tests.push(function testBuildActionLocation() {
 	let resource = CityResource.gold(100);
-	let player = new CityPlayer();
+	let player = enabledCityPlayer();
 	let building = new Building({
 		costs: [resource]
 	});

@@ -1,8 +1,18 @@
 let resourceType = "resource";
+let maxResourceDefault = 1000;
 
-let enabledPlayer = function() {
+function enabledPlayer(maxResource) {
+  if (!maxResource) {
+    maxResource = maxResourceDefault;
+  }
   return new Player({
-    name: "Name"
+    name: "Name",
+    effects: [
+      new EnableResourceEffect({
+        type: resourceType,
+        amount: maxResource
+      })
+    ]
   });
 };
 
@@ -17,9 +27,15 @@ tests.push(function testResourcesBasicTests() {
     throw new Error("Player just earned 100");
   }
 
-  let moreResources = resource.resourceWithMultiplier(2);
-  if (moreResources.amount != 200) {
+  let moreResources = resource.resourceWithMultiplier(10);
+  if (moreResources.amount != 1000) {
     throw new Error("Wrong resourceWithMultiplier output");
+  }
+
+  player.earnResource(moreResources);
+
+  if (player.getResourceAmountForType(resourceType) != maxResourceDefault) {
+    throw new Error("Player has more resources than he's able to.");
   }
 });
 
