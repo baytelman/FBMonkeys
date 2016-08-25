@@ -6,20 +6,6 @@ class InsuficientResourcesError extends ResourceError {
 class UnavailableActionError extends ResourceError {
 }
 
-const kResourceGold = 'gold';
-const kResourceHuman = 'human';
-const kResourceWood = 'wood';
-const kResourceAnimal = 'animal';
-const kResourceJewel = 'jewel';
-
-const kResourceTypes = [
-    kResourceHuman,
-    kResourceWood,
-    kResourceAnimal,
-    kResourceGold,
-    kResourceJewel,
-];
-
 class Resource {
     constructor(type, amount, max) {
         this.type = type;
@@ -66,18 +52,6 @@ class Resource {
             }
         });
         return canAfford;
-    }
-    static gold(amount) {
-        return new Resource(kResourceGold, amount);
-    }
-    static human(amount) {
-        return new Resource(kResourceHuman, amount);
-    }
-    static wood(amount) {
-        return new Resource(kResourceWood, amount);
-    }
-    static jewel(amount) {
-        return new Resource(kResourceJewel, amount);
     }
 }
 

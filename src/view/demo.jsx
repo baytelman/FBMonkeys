@@ -84,8 +84,8 @@ var renderDemo = function() {
   player.city.addBuilding({
     building: new Building({
       name: "Gold Mine",
-      buildTime: 10,
-      generateResources: [Resource.gold(1)],
+      buildTime: 120,
+      generateResources: [CityResource.gold(1)],
       resourcesFrequency: 3,
     }),
     location: new SquareCoordinate(0,-1)
@@ -93,9 +93,18 @@ var renderDemo = function() {
   player.city.addBuilding({
     building: new Building({
       name: "Barracks",
-      buildTime: 120
+      buildTime: 90
     }),
     location: new SquareCoordinate(1,0)
+  });
+  player.city.addBuilding({
+    building: new Building({
+      name: "Farm",
+      buildTime: 60,
+      generateResources: [CityResource.human(1)],
+      resourcesFrequency: 10,
+    }),
+    location: new SquareCoordinate(-1,0)
   });
 
   let component = <CityComponent data={player} />;
