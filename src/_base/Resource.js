@@ -49,6 +49,24 @@ class Resource {
         });
         return canAfford;
     }
+    static resourcesCoverCosts(resources, costs) {
+      let remainder = Resource.aggregateSameTypeResources(
+        resources.concat(Resource.resourcesWithMultiplier(costs, -1)));
+      let missing = 0;
+      remainder.forEach(function(res) {
+        if (res.amount < 0) {
+          missing -= res.amount;
+        }
+      });
+      if (missing > 0) {
+        let total = 0;
+        costs.forEach(function(cost) {
+          total += cost.amount;
+        });
+        return 1.0 - missing / (1.0 * total);
+      }
+      return 1.0;
+    }
 }
 
 class ResourceConsumingAction {

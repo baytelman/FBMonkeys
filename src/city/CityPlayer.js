@@ -18,14 +18,13 @@ class ResourceGeneratingEffect extends Effect {
     this.resources = resources;
     this.frequency = frequency;
 
-    this.cycleStart = null;
+    this.cycleStart = 0;
+    this.time = 0;
   }
   updateTime(deltaSeconds, parents) {
+    this.time += deltaSeconds;
     let generated = [];
-    if (this.cycleStart === null) {
-      this.cycleStart = parents.building.buildTime;
-    }
-    while (parents.building.time >= this.cycleStart + this.frequency) {
+    while (this.time >= this.cycleStart + this.frequency) {
       this.cycleStart += this.frequency;
       generated = generated.concat(this.resources);
     }

@@ -1,6 +1,7 @@
 
 const kResourceGold = 'gold';
 const kResourceHuman = 'human';
+const kResourceConstruction = 'construction';
 
 class CityResource extends Resource {
 
@@ -16,5 +17,8 @@ class CityResource extends Resource {
   }
   static human(amount) {
     return new Resource(kResourceHuman, amount);
+  }
+  static construction(amount) {
+    return new Resource(kResourceConstruction, amount);
   }
 }

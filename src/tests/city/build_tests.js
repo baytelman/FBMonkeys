@@ -75,44 +75,41 @@ tests.push(function testOverlappingBuildings() {
 	}
 });
 
-tests.push(function testBuildingTime() {
-	let timeRequired = 100;
-	let player = new CityPlayer();
+tests.push(function testBuildingCosts() {
+	let costs = [CityResource.construction(100)];
 	let building = new Building({
-		buildTime: timeRequired
+		costs: costs
 	});
 
-	player.city.addBuilding({
-		building: building,
-		location: new SquareCoordinate(1,0)
-	});
+	let completed = building.complete(Resource.resourcesWithMultiplier(costs, 0.5));
 
-	let updated = player.updateTime(timeRequired / 2);
-
-	if (updated.length != 0) {
+	if (completed) {
 		throw new Error("There should be no updates");
 	}
-	if (building.isBuilt()) {
+	if (building.isCompleted()) {
 		throw new Error("Building should not been built yet");
 	}
 
-	if (building.buildProgress() !== 0.5) {
+	if (building.progress() !== 0.5) {
 		throw new Error("Building should have 50% progress");
 	}
 
-	updated = player.updateTime(timeRequired / 2);
+	completed = building.complete(Resource.resourcesWithMultiplier(costs, 0.5));
 
-	if (updated.length != 1 || updated[0] != building) {
+	if (!completed) {
 		throw new Error("Building should be updated");
 	}
-	if (! building.isBuilt()) {
+	if (! building.isCompleted()) {
 		throw new Error("Building should be built already");
 	}
 
-	updated = player.updateTime(timeRequired / 2);
-
-	if (updated.length != 0) {
-		throw new Error("There should be no updates");
+	try {
+		building.complete(Resource.resourcesWithMultiplier(costs, 0.5));
+		throw Error("Cannot continue completing something that's complete");
+	} catch (e) {
+		if (!(e instanceof ProjectAlreadyCompletedError)) {
+			throw e;
+		}
 	}
 
 });

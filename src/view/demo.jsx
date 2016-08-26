@@ -39,7 +39,7 @@ var BuildingComponent = React.createClass({
     }
     return <building id={this.state.id}>
     <name>{ this.state.name }</name>
-    <status>{ this.state.isBuilt()?"Ready":Math.round(100 * this.state.buildProgress()) + "%" }</status>
+    <status>{ this.state.isCompleted()?"Ready":Math.round(100 * this.state.progress()) + "%" }</status>
     </building>
   }
 });
@@ -84,7 +84,7 @@ var renderDemo = function() {
   player.city.addBuilding({
     building: new Building({
       name: "Gold Mine",
-      buildTime: 120,
+      costs: [CityResource.construction(120)],
       generateResources: [CityResource.gold(1)],
       resourcesFrequency: 3,
     }),
@@ -93,14 +93,14 @@ var renderDemo = function() {
   player.city.addBuilding({
     building: new Building({
       name: "Barracks",
-      buildTime: 90
+      costs: [CityResource.construction(90)],
     }),
     location: new SquareCoordinate(1,0)
   });
   player.city.addBuilding({
     building: new Building({
       name: "Farm",
-      buildTime: 60,
+      costs: [CityResource.construction(60)],
       generateResources: [CityResource.human(1)],
       resourcesFrequency: 10,
     }),
