@@ -1,5 +1,5 @@
 class Player {
-  constructor({name="PlayerName", resources=[], effects=[]} = {}) {
+  constructor({name="PlayerName", resources={}, effects=[]} = {}) {
     this.id = UUIDjs.create().toString();
     this.time = 0;
     this.name = name;

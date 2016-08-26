@@ -1,5 +1,5 @@
 class Building {
-  constructor({ name = "City Hall", costs = [], buildTime = 0, generateResources = [], resourcesFrequency = false } = { }) {
+  constructor({ name = "City Hall", costs = [], buildTime = 0, effects = [] } = { }) {
     this.id = UUIDjs.create().toString();
     this.name = name;
 
@@ -9,9 +9,7 @@ class Building {
     this.costs = costs;
     this.buildTime = buildTime;
 
-    this.generateResources = generateResources;
-    this.resourcesFrequency = resourcesFrequency;
-    this.lastGeneratedResources = 0;
+    this.effects = effects.map(function(obj) { return Object.assign(obj, {}); });
   }
 
   isBuilt() {
@@ -26,6 +24,7 @@ class Building {
   }
 
   updateTime(deltaSeconds, parents) {
+    parents = Object.assign(parents, { building: this });
     let updated = [];
 
     let wasBuild = this.isBuilt();
@@ -35,22 +34,11 @@ class Building {
       updated.push(this);
     }
 
-    if (this.resourcesFrequency) {
-      let earned;
-      do {
-        earned = false;
-        let nextGeneration = (this.lastGeneratedResources?
-          this.lastGeneratedResources + this.resourcesFrequency :
-          this.buildTime + this.resourcesFrequency
-        );
-
-        if (nextGeneration <= this.time) {
-          updated = updated.concat(this.generateResources);
-          parents.player.earnResources(this.generateResources);
-          this.lastGeneratedResources = nextGeneration;
-          earned = true;
-        }
-      } while (earned);
+    if (this.isBuilt()) {
+      this.effects.forEach(function(effect) {
+        let effectUpdate = effect.updateTime(deltaSeconds, parents);
+        updated = updated.concat(effectUpdate);
+      });
     }
 
     return updated;

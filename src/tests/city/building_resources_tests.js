@@ -23,8 +23,12 @@ tests.push(function testBuildingCreatingResources() {
 	let resources = [CityResource.gold(100)];
 	let time = 10;
 	let building = new Building({
-		generateResources: resources,
-		resourcesFrequency: time,
+    effects:[
+      new ResourceGeneratingEffect({
+        resources:resources,
+        frequency:time
+      })
+    ],
 	});
 	let city = new City({
 		defaultBuilding: building
