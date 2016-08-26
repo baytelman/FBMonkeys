@@ -112,3 +112,23 @@ class ResourceConsumingAction {
         }
     }
 }
+
+class ResourceGeneratingEffect extends Effect {
+  constructor({resources=[], frequency=1} = {}) {
+    super();
+    this.resources = resources;
+    this.frequency = frequency;
+
+    this.cycleStart = 0;
+    this.time = 0;
+  }
+  updateTime(deltaSeconds) {
+    this.time += deltaSeconds;
+    let generated = [];
+    while (this.time >= this.cycleStart + this.frequency) {
+      this.cycleStart += this.frequency;
+      generated = generated.concat(this.resources);
+    }
+    return generated;
+  }
+}

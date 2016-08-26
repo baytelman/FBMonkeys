@@ -1,5 +1,5 @@
 class CityPlayer extends Player {
-    constructor({city = new City()} = {}) {
+  constructor({city = new City()} = {}) {
     super(arguments[0]);
     this.city = city;
   }
@@ -12,22 +12,9 @@ class CityPlayer extends Player {
   }
 }
 
-class ResourceGeneratingEffect extends Effect {
-  constructor({resources=[], frequency=1} = {}) {
-    super();
-    this.resources = resources;
-    this.frequency = frequency;
-
-    this.cycleStart = 0;
-    this.time = 0;
-  }
+class PlayerEarnResourceEffect extends ResourceGeneratingEffect {
   updateTime(deltaSeconds, parents) {
-    this.time += deltaSeconds;
-    let generated = [];
-    while (this.time >= this.cycleStart + this.frequency) {
-      this.cycleStart += this.frequency;
-      generated = generated.concat(this.resources);
-    }
+    let generated = super.updateTime(deltaSeconds);
     parents.player.earnResources(generated);
     return generated;
   }
