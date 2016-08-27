@@ -11,7 +11,7 @@ var Building = React.createClass({
     return(
       <building id={this.state.id}>
         <name>{ this.state.name }</name>
-        <status>{ this.state.isBuilt()?"Ready":Math.round(100 * this.state.buildProgress()) + "%" }</status>
+        <status>{ this.state.isCompleted()?"Ready":Math.round(100 * this.state.progress()) + "%" }</status>
       </building>
     )
   }
