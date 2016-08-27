@@ -521,7 +521,7 @@ input:-moz-placeholder {
 
 game {
   display: block;
-  padding: 5%;
+  padding: 5% 5% 0px;
   color: #FFF; }
   game player, game player > name, game player > time {
     display: block; }
