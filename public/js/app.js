@@ -66,9 +66,9 @@
 	var MainWindow = __webpack_require__(160).default;
 	
 	// Default Data (user)
-	var Data = __webpack_require__(161);
+	var Data = __webpack_require__(166);
 	// LocalStorage Data
-	var localStorageHandler = __webpack_require__(162);
+	var localStorageHandler = __webpack_require__(174);
 	
 	/************************************/
 	/*********** 2. Configure ***********/
@@ -86,22 +86,22 @@
 	// }
 	
 	// Set props from retrieved data
-	var something = ExampleStore.getData();
-	var user = Data.user;
+	var player = Data;
+	// var something = ExampleStore.getData();
 	
 	/************************************/
 	/********** 3. Render View **********/
 	/************************************/
 	
 	// Render with props
-	ReactDOM.render(React.createElement(MainWindow, { data: something, user: user }), document.getElementById('react-container'));
+	ReactDOM.render(React.createElement(MainWindow, { player: player }), document.getElementById('react-container'));
 	
 	/************************************/
 	/********** 4. Post-render **********/
 	/************************************/
 	
 	// Require Mixpanel
-	var Mixpanel = __webpack_require__(163);
+	var Mixpanel = __webpack_require__(175);
 	mixpanel.track('City Instance Loaded');
 
 /***/ },
@@ -19782,28 +19782,27 @@
 /* 160 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	var React = __webpack_require__(2);
 	
+	var CityComponent = __webpack_require__(161).default;
+	
 	var MainWindow = React.createClass({
-	    displayName: "MainWindow",
+	    displayName: 'MainWindow',
 	
 	    getInitialState: function getInitialState() {
 	        return {};
 	    },
 	    render: function render() {
+	        var player = this.props.player;
 	        return React.createElement(
-	            "div",
-	            { id: "main-window" },
-	            React.createElement(
-	                "h1",
-	                { className: "centered" },
-	                "Hello World."
-	            )
+	            'div',
+	            { id: 'main-window' },
+	            React.createElement(CityComponent, { data: player })
 	        );
 	    }
 	});
@@ -19812,26 +19811,1346 @@
 
 /***/ },
 /* 161 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var React = __webpack_require__(2);
+	
+	var SquareCoordinateJS = __webpack_require__(162);
+	var SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
+	
+	var Player = __webpack_require__(163).default;
+	var Building = __webpack_require__(165).default;
+	
+	var City = React.createClass({
+	  displayName: 'City',
+	
+	  getInitialState: function getInitialState() {
+	    return { secondsElapsed: 0, player: this.props.data, city: this.props.data.city };
+	  },
+	  tick: function tick() {
+	    this.state.player.updateTime(1);
+	    this.setState({ secondsElapsed: this.state.secondsElapsed + 1 });
+	  },
+	  componentDidMount: function componentDidMount() {
+	    this.interval = setInterval(this.tick, 1000);
+	  },
+	  componentWillUnmount: function componentWillUnmount() {
+	    clearInterval(this.interval);
+	  },
+	  render: function render() {
+	    var rows = [];
+	    var size = 5;
+	    for (var y = -size; y <= size; y++) {
+	      var columns = [];
+	      for (var x = -size; x <= size; x++) {
+	        var building = this.state.city.buildingAtLocation(new SquareCoordinate(x, y));
+	        var bComponent = React.createElement(Building, { data: building });
+	        columns.push(React.createElement(
+	          'td',
+	          { className: 'gridCell', key: 'row' + x + '_col' + y },
+	          bComponent
+	        ));
+	      }
+	      rows.push(React.createElement(
+	        'tr',
+	        { key: 'col' + y },
+	        columns
+	      ));
+	    }
+	    return React.createElement(
+	      'game',
+	      null,
+	      React.createElement(
+	        'table',
+	        { id: this.state.city.id },
+	        React.createElement(
+	          'tbody',
+	          null,
+	          rows
+	        )
+	      ),
+	      React.createElement(Player, { data: this.state.player })
+	    );
+	  }
+	});
+	
+	exports.default = City;
+
+/***/ },
+/* 162 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	* Represents a coordinate in the board.
+	* It will represent either a character's current location or a seriers of steps a character will move through.
+	*/
+	var SquareCoordinate = exports.SquareCoordinate = function () {
+	  function SquareCoordinate(x, y) {
+	    _classCallCheck(this, SquareCoordinate);
+	
+	    if (x instanceof Object) {
+	      return this.constructor(x.x, x.y);
+	    }
+	    this.x = x;
+	    this.y = y;
+	  }
+	
+	  _createClass(SquareCoordinate, [{
+	    key: 'copy',
+	    value: function copy() {
+	      return new SquareCoordinate(this.x, this.y);
+	    }
+	
+	    /// Debug representation
+	
+	  }, {
+	    key: 'toString',
+	    value: function toString() {
+	      return "<{0}, {1}>".format(this.x, this.y);
+	    }
+	    /// Debug representation
+	
+	  }, {
+	    key: 'toJString',
+	    value: function toJString() {
+	      var x = this.x >= 0 ? this.x : 'm' + Math.abs(this.x);
+	      var y = this.y >= 0 ? this.y : 'm' + Math.abs(this.y);
+	      return "_{0}_{1}_".format(x, y);
+	    }
+	  }, {
+	    key: 'is',
+	    value: function is(anotherCoordinate) {
+	      return this.x == anotherCoordinate.x && this.y == anotherCoordinate.y;
+	    }
+	  }, {
+	    key: 'compareTo',
+	    value: function compareTo(anotherCoordinate) {
+	      if (this.y != anotherCoordinate.y) {
+	        return this.y - anotherCoordinate.y;
+	      }
+	      return this.x - anotherCoordinate.x;
+	    }
+	
+	    /**
+	    * Calculate the minimun distance between 2 coordinates
+	    * @param {HexCoordinate} dest
+	    * @returns {number} Tile-distance between the 2 coordinates.
+	    */
+	
+	  }, {
+	    key: 'distanceTo',
+	    value: function distanceTo(dest) {
+	      var vDist = Math.abs(this.y - dest.y);
+	      var hDist = Math.abs(this.x - dest.x);
+	      return vDist + hDist;
+	    }
+	
+	    /**
+	    * List of neighbor tiles (up to 6). They might be out of the board
+	    * @returns {Array.<HexCoordinate>}
+	    */
+	
+	  }, {
+	    key: 'neighborCoordinates',
+	    value: function neighborCoordinates() {
+	      var n = [];
+	
+	      n.push(new SquareCoordinate(this.x - 1, this.y));
+	      n.push(new SquareCoordinate(this.x + 1, this.y));
+	      n.push(new SquareCoordinate(this.x, this.y + 1));
+	      n.push(new SquareCoordinate(this.x, this.y - 1));
+	
+	      return n;
+	    }
+	
+	    // returns BOOL if coordinate is in array
+	
+	  }, {
+	    key: 'isIn',
+	    value: function isIn(iterable) {
+	      var _error = function (_Error) {
+	        _inherits(_error, _Error);
+	
+	        function _error() {
+	          _classCallCheck(this, _error);
+	
+	          return _possibleConstructorReturn(this, (_error.__proto__ || Object.getPrototypeOf(_error)).apply(this, arguments));
+	        }
+	
+	        return _error;
+	      }(Error);
+	
+	      ;
+	
+	      var found = false;
+	      try {
+	        iterable.forEach(function (c) {
+	          if (this.is(c)) {
+	            throw new _error();
+	          }
+	        }.bind(this));
+	      } catch (e) {
+	        if (e instanceof _error) {
+	          return true;
+	        }
+	      }
+	      return false;
+	    }
+	  }], [{
+	    key: 'addToSet',
+	    value: function addToSet(set1, iterable2) {
+	      var result = new Set(set1);
+	      iterable2.forEach(function (c2) {
+	        if (!c2.isIn(result)) {
+	          result.add(c2);
+	        }
+	      });
+	      return result;
+	    }
+	  }, {
+	    key: 'removeFromSet',
+	    value: function removeFromSet(set1, iterable2) {
+	      var result = new Set(set1);
+	      iterable2.forEach(function (c2) {
+	        set1.forEach(function (c1) {
+	          if (c1.is(c2)) {
+	            result.delete(c1);
+	          }
+	        });
+	      });
+	      return result;
+	    }
+	  }, {
+	    key: 'interpolate',
+	    value: function interpolate(coordArray, distance) {
+	      var result = [];
+	
+	      var coordBetween = function coordBetween(s, e, d) {
+	        var x = s.x;
+	        var y = s.y;
+	
+	        var beyond = true;
+	        if (s.x < e.x) {
+	          x += d;
+	          if (x >= e.x) {
+	            x = e.x;
+	          } else {
+	            beyond = false;
+	          }
+	        } else if (s.x > e.x) {
+	          x -= d;
+	          if (x <= e.x) {
+	            x = e.x;
+	          } else {
+	            beyond = false;
+	          }
+	        }
+	
+	        if (s.y < e.y) {
+	          y += d;
+	          if (y >= e.y) {
+	            y = e.y;
+	          } else {
+	            beyond = false;
+	          }
+	        } else if (s.y > e.y) {
+	          y -= d;
+	          if (y <= e.y) {
+	            y = e.y;
+	          } else {
+	            beyond = false;
+	          }
+	        }
+	
+	        if (beyond) {
+	          return null;
+	        }
+	        return new SquareCoordinate(x, y);
+	      };
+	
+	      for (var i = 0; i < coordArray.length - 1; i++) {
+	        var s = coordArray[i];
+	        var e = coordArray[i + 1];
+	
+	        for (var d = 0, c = coordBetween(s, e, d); c; c = coordBetween(s, e, d += distance)) {
+	          result.push(c);
+	        }
+	      }
+	      return result;
+	    }
+	  }]);
+
+	  return SquareCoordinate;
+	}();
+
+/***/ },
+/* 163 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var React = __webpack_require__(2);
+	
+	var Resource = __webpack_require__(164).default;
+	
+	var Player = React.createClass({
+	  displayName: 'Player',
+	
+	  getInitialState: function getInitialState() {
+	    return this.props.data;
+	  },
+	  render: function render() {
+	    var resources = this.props.data.resources;
+	    var resourcesComponents = Object.keys(resources).map(function (key) {
+	      return React.createElement(Resource, { key: key, data: new Resource(key, resources[key]) });
+	    });
+	    return React.createElement(
+	      'player',
+	      { id: this.state.id },
+	      React.createElement(
+	        'name',
+	        null,
+	        this.state.name
+	      ),
+	      React.createElement(
+	        'time',
+	        null,
+	        Math.round(this.state.time)
+	      ),
+	      React.createElement(
+	        'resources',
+	        null,
+	        resourcesComponents
+	      )
+	    );
+	  }
+	});
+	
+	exports.default = Player;
+
+/***/ },
+/* 164 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var React = __webpack_require__(2);
+	
+	var Resource = React.createClass({
+	  displayName: 'Resource',
+	
+	  getInitialState: function getInitialState() {
+	    return this.props.data;
+	  },
+	  render: function render() {
+	    return React.createElement(
+	      'resource',
+	      null,
+	      React.createElement(
+	        'type',
+	        null,
+	        this.props.data.type
+	      ),
+	      React.createElement(
+	        'amount',
+	        null,
+	        this.props.data.amount
+	      )
+	    );
+	  }
+	});
+	
+	exports.default = Resource;
+
+/***/ },
+/* 165 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var React = __webpack_require__(2);
+	
+	var Building = React.createClass({
+	  displayName: "Building",
+	
+	  getInitialState: function getInitialState() {
+	    return this.props.data;
+	  },
+	  render: function render() {
+	    if (!this.state) {
+	      return React.createElement(
+	        "nothing",
+	        null,
+	        " . "
+	      );
+	    }
+	    return React.createElement(
+	      "building",
+	      { id: this.state.id },
+	      React.createElement(
+	        "name",
+	        null,
+	        this.state.name
+	      ),
+	      React.createElement(
+	        "status",
+	        null,
+	        this.state.isBuilt() ? "Ready" : Math.round(100 * this.state.buildProgress()) + "%"
+	      )
+	    );
+	  }
+	});
+	
+	exports.default = Building;
+
+/***/ },
+/* 166 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var CityPlayerJS = __webpack_require__(167);
+	var PlayerJS = __webpack_require__(168);
+	var BuildingJS = __webpack_require__(171);
+	var CityResourceJS = __webpack_require__(173);
+	var SquareCoordinateJS = __webpack_require__(162);
+	
+	var CityPlayer = CityPlayerJS.CityPlayer;
+	var Player = PlayerJS.Player;
+	var Building = BuildingJS.Building;
+	var CityResource = CityResourceJS.CityResource;
+	var SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
+	
+	var player = new CityPlayer();
+	player.city.addBuilding({
+	  building: new Building({
+	    name: "Gold Mine",
+	    buildTime: 120,
+	    generateResources: [CityResource.gold(1)],
+	    resourcesFrequency: 3
+	  }),
+	  location: new SquareCoordinate(0, -1)
+	});
+	player.city.addBuilding({
+	  building: new Building({
+	    name: "Barracks",
+	    buildTime: 90
+	  }),
+	  location: new SquareCoordinate(1, 0)
+	});
+	player.city.addBuilding({
+	  building: new Building({
+	    name: "Farm",
+	    buildTime: 60,
+	    generateResources: [CityResource.human(1)],
+	    resourcesFrequency: 10
+	  }),
+	  location: new SquareCoordinate(-1, 0)
+	});
+	player.city.addBuilding({
+	  building: new Building({
+	    name: "Tavern",
+	    buildTime: 60,
+	    generateResources: [CityResource.human(1)],
+	    resourcesFrequency: 10
+	  }),
+	  location: new SquareCoordinate(0, 1)
+	});
+	
+	var demoData = player;
+	module.exports = demoData;
+
+/***/ },
+/* 167 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var PlayerJS = __webpack_require__(168);
+	var CityJS = __webpack_require__(170);
+	
+	var Player = PlayerJS.Player;
+	var City = CityJS.City;
+	
+	var CityPlayer = exports.CityPlayer = function (_Player) {
+	  _inherits(CityPlayer, _Player);
+	
+	  function CityPlayer() {
+	    var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+	    var _ref$city = _ref.city;
+	    var city = _ref$city === undefined ? new City() : _ref$city;
+	
+	    _classCallCheck(this, CityPlayer);
+	
+	    var _this = _possibleConstructorReturn(this, (CityPlayer.__proto__ || Object.getPrototypeOf(CityPlayer)).call(this, arguments[0]));
+	
+	    _this.city = city;
+	    _this.name = "Sepi";
+	    return _this;
+	  }
+	
+	  _createClass(CityPlayer, [{
+	    key: 'updateTime',
+	    value: function updateTime(deltaSeconds, parents) {
+	      var updated = _get(CityPlayer.prototype.__proto__ || Object.getPrototypeOf(CityPlayer.prototype), 'updateTime', this).call(this, deltaSeconds);
+	      updated = updated.concat(this.city.updateTime(deltaSeconds, {
+	        player: this
+	      }));
+	      return updated;
+	    }
+	  }]);
+	
+	  return CityPlayer;
+	}(Player);
+
+/***/ },
+/* 168 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var UUIDjs = __webpack_require__(169);
+	
+	var Player = exports.Player = function () {
+	  function Player() {
+	    var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+	    var _ref$name = _ref.name;
+	    var name = _ref$name === undefined ? "PlayerName" : _ref$name;
+	    var _ref$resources = _ref.resources;
+	    var resources = _ref$resources === undefined ? [] : _ref$resources;
+	    var _ref$effects = _ref.effects;
+	    var effects = _ref$effects === undefined ? [] : _ref$effects;
+	
+	    _classCallCheck(this, Player);
+	
+	    this.id = UUIDjs.create().toString();
+	    this.time = 0;
+	    this.name = name;
+	
+	    this.effects = effects;
+	    this.resources = resources;
+	  }
+	
+	  _createClass(Player, [{
+	    key: "updateTime",
+	    value: function updateTime(deltaSeconds) {
+	      this.time += deltaSeconds;
+	      return [];
+	    }
+	    /* Resources */
+	
+	  }, {
+	    key: "earnResources",
+	    value: function earnResources(resources) {
+	      var player = this;
+	      resources.forEach(function (r) {
+	        player.earnResource(r);
+	      });
+	    }
+	  }, {
+	    key: "earnResource",
+	    value: function earnResource(resource) {
+	      if (!this.resources[resource.type]) {
+	        this.resources[resource.type] = 0;
+	      }
+	      this.resources[resource.type] += resource.amount;
+	
+	      var amount = EnableResourceEffect.enabledAmount(resource.type, this.effects);
+	      if (this.resources[resource.type] > amount) {
+	        this.resources[resource.type] = amount;
+	      }
+	    }
+	  }, {
+	    key: "spendResource",
+	    value: function spendResource(resource) {
+	      if (resource.amount > 0) {
+	        if (!this.resources[resource.type] || this.resources[resource.type] < resource.amount) {
+	          throw new InsuficientResourcesError();
+	        }
+	        this.resources[resource.type] -= resource.amount;
+	      }
+	    }
+	  }, {
+	    key: "getResourceAmountForType",
+	    value: function getResourceAmountForType(type) {
+	      if (!this.resources[type]) {
+	        return this.resources[type] = 0;
+	      }
+	      return this.resources[type];
+	    }
+	  }]);
+
+	  return Player;
+	}();
+
+/***/ },
+/* 169 */
+/***/ function(module, exports) {
+
+	/*
+	 * UUID-js: A js library to generate and parse UUIDs, TimeUUIDs and generate
+	 * TimeUUID based on dates for range selections.
+	 * @see http://www.ietf.org/rfc/rfc4122.txt
+	 **/
+	
+	function UUIDjs() {
+	};
+	
+	UUIDjs.maxFromBits = function(bits) {
+	  return Math.pow(2, bits);
+	};
+	
+	UUIDjs.limitUI04 = UUIDjs.maxFromBits(4);
+	UUIDjs.limitUI06 = UUIDjs.maxFromBits(6);
+	UUIDjs.limitUI08 = UUIDjs.maxFromBits(8);
+	UUIDjs.limitUI12 = UUIDjs.maxFromBits(12);
+	UUIDjs.limitUI14 = UUIDjs.maxFromBits(14);
+	UUIDjs.limitUI16 = UUIDjs.maxFromBits(16);
+	UUIDjs.limitUI32 = UUIDjs.maxFromBits(32);
+	UUIDjs.limitUI40 = UUIDjs.maxFromBits(40);
+	UUIDjs.limitUI48 = UUIDjs.maxFromBits(48);
+	
+	// Returns a random integer between min and max
+	// Using Math.round() will give you a non-uniform distribution!
+	// @see https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Math/random
+	function getRandomInt(min, max) {
+	  return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+	
+	UUIDjs.randomUI04 = function() {
+	  return getRandomInt(0, UUIDjs.limitUI04-1);
+	};
+	UUIDjs.randomUI06 = function() {
+	  return getRandomInt(0, UUIDjs.limitUI06-1);
+	};
+	UUIDjs.randomUI08 = function() {
+	  return getRandomInt(0, UUIDjs.limitUI08-1);
+	};
+	UUIDjs.randomUI12 = function() {
+	  return getRandomInt(0, UUIDjs.limitUI12-1);
+	};
+	UUIDjs.randomUI14 = function() {
+	  return getRandomInt(0, UUIDjs.limitUI14-1);
+	};
+	UUIDjs.randomUI16 = function() {
+	  return getRandomInt(0, UUIDjs.limitUI16-1);
+	};
+	UUIDjs.randomUI32 = function() {
+	  return getRandomInt(0, UUIDjs.limitUI32-1);
+	};
+	UUIDjs.randomUI40 = function() {
+	  return (0 | Math.random() * (1 << 30)) + (0 | Math.random() * (1 << 40 - 30)) * (1 << 30);
+	};
+	UUIDjs.randomUI48 = function() {
+	  return (0 | Math.random() * (1 << 30)) + (0 | Math.random() * (1 << 48 - 30)) * (1 << 30);
+	};
+	
+	UUIDjs.paddedString = function(string, length, z) {
+	  string = String(string);
+	  z = (!z) ? '0' : z;
+	  var i = length - string.length;
+	  for (; i > 0; i >>>= 1, z += z) {
+	    if (i & 1) {
+	      string = z + string;
+	    }
+	  }
+	  return string;
+	};
+	
+	UUIDjs.prototype.fromParts = function(timeLow, timeMid, timeHiAndVersion, clockSeqHiAndReserved, clockSeqLow, node) {
+	  this.version = (timeHiAndVersion >> 12) & 0xF;
+	  this.hex = UUIDjs.paddedString(timeLow.toString(16), 8)
+	             + '-'
+	             + UUIDjs.paddedString(timeMid.toString(16), 4)
+	             + '-'
+	             + UUIDjs.paddedString(timeHiAndVersion.toString(16), 4)
+	             + '-'
+	             + UUIDjs.paddedString(clockSeqHiAndReserved.toString(16), 2)
+	             + UUIDjs.paddedString(clockSeqLow.toString(16), 2)
+	             + '-'
+	             + UUIDjs.paddedString(node.toString(16), 12);
+	  return this;
+	};
+	
+	UUIDjs.prototype.toString = function() {
+	  return this.hex;
+	};
+	UUIDjs.prototype.toURN = function() {
+	  return 'urn:uuid:' + this.hex;
+	};
+	
+	UUIDjs.prototype.toBytes = function() {
+	  var parts = this.hex.split('-');
+	  var ints = [];
+	  var intPos = 0;
+	  for (var i = 0; i < parts.length; i++) {
+	    for (var j = 0; j < parts[i].length; j+=2) {
+	      ints[intPos++] = parseInt(parts[i].substr(j, 2), 16);
+	    }
+	  }
+	  return ints;
+	};
+	
+	UUIDjs.prototype.equals = function(uuid) {
+	  if (!(uuid instanceof UUID)) {
+	    return false;
+	  }
+	  if (this.hex !== uuid.hex) {
+	    return false;
+	  }
+	  return true;
+	};
+	
+	UUIDjs.getTimeFieldValues = function(time) {
+	  var ts = time - Date.UTC(1582, 9, 15);
+	  var hm = ((ts / 0x100000000) * 10000) & 0xFFFFFFF;
+	  return { low: ((ts & 0xFFFFFFF) * 10000) % 0x100000000,
+	            mid: hm & 0xFFFF, hi: hm >>> 16, timestamp: ts };
+	};
+	
+	UUIDjs._create4 = function() {
+	  return new UUIDjs().fromParts(
+	    UUIDjs.randomUI32(),
+	    UUIDjs.randomUI16(),
+	    0x4000 | UUIDjs.randomUI12(),
+	    0x80   | UUIDjs.randomUI06(),
+	    UUIDjs.randomUI08(),
+	    UUIDjs.randomUI48()
+	  );
+	};
+	
+	UUIDjs._create1 = function() {
+	  var now = new Date().getTime();
+	  var sequence = UUIDjs.randomUI14();
+	  var node = (UUIDjs.randomUI08() | 1) * 0x10000000000 + UUIDjs.randomUI40();
+	  var tick = UUIDjs.randomUI04();
+	  var timestamp = 0;
+	  var timestampRatio = 1/4;
+	
+	  if (now != timestamp) {
+	    if (now < timestamp) {
+	      sequence++;
+	    }
+	    timestamp = now;
+	    tick = UUIDjs.randomUI04();
+	  } else if (Math.random() < timestampRatio && tick < 9984) {
+	    tick += 1 + UUIDjs.randomUI04();
+	  } else {
+	    sequence++;
+	  }
+	
+	  var tf = UUIDjs.getTimeFieldValues(timestamp);
+	  var tl = tf.low + tick;
+	  var thav = (tf.hi & 0xFFF) | 0x1000;
+	
+	  sequence &= 0x3FFF;
+	  var cshar = (sequence >>> 8) | 0x80;
+	  var csl = sequence & 0xFF;
+	
+	  return new UUIDjs().fromParts(tl, tf.mid, thav, cshar, csl, node);
+	};
+	
+	UUIDjs.create = function(version) {
+	  version = version || 4;
+	  return this['_create' + version]();
+	};
+	
+	UUIDjs.fromTime = function(time, last) {
+	  last = (!last) ? false : last;
+	  var tf = UUIDjs.getTimeFieldValues(time);
+	  var tl = tf.low;
+	  var thav = (tf.hi & 0xFFF) | 0x1000;  // set version '0001'
+	  if (last === false) {
+	    return new UUIDjs().fromParts(tl, tf.mid, thav, 0, 0, 0);
+	  } else {
+	    return new UUIDjs().fromParts(tl, tf.mid, thav, 0x80 | UUIDjs.limitUI06, UUIDjs.limitUI08 - 1, UUIDjs.limitUI48 - 1);
+	  }
+	};
+	
+	UUIDjs.firstFromTime = function(time) {
+	  return UUIDjs.fromTime(time, false);
+	};
+	UUIDjs.lastFromTime = function(time) {
+	  return UUIDjs.fromTime(time, true);
+	};
+	
+	UUIDjs.fromURN = function(strId) {
+	  var r, p = /^(?:urn:uuid:|\{)?([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{2})([0-9a-f]{2})-([0-9a-f]{12})(?:\})?$/i;
+	  if ((r = p.exec(strId))) {
+	    return new UUIDjs().fromParts(parseInt(r[1], 16), parseInt(r[2], 16),
+	                            parseInt(r[3], 16), parseInt(r[4], 16),
+	                            parseInt(r[5], 16), parseInt(r[6], 16));
+	  }
+	  return null;
+	};
+	
+	UUIDjs.fromBytes = function(ints) {
+	  if (ints.length < 5) {
+	    return null;
+	  }
+	  var str = '';
+	  var pos = 0;
+	  var parts = [4, 2, 2, 2, 6];
+	  for (var i = 0; i < parts.length; i++) {
+	    for (var j = 0; j < parts[i]; j++) {
+	      var octet = ints[pos++].toString(16);
+	      if (octet.length == 1) {
+	        octet = '0' + octet;
+	      }
+	      str += octet;
+	    }
+	    if (parts[i] !== 6) {
+	      str += '-';
+	    }
+	  }
+	  return UUIDjs.fromURN(str);
+	};
+	
+	UUIDjs.fromBinary = function(binary) {
+	  var ints = [];
+	  for (var i = 0; i < binary.length; i++) {
+	    ints[i] = binary.charCodeAt(i);
+	    if (ints[i] > 255 || ints[i] < 0) {
+	      throw new Error('Unexpected byte in binary data.');
+	    }
+	  }
+	  return UUIDjs.fromBytes(ints);
+	};
+	
+	// Aliases to support legacy code. Do not use these when writing new code as
+	// they may be removed in future versions!
+	UUIDjs.new = function() {
+	  return this.create(4);
+	};
+	UUIDjs.newTS = function() {
+	  return this.create(1);
+	};
+	
+	module.exports = UUIDjs;
+
+
+/***/ },
+/* 170 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var UUIDjs = __webpack_require__(169);
+	var SquareCoordinateJS = __webpack_require__(162);
+	
+	var BuildingJS = __webpack_require__(171);
+	
+	var Building = BuildingJS.Building;
+	var SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
+	
+	var OverlappingBuildingError = exports.OverlappingBuildingError = function (_Error) {
+	  _inherits(OverlappingBuildingError, _Error);
+	
+	  function OverlappingBuildingError() {
+	    _classCallCheck(this, OverlappingBuildingError);
+	
+	    return _possibleConstructorReturn(this, (OverlappingBuildingError.__proto__ || Object.getPrototypeOf(OverlappingBuildingError)).apply(this, arguments));
+	  }
+	
+	  return OverlappingBuildingError;
+	}(Error);
+	
+	var City = exports.City = function () {
+	  function City() {
+	    var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+	    var _ref$defaultBuilding = _ref.defaultBuilding;
+	    var defaultBuilding = _ref$defaultBuilding === undefined ? new Building() : _ref$defaultBuilding;
+	
+	    _classCallCheck(this, City);
+	
+	    this.id = UUIDjs.create().toString();
+	    this.limits = [0, 0, 0, 0];
+	    this.buildings = [];
+	    this.time = 0;
+	
+	    if (defaultBuilding) {
+	      this.addBuilding({
+	        building: defaultBuilding
+	      });
+	    }
+	  }
+	
+	  _createClass(City, [{
+	    key: 'addBuilding',
+	    value: function addBuilding() {
+	      var _ref2 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+	      var _ref2$building = _ref2.building;
+	      var building = _ref2$building === undefined ? building : _ref2$building;
+	      var _ref2$location = _ref2.location;
+	      var location = _ref2$location === undefined ? new SquareCoordinate(0, 0) : _ref2$location;
+	
+	      if (!this.canBuildAtLocation(location)) {
+	        throw new OverlappingBuildingError("Existing building on " + location);
+	      }
+	      building.location = location;
+	      this.buildings.push(building);
+	      this.limits = [Math.min(this.limits[0], location.x), Math.min(this.limits[1], location.y), Math.max(this.limits[2], location.x), Math.max(this.limits[3], location.y)];
+	    }
+	  }, {
+	    key: 'buildingAtLocation',
+	    value: function buildingAtLocation(location) {
+	      for (var i = 0; i < this.buildings.length; i++) {
+	        var existingBuilding = this.buildings[i];
+	        if (existingBuilding.location.is(location)) {
+	          return existingBuilding;
+	        }
+	      }
+	      return null;
+	    }
+	  }, {
+	    key: 'canBuildAtLocation',
+	    value: function canBuildAtLocation(location) {
+	      return this.buildingAtLocation(location) === null;
+	    }
+	  }, {
+	    key: 'updateTime',
+	    value: function updateTime(deltaSeconds, parents) {
+	      parents = Object.assign(parents, { city: this });
+	      this.time += deltaSeconds;
+	      var updated = [];
+	      this.buildings.map(function (building) {
+	        return building.updateTime(deltaSeconds, parents);
+	      }).forEach(function (_updated) {
+	        updated = updated.concat(_updated);
+	      });
+	      return updated;
+	    }
+	  }]);
+
+	  return City;
+	}();
+
+/***/ },
+/* 171 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var UUIDjs = __webpack_require__(169);
+	
+	var ResourceJS = __webpack_require__(172);
+	
+	var Resource = ResourceJS.Resource;
+	var ResourceConsumingAction = ResourceJS.ResourceConsumingAction;
+	
+	var Building = exports.Building = function () {
+	  function Building() {
+	    var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+	    var _ref$name = _ref.name;
+	    var name = _ref$name === undefined ? "City Hall" : _ref$name;
+	    var _ref$costs = _ref.costs;
+	    var costs = _ref$costs === undefined ? [] : _ref$costs;
+	    var _ref$buildTime = _ref.buildTime;
+	    var buildTime = _ref$buildTime === undefined ? 0 : _ref$buildTime;
+	    var _ref$generateResource = _ref.generateResources;
+	    var generateResources = _ref$generateResource === undefined ? [] : _ref$generateResource;
+	    var _ref$resourcesFrequen = _ref.resourcesFrequency;
+	    var resourcesFrequency = _ref$resourcesFrequen === undefined ? false : _ref$resourcesFrequen;
+	
+	    _classCallCheck(this, Building);
+	
+	    this.id = UUIDjs.create().toString();
+	    this.name = name;
+	
+	    this.location = null;
+	    this.time = 0;
+	
+	    this.costs = costs;
+	    this.buildTime = buildTime;
+	
+	    this.generateResources = generateResources;
+	    this.resourcesFrequency = resourcesFrequency;
+	    this.lastGeneratedResources = 0;
+	  }
+	
+	  _createClass(Building, [{
+	    key: 'isBuilt',
+	    value: function isBuilt() {
+	      return this.time >= this.buildTime;
+	    }
+	  }, {
+	    key: 'buildProgress',
+	    value: function buildProgress() {
+	      if (this.isBuilt()) {
+	        return 1.0;
+	      }
+	      return this.time / (1.0 * this.buildTime);
+	    }
+	  }, {
+	    key: 'updateTime',
+	    value: function updateTime(deltaSeconds, parents) {
+	      var updated = [];
+	
+	      var wasBuild = this.isBuilt();
+	      this.time += deltaSeconds;
+	
+	      if (wasBuild != this.isBuilt()) {
+	        updated.push(this);
+	      }
+	
+	      if (this.resourcesFrequency) {
+	        var earned = void 0;
+	        do {
+	          earned = false;
+	          var nextGeneration = this.lastGeneratedResources ? this.lastGeneratedResources + this.resourcesFrequency : this.buildTime + this.resourcesFrequency;
+	
+	          if (nextGeneration <= this.time) {
+	            updated = updated.concat(this.generateResources);
+	            parents.player.earnResources(this.generateResources);
+	            this.lastGeneratedResources = nextGeneration;
+	            earned = true;
+	          }
+	        } while (earned);
+	      }
+	
+	      return updated;
+	    }
+	  }]);
+	
+	  return Building;
+	}();
+	
+	var BuildingConstructionAction = exports.BuildingConstructionAction = function (_ResourceConsumingAct) {
+	  _inherits(BuildingConstructionAction, _ResourceConsumingAct);
+	
+	  function BuildingConstructionAction(_ref2) {
+	    var building = _ref2.building;
+	    var location = _ref2.location;
+	
+	    _classCallCheck(this, BuildingConstructionAction);
+	
+	    return _possibleConstructorReturn(this, (BuildingConstructionAction.__proto__ || Object.getPrototypeOf(BuildingConstructionAction)).call(this, "Build", function (player) {
+	      return player.city.canBuildAtLocation(location);
+	    }, function (player) {
+	      return building.costs;
+	    }, function (player) {
+	      player.city.addBuilding({
+	        building: building,
+	        location: location
+	      });
+	    }));
+	  }
+	
+	  return BuildingConstructionAction;
+	}(ResourceConsumingAction);
+
+/***/ },
+/* 172 */
 /***/ function(module, exports) {
 
 	"use strict";
 	
-	var Data = {
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 	
-	    something: {
-	        content: ["hello", "world"]
-	    },
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	    user: {
-	        exampleData: "example user data"
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var ResourceError = exports.ResourceError = function (_Error) {
+	    _inherits(ResourceError, _Error);
+	
+	    function ResourceError() {
+	        _classCallCheck(this, ResourceError);
+	
+	        return _possibleConstructorReturn(this, (ResourceError.__proto__ || Object.getPrototypeOf(ResourceError)).apply(this, arguments));
 	    }
 	
-	};
+	    return ResourceError;
+	}(Error);
 	
-	module.exports = Data;
+	var InsuficientResourcesError = exports.InsuficientResourcesError = function (_ResourceError) {
+	    _inherits(InsuficientResourcesError, _ResourceError);
+	
+	    function InsuficientResourcesError() {
+	        _classCallCheck(this, InsuficientResourcesError);
+	
+	        return _possibleConstructorReturn(this, (InsuficientResourcesError.__proto__ || Object.getPrototypeOf(InsuficientResourcesError)).apply(this, arguments));
+	    }
+	
+	    return InsuficientResourcesError;
+	}(ResourceError);
+	
+	var UnavailableActionError = exports.UnavailableActionError = function (_ResourceError2) {
+	    _inherits(UnavailableActionError, _ResourceError2);
+	
+	    function UnavailableActionError() {
+	        _classCallCheck(this, UnavailableActionError);
+	
+	        return _possibleConstructorReturn(this, (UnavailableActionError.__proto__ || Object.getPrototypeOf(UnavailableActionError)).apply(this, arguments));
+	    }
+	
+	    return UnavailableActionError;
+	}(ResourceError);
+	
+	var Resource = exports.Resource = function () {
+	    function Resource(type, amount) {
+	        _classCallCheck(this, Resource);
+	
+	        this.type = type;
+	        this.amount = amount;
+	    }
+	
+	    _createClass(Resource, [{
+	        key: "toString",
+	        value: function toString() {
+	            return this.type + " x " + this.amount.toFixed(1);
+	        }
+	    }, {
+	        key: "resourceWithMultiplier",
+	        value: function resourceWithMultiplier(resources) {
+	            var m = this.amount * resources;
+	            return new Resource(this.type, m);
+	        }
+	    }], [{
+	        key: "resourcesWithMultiplier",
+	        value: function resourcesWithMultiplier(resources, multiplier) {
+	            var mResources = [];
+	            resources.forEach(function (resource) {
+	                mResources.push(resource.resourceWithMultiplier(multiplier));
+	            });
+	            return Resource.aggregateSameTypeResources(mResources);
+	        }
+	    }, {
+	        key: "aggregateSameTypeResources",
+	        value: function aggregateSameTypeResources(array) {
+	            var aggregatedResources = {};
+	            array.forEach(function (cost) {
+	                if (!aggregatedResources[cost.type]) {
+	                    aggregatedResources[cost.type] = 0;
+	                }
+	                aggregatedResources[cost.type] += cost.amount;
+	            });
+	            var aggregatedArray = [];
+	            for (var type in aggregatedResources) {
+	                aggregatedArray.push(new Resource(type, aggregatedResources[type]));
+	            }
+	            return aggregatedArray;
+	        }
+	    }, {
+	        key: "playerCanAfford",
+	        value: function playerCanAfford(player, costs) {
+	            var canAfford = true;
+	            Resource.aggregateSameTypeResources(costs).forEach(function (cost) {
+	                var r = player.getResourceAmountForType(cost.type);
+	                if (r < cost.amount) {
+	                    canAfford = false;
+	                }
+	            });
+	            return canAfford;
+	        }
+	    }]);
+	
+	    return Resource;
+	}();
+	
+	var ResourceConsumingAction = exports.ResourceConsumingAction = function () {
+	    function ResourceConsumingAction(displayNameFunction, availabilityFunction, costCalculationFunction, actionFunction) {
+	        _classCallCheck(this, ResourceConsumingAction);
+	
+	        this.displayNameFunction = displayNameFunction;
+	        this.availabilityFunction = availabilityFunction;
+	        this.costCalculationFunction = costCalculationFunction;
+	        this.actionFunction = actionFunction;
+	    }
+	
+	    _createClass(ResourceConsumingAction, [{
+	        key: "code",
+	        value: function code() {
+	            return "unnamed_action";
+	        }
+	    }, {
+	        key: "displayName",
+	        value: function displayName() {
+	            return this.displayNameFunction();
+	        }
+	    }, {
+	        key: "isAvailable",
+	        value: function isAvailable(player) {
+	            return this.availabilityFunction(player);
+	        }
+	    }, {
+	        key: "isAffordable",
+	        value: function isAffordable(player) {
+	            if (player) {
+	                var costs = Resource.aggregateSameTypeResources(this.costs());
+	                return Resource.playerCanAfford(player, costs);
+	            }
+	            return false;
+	        }
+	    }, {
+	        key: "costs",
+	        value: function costs() {
+	            return this.costCalculationFunction();
+	        }
+	    }, {
+	        key: "executeForPlayer",
+	        value: function executeForPlayer(player) {
+	            if (!this.isAvailable(player)) {
+	                throw new UnavailableActionError();
+	            }
+	            if (!this.isAffordable(player)) {
+	                throw new InsuficientResourcesError();
+	            }
+	            var costs = Resource.aggregateSameTypeResources(this.costs());
+	            costs.forEach(function (cost) {
+	                player.spendResource(cost);
+	            });
+	            this.actionFunction(player);
+	            if (player.resourceConsumingActionExecuted) {
+	                player.resourceConsumingActionExecuted(this, costs);
+	            }
+	        }
+	    }]);
+
+	    return ResourceConsumingAction;
+	}();
 
 /***/ },
-/* 162 */
+/* 173 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var ResourceJS = __webpack_require__(172);
+	
+	var Resource = ResourceJS.Resource;
+	
+	var kResourceGold = 'gold';
+	var kResourceHuman = 'human';
+	
+	var CityResource = exports.CityResource = function (_Resource) {
+	  _inherits(CityResource, _Resource);
+	
+	  function CityResource() {
+	    _classCallCheck(this, CityResource);
+	
+	    return _possibleConstructorReturn(this, (CityResource.__proto__ || Object.getPrototypeOf(CityResource)).apply(this, arguments));
+	  }
+	
+	  _createClass(CityResource, null, [{
+	    key: 'types',
+	    value: function types() {
+	      return [kResourceHuman, kResourceGold];
+	    }
+	  }, {
+	    key: 'gold',
+	    value: function gold(amount) {
+	      return new Resource(kResourceGold, amount);
+	    }
+	  }, {
+	    key: 'human',
+	    value: function human(amount) {
+	      return new Resource(kResourceHuman, amount);
+	    }
+	  }]);
+	
+	  return CityResource;
+	}(Resource);
+
+/***/ },
+/* 174 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -19863,7 +21182,7 @@
 	module.exports = localStorageHandler;
 
 /***/ },
-/* 163 */
+/* 175 */
 /***/ function(module, exports) {
 
 	"use strict";
