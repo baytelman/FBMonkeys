@@ -68,7 +68,7 @@
 	// Default Data (user)
 	var Data = __webpack_require__(166);
 	// LocalStorage Data
-	var localStorageHandler = __webpack_require__(174);
+	var localStorageHandler = __webpack_require__(175);
 	
 	/************************************/
 	/*********** 2. Configure ***********/
@@ -101,7 +101,7 @@
 	/************************************/
 	
 	// Require Mixpanel
-	var Mixpanel = __webpack_require__(175);
+	var Mixpanel = __webpack_require__(176);
 	mixpanel.track('City Instance Loaded');
 
 /***/ },
@@ -19830,7 +19830,11 @@
 	  displayName: 'City',
 	
 	  getInitialState: function getInitialState() {
-	    return { secondsElapsed: 0, player: this.props.data, city: this.props.data.city };
+	    return {
+	      secondsElapsed: 0,
+	      player: this.props.data,
+	      city: this.props.data.city
+	    };
 	  },
 	  tick: function tick() {
 	    this.state.player.updateTime(1);
@@ -20119,7 +20123,9 @@
 	  displayName: 'Player',
 	
 	  getInitialState: function getInitialState() {
-	    return this.props.data;
+	    return {
+	      data: this.props.data
+	    };
 	  },
 	  render: function render() {
 	    var resources = this.props.data.resources;
@@ -20128,16 +20134,16 @@
 	    });
 	    return React.createElement(
 	      'player',
-	      { id: this.state.id },
+	      { id: this.state.data.id },
 	      React.createElement(
 	        'name',
 	        null,
-	        this.state.name
+	        this.state.data.name
 	      ),
 	      React.createElement(
 	        'time',
 	        null,
-	        Math.round(this.state.time)
+	        Math.round(this.state.data.time)
 	      ),
 	      React.createElement(
 	        'resources',
@@ -20165,7 +20171,9 @@
 	  displayName: 'Resource',
 	
 	  getInitialState: function getInitialState() {
-	    return this.props.data;
+	    return {
+	      data: this.props.data
+	    };
 	  },
 	  render: function render() {
 	    return React.createElement(
@@ -20239,8 +20247,8 @@
 	
 	var CityPlayerJS = __webpack_require__(167);
 	var PlayerJS = __webpack_require__(168);
-	var BuildingJS = __webpack_require__(171);
-	var CityResourceJS = __webpack_require__(173);
+	var BuildingJS = __webpack_require__(172);
+	var CityResourceJS = __webpack_require__(174);
 	var SquareCoordinateJS = __webpack_require__(162);
 	
 	var CityPlayer = CityPlayerJS.CityPlayer;
@@ -20309,7 +20317,7 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var PlayerJS = __webpack_require__(168);
-	var CityJS = __webpack_require__(170);
+	var CityJS = __webpack_require__(171);
 	
 	var Player = PlayerJS.Player;
 	var City = CityJS.City;
@@ -20350,7 +20358,7 @@
 /* 168 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -20361,6 +20369,10 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var UUIDjs = __webpack_require__(169);
+	
+	var EffectJS = __webpack_require__(170);
+	
+	var EnableResourceEffect = EffectJS.EnableResourceEffect;
 	
 	var Player = exports.Player = function () {
 	  function Player() {
@@ -20384,7 +20396,7 @@
 	  }
 	
 	  _createClass(Player, [{
-	    key: "updateTime",
+	    key: 'updateTime',
 	    value: function updateTime(deltaSeconds) {
 	      this.time += deltaSeconds;
 	      return [];
@@ -20392,7 +20404,7 @@
 	    /* Resources */
 	
 	  }, {
-	    key: "earnResources",
+	    key: 'earnResources',
 	    value: function earnResources(resources) {
 	      var player = this;
 	      resources.forEach(function (r) {
@@ -20400,7 +20412,7 @@
 	      });
 	    }
 	  }, {
-	    key: "earnResource",
+	    key: 'earnResource',
 	    value: function earnResource(resource) {
 	      if (!this.resources[resource.type]) {
 	        this.resources[resource.type] = 0;
@@ -20413,7 +20425,7 @@
 	      }
 	    }
 	  }, {
-	    key: "spendResource",
+	    key: 'spendResource',
 	    value: function spendResource(resource) {
 	      if (resource.amount > 0) {
 	        if (!this.resources[resource.type] || this.resources[resource.type] < resource.amount) {
@@ -20423,7 +20435,7 @@
 	      }
 	    }
 	  }, {
-	    key: "getResourceAmountForType",
+	    key: 'getResourceAmountForType',
 	    value: function getResourceAmountForType(type) {
 	      if (!this.resources[type]) {
 	        return this.resources[type] = 0;
@@ -20683,6 +20695,100 @@
 
 /***/ },
 /* 170 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Effect = exports.Effect = function Effect() {
+	  _classCallCheck(this, Effect);
+	};
+	
+	var EnablerEffect = exports.EnablerEffect = function (_Effect) {
+	  _inherits(EnablerEffect, _Effect);
+	
+	  function EnablerEffect() {
+	    var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	
+	    var _ref$type = _ref.type;
+	    var type = _ref$type === undefined ? null : _ref$type;
+	    var _ref$amount = _ref.amount;
+	    var amount = _ref$amount === undefined ? 0 : _ref$amount;
+	    var _ref$multiplier = _ref.multiplier;
+	    var multiplier = _ref$multiplier === undefined ? 1 : _ref$multiplier;
+	
+	    _classCallCheck(this, EnablerEffect);
+	
+	    var _this = _possibleConstructorReturn(this, (EnablerEffect.__proto__ || Object.getPrototypeOf(EnablerEffect)).call(this));
+	
+	    _this.type = type;
+	    _this.amount = amount;
+	    _this.multiplier = multiplier;
+	    return _this;
+	  }
+	
+	  _createClass(EnablerEffect, null, [{
+	    key: "cumulativeBaseEnabledAmount",
+	    value: function cumulativeBaseEnabledAmount(type, effects) {
+	      var sum = 0;
+	      effects.forEach(function (e) {
+	        if (e instanceof EnablerEffect && e.type === type) {
+	          sum += e.amount;
+	        }
+	      });
+	      if (sum < 0) {
+	        sum = 0;
+	      }
+	      return sum;
+	    }
+	  }, {
+	    key: "cumulativeEnabledMultiplier",
+	    value: function cumulativeEnabledMultiplier(type, effects) {
+	      var multiplier = 1;
+	      effects.forEach(function (e) {
+	        if (e instanceof EnablerEffect && e.type === type) {
+	          multiplier *= e.multiplier;
+	        }
+	      });
+	      return multiplier;
+	    }
+	  }, {
+	    key: "enabledAmount",
+	    value: function enabledAmount(type, effects) {
+	      var amount = EnablerEffect.cumulativeBaseEnabledAmount(type, effects);
+	      amount *= EnablerEffect.cumulativeEnabledMultiplier(type, effects);
+	      return amount;
+	    }
+	  }]);
+	
+	  return EnablerEffect;
+	}(Effect);
+	
+	var EnableResourceEffect = exports.EnableResourceEffect = function (_EnablerEffect) {
+	  _inherits(EnableResourceEffect, _EnablerEffect);
+	
+	  function EnableResourceEffect() {
+	    _classCallCheck(this, EnableResourceEffect);
+	
+	    return _possibleConstructorReturn(this, (EnableResourceEffect.__proto__ || Object.getPrototypeOf(EnableResourceEffect)).apply(this, arguments));
+	  }
+	
+	  return EnableResourceEffect;
+	}(EnablerEffect);
+
+/***/ },
+/* 171 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20702,7 +20808,7 @@
 	var UUIDjs = __webpack_require__(169);
 	var SquareCoordinateJS = __webpack_require__(162);
 	
-	var BuildingJS = __webpack_require__(171);
+	var BuildingJS = __webpack_require__(172);
 	
 	var Building = BuildingJS.Building;
 	var SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
@@ -20792,7 +20898,7 @@
 	}();
 
 /***/ },
-/* 171 */
+/* 172 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20811,7 +20917,7 @@
 	
 	var UUIDjs = __webpack_require__(169);
 	
-	var ResourceJS = __webpack_require__(172);
+	var ResourceJS = __webpack_require__(173);
 	
 	var Resource = ResourceJS.Resource;
 	var ResourceConsumingAction = ResourceJS.ResourceConsumingAction;
@@ -20919,7 +21025,7 @@
 	}(ResourceConsumingAction);
 
 /***/ },
-/* 172 */
+/* 173 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -21096,7 +21202,7 @@
 	}();
 
 /***/ },
-/* 173 */
+/* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21113,7 +21219,7 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var ResourceJS = __webpack_require__(172);
+	var ResourceJS = __webpack_require__(173);
 	
 	var Resource = ResourceJS.Resource;
 	
@@ -21150,7 +21256,7 @@
 	}(Resource);
 
 /***/ },
-/* 174 */
+/* 175 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -21182,7 +21288,7 @@
 	module.exports = localStorageHandler;
 
 /***/ },
-/* 175 */
+/* 176 */
 /***/ function(module, exports) {
 
 	"use strict";

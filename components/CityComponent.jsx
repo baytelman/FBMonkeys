@@ -8,7 +8,11 @@ var Building = require('./BuildingComponent.jsx').default;
 
 var City = React.createClass({
   getInitialState: function() {
-    return {secondsElapsed: 0, player: this.props.data, city:  this.props.data.city};
+    return {
+      secondsElapsed: 0,
+      player: this.props.data,
+      city: this.props.data.city
+    }
   },
   tick: function() {
     this.state.player.updateTime(1);

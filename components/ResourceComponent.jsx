@@ -2,7 +2,9 @@ var React = require('react');
 
 var Resource= React.createClass({
   getInitialState: function() {
-    return this.props.data;
+    return {
+      data: this.props.data
+    }
   },
   render: function() {
     return(

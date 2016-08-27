@@ -4,7 +4,9 @@ var Resource = require('./ResourceComponent.jsx').default;
 
 var Player = React.createClass({
   getInitialState: function() {
-    return this.props.data;
+    return {
+      data: this.props.data
+    }
   },
   render: function() {
     let resources = this.props.data.resources;
@@ -12,9 +14,9 @@ var Player = React.createClass({
       return <Resource key={key} data={ new Resource(key, resources[key]) } />;
     });
     return(
-      <player id={this.state.id}>
-        <name>{this.state.name}</name>
-        <time>{Math.round(this.state.time)}</time>
+      <player id={this.state.data.id}>
+        <name>{this.state.data.name}</name>
+        <time>{Math.round(this.state.data.time)}</time>
         <resources>
           {resourcesComponents}
         </resources>
