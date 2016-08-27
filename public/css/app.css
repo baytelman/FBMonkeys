@@ -520,6 +520,8 @@ input:-moz-placeholder {
     -webkit-animation: spinner .6s linear infinite; }
 
 game {
+  display: block;
+  padding: 5%;
   color: #FFF; }
   game player, game player > name, game player > time {
     display: block; }
