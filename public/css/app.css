@@ -416,9 +416,10 @@ input:-moz-placeholder {
 /***************************************** End ******************************************/
 #wrapper {
   display: block;
-  height: 100%;
+  position: relative;
+  min-height: 100%;
   width: 100%;
-  background-color: #333435; }
+  background-color: transparent; }
 
 #main-window {
   display: block;
@@ -522,7 +523,8 @@ input:-moz-placeholder {
 game {
   display: block;
   padding: 5% 5% 0px;
-  color: #FFF; }
+  color: #FFF;
+  background-color: #333435; }
   game player, game player > name, game player > time {
     display: block; }
   game building > * {
