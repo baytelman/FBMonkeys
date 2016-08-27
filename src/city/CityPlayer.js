@@ -2,13 +2,20 @@ class CityPlayer extends Player {
   constructor({city = new City()} = {}) {
     super(arguments[0]);
     this.city = city;
+    this.characters = [];
   }
-  updateTime(deltaSeconds, parents) {
-    let updated = super.updateTime(deltaSeconds);
-    updated = updated.concat(this.city.updateTime(deltaSeconds, {
+  updateTime(deltaSeconds) {
+    let parents = {
       player: this
-    }));
+    };
+    let updated = super.updateTime(deltaSeconds);
+    this.characters.concat([this.city]).map(function(children) {
+      updated = updated.concat(children.updateTime(deltaSeconds, parents));
+    });
     return updated;
+  }
+  addCharacter(character) {
+    this.characters.push(character);
   }
 }
 

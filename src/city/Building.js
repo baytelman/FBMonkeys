@@ -11,8 +11,9 @@ class Project {
 
     this.costs = costs;
     this.completed = [];
+    
     /* Copy effects, because we will mutate them (start time) */
-    this.effects = effects.map(function(obj) { return Object.assign(obj, {}); });
+    this.effects = effects.map(MutableObject.mutableCopy);
   }
 
   isCompleted() {

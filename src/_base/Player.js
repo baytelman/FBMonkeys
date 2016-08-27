@@ -4,7 +4,8 @@ class Player {
     this.time = 0;
     this.name = name;
 
-    this.effects = effects;
+    /* Copy effects, because we will mutate them (start time) */
+    this.effects = effects.map(MutableObject.mutableCopy);
     this.resources = resources;
   }
   updateTime(deltaSeconds) {
