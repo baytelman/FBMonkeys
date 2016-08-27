@@ -1,5 +1,7 @@
 #Before running locally:
 
+#### `npm install`
+
 ####`npm run gulp dev` to update the app script url in index.ejs, reversing the corresponding gulp production command
 
 ####`npm run dev` will run webpack dev server at localhost:8080
