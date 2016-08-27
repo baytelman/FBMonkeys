@@ -2,6 +2,7 @@ game {
   display: block;
   padding: 5% 5% 0px;
   color: #FFF;
+  background-color: $game;
   player, player > name, player > time {
     display: block;
   }
