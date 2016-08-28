@@ -16,31 +16,31 @@ var Building = BuildingJS.Building;
 var ProjectAlreadyCompletedError = BuildingJS.ProjectAlreadyCompletedError;
 
 var CharacterOperationJS = require("../lib/city/CharacterOperation.js");
-var PlayerEarnResourceOperation = CharacterOperationJS.PlayerEarnResourceOperation;
+var EarnResourceForPlayerOperation = CharacterOperationJS.EarnResourceForPlayerOperation;
 var CityCharacter = CharacterOperationJS.CityCharacter;
 
 describe('Characters', () => {
 	let time = 10;
 	let resources = [CityResource.gold(100)];
-	let operation = new PlayerEarnResourceOperation({
+	let operation = new EarnResourceForPlayerOperation({
 		time: time,
 		resources: resources,
 	});
 
 	it('begins operation operation', () => {
 		let player = CityTestUtilities.enabledCityPlayer();
-		assert.instanceOf(operation, PlayerEarnResourceOperation);
+		assert.instanceOf(operation, EarnResourceForPlayerOperation);
 		let character = new CityCharacter({
 			operations:[operation]
 		});
 		player.addCharacter(character);
 
 		let updates = player.updateTime(time/2);
-		assert.instanceOf(updates[0], PlayerEarnResourceOperation);
+		assert.instanceOf(updates[0], EarnResourceForPlayerOperation);
 		assert.strictEqual(updates.length, 1, "Began");
 
 		let mutableCopy = MutableObject.mutableCopy(updates[0]);
-		assert.instanceOf(mutableCopy, PlayerEarnResourceOperation);
+		assert.instanceOf(mutableCopy, EarnResourceForPlayerOperation);
 	});
 
 	it('can complete an operation', () => {
@@ -51,10 +51,10 @@ describe('Characters', () => {
 		player.addCharacter(character);
 
 		let updates = player.updateTime(time);
-		assert.instanceOf(updates[0], PlayerEarnResourceOperation);
-		assert.instanceOf(updates[1], PlayerEarnResourceOperation);
+		assert.instanceOf(updates[0], EarnResourceForPlayerOperation);
+		assert.instanceOf(updates[1], EarnResourceForPlayerOperation);
 		assert.instanceOf(updates[2], CityResource);
-		assert.instanceOf(updates[3], PlayerEarnResourceOperation);
+		assert.instanceOf(updates[3], EarnResourceForPlayerOperation);
 		assert.strictEqual(updates.length, 4, "Began, Complete, Resource, Began");
 	});
 
@@ -62,7 +62,7 @@ describe('Characters', () => {
 		let player = CityTestUtilities.enabledCityPlayer();
 		let time = 10;
 		let resources = [CityResource.gold(100)];
-		let action = new PlayerEarnResourceOperation({
+		let action = new EarnResourceForPlayerOperation({
 			time: time,
 			resources: resources,
 		});
@@ -73,19 +73,19 @@ describe('Characters', () => {
 		player.addCharacter(character);
 
 		let updates = player.updateTime(time/4.0);
-		assert.instanceOf(updates[0], PlayerEarnResourceOperation);
-		assert.instanceOf(character.currentOperation, PlayerEarnResourceOperation);
+		assert.instanceOf(updates[0], EarnResourceForPlayerOperation);
+		assert.instanceOf(character.currentOperation, EarnResourceForPlayerOperation);
 		assert.strictEqual(updates.length, 1, "Began");
 
 		updates = player.updateTime(time/4.0);
 		assert.strictEqual(updates.length, 0, "Nothing new");
-		assert.instanceOf(character.currentOperation, PlayerEarnResourceOperation);
+		assert.instanceOf(character.currentOperation, EarnResourceForPlayerOperation);
 		assert.isFalse(CityResource.playerCanAfford(player, resources));
 
 		updates = player.updateTime(time/2);
-		assert.instanceOf(updates[0], PlayerEarnResourceOperation);
+		assert.instanceOf(updates[0], EarnResourceForPlayerOperation);
 		assert.instanceOf(updates[1], CityResource);
-		assert.instanceOf(updates[2], PlayerEarnResourceOperation);
+		assert.instanceOf(updates[2], EarnResourceForPlayerOperation);
 		assert.strictEqual(updates.length, 3, "Completed action, Earned Resources, New Action");
 
 		assert.isTrue(CityResource.playerCanAfford(player, resources));
