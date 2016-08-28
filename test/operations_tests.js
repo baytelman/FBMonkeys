@@ -15,8 +15,12 @@ var City = CityJS.City;
 var CityResource = require('../lib/city/CityResource.js').CityResource;
 
 var CharacterOperationJS = require("../lib/city/CharacterOperation.js");
-var EarnResourceForPlayerOperation = CharacterOperationJS.EarnResourceForPlayerOperation;
 var CityCharacter = CharacterOperationJS.CityCharacter;
+var EarnResourceForPlayerOperation = CharacterOperationJS.EarnResourceForPlayerOperation;
+
+var BuildingJS = require('../lib/city/Building.js');
+var Building = BuildingJS.Building;
+var CompleteBuildingOperation = CharacterOperationJS.CompleteBuildingOperation;
 
 describe('Character Operations', () => {
 	let time = 10;
@@ -156,5 +160,42 @@ describe('Character Operations', () => {
 		assert.strictEqual(generatedResource.type, 'c'); /* We have 300 c */
 
 		assert.strictEqual(character.currentOperation, null);
+	});
+
+	it("builds buldings if required", () => {
+		let player = CityTestUtilities.enabledCityPlayer();
+		let character = new CityCharacter({
+			operations:[new CompleteBuildingOperation({
+				time: time,
+				amount: 1
+			})]
+		});
+		player.addCharacter(character);
+
+		let construction = 10;
+		let building = new Building({
+			costs: [ CityResource.construction(construction)],
+		});
+		player.city.addBuilding({
+			building: building,
+			location: new SquareCoordinate(-1,0)
+		});
+
+		let updates = player.updateTime(time);
+		assert.strictEqual(Math.round(100*building.progress()), Math.round(100.0*(1.0/construction)));
+		assert.instanceOf(updates[0], CompleteBuildingOperation);
+		assert.instanceOf(updates[1], CompleteBuildingOperation);
+		assert.instanceOf(updates[2], CityResource);
+		assert.instanceOf(updates[3], CompleteBuildingOperation);
+
+		updates = player.updateTime(8*time);
+		assert.isFalse(building.isCompleted());
+		updates = player.updateTime(time);
+		console.log(updates);
+		assert.isTrue(building.isCompleted());
+		assert.isNull(character.currentOperation);
+		assert.instanceOf(updates[0], CompleteBuildingOperation);
+		assert.instanceOf(updates[1], CityResource);
+		assert.instanceOf(updates[2], Building);
 	});
 });
