@@ -37,11 +37,11 @@ describe('Buildings Effects', () => {
     let multiplier = 4;
     let moreResources = CityResource.resourcesWithMultiplier(resources, multiplier);
 
-    assert.isFalse(CityResource.playerCanAfford(player, moreResources));
+    assert.isFalse(player.canAfford(moreResources));
     player.updateTime(time * (multiplier - 1));
-    assert.isFalse(CityResource.playerCanAfford(player, moreResources));
+    assert.isFalse(player.canAfford(moreResources));
 
     player.updateTime(time);
-    assert.isTrue(CityResource.playerCanAfford(player, moreResources));
+    assert.isTrue(player.canAfford(moreResources));
   });
 });

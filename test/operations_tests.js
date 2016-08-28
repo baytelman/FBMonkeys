@@ -79,7 +79,7 @@ describe('Character Operations', () => {
 		updates = player.updateTime(time/4.0);
 		assert.strictEqual(updates.length, 0, "Nothing new");
 		assert.instanceOf(character.currentOperation, EarnResourceForPlayerOperation);
-		assert.isFalse(CityResource.playerCanAfford(player, resources));
+		assert.isFalse(player.canAfford(resources));
 
 		updates = player.updateTime(time/2);
 		assert.instanceOf(updates[0], EarnResourceForPlayerOperation);
@@ -87,7 +87,7 @@ describe('Character Operations', () => {
 		assert.instanceOf(updates[2], EarnResourceForPlayerOperation);
 		assert.strictEqual(updates.length, 3, "Completed operation, Earned Resources, New operation");
 
-		assert.isTrue(CityResource.playerCanAfford(player, resources));
+		assert.isTrue(player.canAfford(resources));
 	});
 
 	it('do operations while allows', () => {
