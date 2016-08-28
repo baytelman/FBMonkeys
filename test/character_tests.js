@@ -21,7 +21,9 @@ var CityCharacter = CharacterOperationJS.CityCharacter;
 
 describe('Characters', () => {
 	let time = 10;
-	let resources = [CityResource.gold(100)];
+	let amount = 100;
+	let resource =  CityResource.gold(amount);
+	let resources = [resource];
 	let operation = new EarnResourceForPlayerOperation({
 		time: time,
 		resources: resources,
@@ -58,10 +60,8 @@ describe('Characters', () => {
 		assert.strictEqual(updates.length, 4, "Began, Complete, Resource, Began");
 	});
 
-	it('do operations while allows', () => {
+	it('can be completed partially', () => {
 		let player = CityTestUtilities.enabledCityPlayer();
-		let time = 10;
-		let resources = [CityResource.gold(100)];
 		let action = new EarnResourceForPlayerOperation({
 			time: time,
 			resources: resources,
@@ -89,8 +89,26 @@ describe('Characters', () => {
 		assert.strictEqual(updates.length, 3, "Completed action, Earned Resources, New Action");
 
 		assert.isTrue(CityResource.playerCanAfford(player, resources));
+});
 
-		updates = player.updateTime(time * 5);
-		assert.strictEqual(updates.length, 3*5, "Completed action, earned resources, new action, 5 times");
+	it('do operations while allows', () => {
+		let player = CityTestUtilities.enabledCityPlayer();
+		let action = new EarnResourceForPlayerOperation({
+			time: time,
+			resources: resources,
+		});
+		let character = new CityCharacter({
+			operations:[action]
+		});
+
+		player.addCharacter(character);
+
+		let updates = player.updateTime(time * 20);
+
+		/* Given the max this player can have Gold, the character will
+		stop operating after the player has max allowed gold. */
+		assert.strictEqual(updates.length, 3 * 10, "new completed, earned, completed 10 times (for total of 1000 gold)");
+		assert.isNull(character.currentOperation);
+		assert.strictEqual(player.getResourceAmountForType(resource.type), CityTestUtilities.maxResourceDefault);
 	});
 });
