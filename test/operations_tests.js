@@ -34,18 +34,15 @@ describe('Character Operations', () => {
 
 	it('begins operation operation', () => {
 		let player = CityTestUtilities.enabledCityPlayer();
-		assert.instanceOf(operation, EarnResourceForPlayerOperation);
+		assert.instanceOf(operation, EarnResourceForPlayerOperation, "Began earning");
 		let character = new CityCharacter({
 			operations:[operation]
 		});
 		player.addCharacter(character);
 
 		let updates = player.updateTime(time/2);
-		assert.instanceOf(updates[0], EarnResourceForPlayerOperation);
-		assert.strictEqual(updates.length, 1, "Began");
-
-		let mutableCopy = MutableObject.mutableCopy(updates[0]);
-		assert.instanceOf(mutableCopy, EarnResourceForPlayerOperation);
+		assert.instanceOf(updates[0], EarnResourceForPlayerOperation, "Began earning");
+		assert.strictEqual(updates.length, 1);
 	});
 
 	it('can complete an operation', () => {
@@ -56,10 +53,10 @@ describe('Character Operations', () => {
 		player.addCharacter(character);
 
 		let updates = player.updateTime(time);
-		assert.instanceOf(updates[0], EarnResourceForPlayerOperation);
-		assert.instanceOf(updates[1], EarnResourceForPlayerOperation);
+		assert.instanceOf(updates[0], EarnResourceForPlayerOperation, "Began earning");
+		assert.instanceOf(updates[1], EarnResourceForPlayerOperation, "Completed earning");
 		assert.instanceOf(updates[2], CityResource);
-		assert.instanceOf(updates[3], EarnResourceForPlayerOperation);
+		assert.instanceOf(updates[3], EarnResourceForPlayerOperation, "Began next earning");
 		assert.strictEqual(updates.length, 4, "Began, Complete, Resource, Began");
 	});
 
@@ -76,7 +73,7 @@ describe('Character Operations', () => {
 		player.addCharacter(character);
 
 		let updates = player.updateTime(time/4.0);
-		assert.instanceOf(updates[0], EarnResourceForPlayerOperation);
+		assert.instanceOf(updates[0], EarnResourceForPlayerOperation, "Began earning");
 		assert.instanceOf(character.currentOperation, EarnResourceForPlayerOperation);
 		assert.strictEqual(updates.length, 1, "Began");
 
@@ -86,10 +83,10 @@ describe('Character Operations', () => {
 		assert.isFalse(player.canAfford(resources));
 
 		updates = player.updateTime(time/2);
-		assert.instanceOf(updates[0], EarnResourceForPlayerOperation);
+		assert.instanceOf(updates[0], EarnResourceForPlayerOperation, "Completed earning");
 		assert.instanceOf(updates[1], CityResource);
-		assert.instanceOf(updates[2], EarnResourceForPlayerOperation);
-		assert.strictEqual(updates.length, 3, "Completed operation, Earned Resources, New operation");
+		assert.instanceOf(updates[2], EarnResourceForPlayerOperation, "Began next earning");
+		assert.strictEqual(updates.length, 3, "Completed, Earned Resources, New");
 
 		assert.isTrue(player.canAfford(resources));
 	});
@@ -183,10 +180,10 @@ describe('Character Operations', () => {
 
 		let updates = player.updateTime(time);
 		assert.strictEqual(Math.round(100*building.progress()), Math.round(100.0*(1.0/construction)));
-		assert.instanceOf(updates[0], CompleteBuildingOperation);
-		assert.instanceOf(updates[1], CompleteBuildingOperation);
-		assert.instanceOf(updates[2], CityResource);
-		assert.instanceOf(updates[3], CompleteBuildingOperation);
+		assert.instanceOf(updates[0], CompleteBuildingOperation, "Began incremental construction");
+		assert.instanceOf(updates[1], CompleteBuildingOperation, "Finish incremental construcion");
+		assert.instanceOf(updates[2], CityResource, "Constructed incrementally part the project (building)");
+		assert.instanceOf(updates[3], CompleteBuildingOperation, "Began next construction");
 
 		updates = player.updateTime(8*time);
 		assert.isFalse(building.isCompleted());
@@ -194,8 +191,8 @@ describe('Character Operations', () => {
 		console.log(updates);
 		assert.isTrue(building.isCompleted());
 		assert.isNull(character.currentOperation);
-		assert.instanceOf(updates[0], CompleteBuildingOperation);
-		assert.instanceOf(updates[1], CityResource);
+		assert.instanceOf(updates[0], CompleteBuildingOperation, "Completed building");
+		assert.instanceOf(updates[1], CityResource, "Final incremental construction");
 		assert.instanceOf(updates[2], Building);
 	});
 });
