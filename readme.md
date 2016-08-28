@@ -1,12 +1,20 @@
 #Before running locally:
 
-#### `npm install`
+##To install and run
 
-####`npm run gulp dev` to update the app script url in index.ejs, reversing the corresponding gulp production command
+`npm install`
 
-####`npm run dev` will run webpack dev server at localhost:8080
+`npm run gulp dev` to update the app script url in index.ejs, reversing the corresponding gulp production command
+
+`npm run dev` will run webpack dev server at localhost:8080
 
 ####Run either `heroku local` or `node index.js` to start the application server on localhost:5000
+
+##Testing
+
+In order to run Unit Tests use:
+
+`mocha --compilers js:babel-core/register`
 
 ###Note: Don't forget to run a local redis server if you intend to use redis
 
