@@ -1,39 +1,28 @@
+var SquareCoordinateJS = require('../lib/_base/SquareCoordinate.js');
+var SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
 
-tests.push(function testCoordinateBasics() {
-  var sq1 = new SquareCoordinate(5,5);
-  var sq2 = new SquareCoordinate(5,5);
-
-  if (! sq1.is(sq2)) {
-    throw new Error("Coordinates are the same");
-  }
-
-});
-
-tests.push(function testCoordinateNeighbors() {
-  var sq = new SquareCoordinate(5,5);
-  var sqNei = sq.neighborCoordinates();
-
-  if (sqNei.length != 4) {
-    throw new Error("Wrong number of neighbors for square");
-  }
-
-  let neighbor = new SquareCoordinate(5, 4);
-  if (!neighbor.isIn(sqNei)) {
-    throw new Error("Neighbor should be in the list");
-  }
-
-  sqNei.forEach(function(neighbor) {
-    if (sq.distanceTo(neighbor) > 1) {
-      throw new Error("Wrong distance for sq neighbor");
-    }
+var assert = require('chai').assert
+describe('Coordinates', () => {
+  let sq1 = new SquareCoordinate(5,5);
+  it('can be compared', () => {
+    var sq2 = new SquareCoordinate(5,5);
+    var sq3 = new SquareCoordinate(5,4);
+    assert(sq1.is(sq2));
+    assert(!sq1.is(sq3));
   });
+  it('list neighbors', () => {
+    var sq1 = new SquareCoordinate(5,5);
+    var sqNei = sq1.neighborCoordinates();
+    assert.strictEqual(sqNei.length, 4, "4 neighbors");
 
-  let removed = SquareCoordinate.removeFromSet(sqNei, [neighbor]);
-  if (neighbor.isIn(removed)) {
-    throw new Error("Neighbor should NOT be in the list");
-  }
+    let neighbor = new SquareCoordinate(5, 4);
+    assert.isTrue(neighbor.isIn(sqNei));
 
-  if (removed.size != 3) {
-    throw new Error("Wrong number of neighbors for square");
-  }
+    sqNei.forEach(function(neighbor) {
+      assert.strictEqual(sq1.distanceTo(neighbor), 1);
+    });
+
+    let removed = SquareCoordinate.removeFromSet(sqNei, [neighbor]);
+    assert.isFalse(neighbor.isIn(removed));
+  });
 });
