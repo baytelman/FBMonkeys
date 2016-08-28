@@ -65,11 +65,8 @@ describe('Resources', () => {
       function() { actionCalled = true; }
     );
     assert.isFalse(action.isAffordable(player));
-    try {
-      action.executeForPlayer(player);
-    } catch (e) {
-      assert.notInstanceOf(e, InsuficientResourcesError);
-    }
+    assert.throw(()=>action.executeForPlayer(player));
+    assert.throw(()=>action.executeForPlayer(player));
 
     player.earnResources(resources);
     assert.isTrue(action.isAffordable(player));

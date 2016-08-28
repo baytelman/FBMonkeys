@@ -1,6 +1,5 @@
 var assert = require('chai').assert
-var SquareCoordinateJS = require('../lib/_base/SquareCoordinate.js');
-var SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
+var SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
 
 describe('Coordinates', () => {
   let sq1 = new SquareCoordinate(5,5);
