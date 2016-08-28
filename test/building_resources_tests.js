@@ -12,12 +12,11 @@ var CityResource = require('../lib/city/CityResource.js').CityResource;
 
 var BuildingJS = require('../lib/city/Building.js');
 var Building = BuildingJS.Building;
-var BuildingConstructionAction = BuildingJS.BuildingConstructionAction
-;
+
 var CityPlayerJS = require('../lib/city/CityPlayer.js');
 var PlayerEarnResourceEffect = CityPlayerJS.PlayerEarnResourceEffect;
 
-describe('Buildings', () => {
+describe('Buildings Effects', () => {
   let resource = CityResource.gold(100);
 
   it('can grant resources', () => {
@@ -44,43 +43,5 @@ describe('Buildings', () => {
 
     player.updateTime(time);
     assert.isTrue(CityResource.playerCanAfford(player, moreResources));
-  });
-
-  it('have action costs', () => {
-    let player = CityTestUtilities.enabledCityPlayer();
-    let building = new Building({
-      costs: [resource]
-    });
-
-    let action = new BuildingConstructionAction({
-      building: building,
-      location: new SquareCoordinate(1,0)
-    });
-
-    assert.isFalse(action.isAffordable(player));
-    player.earnResource(resource);
-    assert.isTrue(action.isAffordable(player));
-
-    action.executeForPlayer(player);
-    assert.strictEqual(player.city.buildings.length, 2);
-  });
-
-  it('cannot build in same place', () => {
-    let player = CityTestUtilities.enabledCityPlayer();
-    let building = new Building({
-      costs: [resource]
-    });
-
-    let action = new BuildingConstructionAction({
-      building: building,
-      location: new SquareCoordinate(1,0)
-    });
-
-    player.earnResource(resource);
-    player.earnResource(resource);
-
-    action.executeForPlayer(player);
-    assert.throw(() =>action.executeForPlayer(player));
-
   });
 });

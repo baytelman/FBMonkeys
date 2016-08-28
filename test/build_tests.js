@@ -2,6 +2,7 @@ var assert = require('chai').assert
 var Player = require('../lib/_base/Player.js').Player;
 var SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
 
+var CityTestUtilities = require("./utils/common.js").CityTestUtilities;
 var CityJS = require('../lib/city/City.js')
 var City = CityJS.City;
 var OverlappingBuildingError = CityJS.OverlappingBuildingError;
@@ -10,6 +11,7 @@ var CityResource = require('../lib/city/CityResource.js').CityResource;
 
 var BuildingJS = require('../lib/city/Building.js');
 var Building = BuildingJS.Building;
+var BuildingConstructionAction = BuildingJS.BuildingConstructionAction
 var ProjectAlreadyCompletedError = BuildingJS.ProjectAlreadyCompletedError;
 
 describe('City', () => {
@@ -75,7 +77,47 @@ describe('City', () => {
 	});
 
 });
-describe('Buildings', () => {
+
+describe('Building Construction', () => {
+	let resource = CityResource.gold(100);
+
+	it('have action costs', () => {
+		let player = CityTestUtilities.enabledCityPlayer();
+		let building = new Building({
+			costs: [resource]
+		});
+
+		let action = new BuildingConstructionAction({
+			building: building,
+			location: new SquareCoordinate(1,0)
+		});
+
+		assert.isFalse(action.isAffordable(player));
+		player.earnResource(resource);
+		assert.isTrue(action.isAffordable(player));
+
+		action.executeForPlayer(player);
+		assert.strictEqual(player.city.buildings.length, 2);
+	});
+
+	it('cannot take place in same place', () => {
+		let player = CityTestUtilities.enabledCityPlayer();
+		let building = new Building({
+			costs: [resource]
+		});
+
+		let action = new BuildingConstructionAction({
+			building: building,
+			location: new SquareCoordinate(1,0)
+		});
+
+		player.earnResource(resource);
+		player.earnResource(resource);
+
+		action.executeForPlayer(player);
+		assert.throw(() =>action.executeForPlayer(player));
+
+	});
 	it('have costs', () => {
 		let costs = [CityResource.construction(100)];
 		let building = new Building({
