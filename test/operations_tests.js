@@ -188,7 +188,6 @@ describe('Character Operations', () => {
 		updates = player.updateTime(8*time);
 		assert.isFalse(building.isCompleted());
 		updates = player.updateTime(time);
-		console.log(updates);
 		assert.isTrue(building.isCompleted());
 		assert.isNull(character.currentOperation);
 		assert.instanceOf(updates[0], CompleteBuildingOperation, "Completed building");
