@@ -203,6 +203,56 @@ describe('Character Operations', () => {
 		assert.strictEqual(character.currentOperation.resources[0].type, resTypes[0]);
 	});
 
+
+	it('can change priority', () => {
+		let resTypes = ['a', 'b', 'c', 'd']; /* Allow a lot of a, b, c and d */
+		let effecs = resTypes.map(function(type) {
+			return new EnableResourceEffect({
+				type: type,
+				amount: amount
+			});
+		});
+		let player = new CityPlayer({ effects: effecs });
+
+		let operations = resTypes.map(function(type) {
+			return new EarnResourceForPlayerOperation({
+				time: time,
+				resources: [new CityResource(type, amount)],
+			});
+		});
+		let character = new CityCharacter({
+			operations:operations
+		});
+		player.addCharacter(character);
+
+		character.setOperationPriority(operations[0], 0); /* a is now Top priority, top of the list */
+		character.setOperationPriority(operations[1], 0); /* Now b is now Top priority, top of the list */
+		character.setOperationPriority(operations[2], 0); /* c is now */
+		character.setOperationPriority(operations[3], 1); /* d is second priority */
+
+		operations[2].disable();
+		let prioritized2 = character.prioritizedAvailableOperations({player:player});
+		operations[2].enable();
+		let prioritized1 = character.prioritizedAvailableOperations({player:player});
+
+		assert.deepEqual(
+			prioritized1, [operations[2], operations[3], operations[1], operations[0]]
+		);
+		assert.deepEqual(
+			prioritized2, [operations[3], operations[1], operations[0]]
+		);
+
+		let updates = player.updateTime(time * 4);
+		assert.instanceOf(updates[2], CityResource, "Earned c");
+		assert.strictEqual(updates[2].type, resTypes[2]);
+		assert.instanceOf(updates[5], CityResource, "Earned d");
+		assert.strictEqual(updates[5].type, resTypes[3]);
+		assert.instanceOf(updates[8], CityResource, "Earned b");
+		assert.strictEqual(updates[8].type, resTypes[1]);
+		assert.instanceOf(updates[11], CityResource, "Earned a");
+		assert.strictEqual(updates[11].type, resTypes[0]);
+	});
+
 	it("builds buldings if required", () => {
 		let player = CityTestUtilities.enabledCityPlayer();
 		let character = new CityCharacter({
