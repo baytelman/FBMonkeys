@@ -1,25 +1,24 @@
 var React = require('react');
 
+var PlayerDisplay   = require('./hud/HUDPlayerDisplayComponent.jsx').default;
+var AlertDisplay    = require('./hud/HUDAlertDisplayComponent.jsx').default;
+var ResourceDisplay = require('./hud/HUDResourceDisplayComponent.jsx').default;
+var ControlPanel    = require('./hud/HUDControlPanelComponent.jsx').default;
+
 var Resource = require('./ResourceComponent.jsx').default;
 
 var Player = React.createClass({
   getInitialState: function() {
-    return {
-      data: this.props.data
-    }
+    return {}
   },
   render: function() {
-    let resources = this.props.data.resources;
-    let resourcesComponents = Object.keys(resources).map(function(key) {
-      return <Resource key={key} data={ new Resource(key, resources[key]) } />;
-    });
+    var playerClassName = 'player hud';
     return(
-      <player id={this.state.data.id}>
-        <name>{this.state.data.name}</name>
-        <time>{Math.round(this.state.data.time)}</time>
-        <resources>
-          {resourcesComponents}
-        </resources>
+      <player className={playerClassName} id={this.props.data.id}>
+        <PlayerDisplay data={this.props.data} />
+        <AlertDisplay data={this.props.data} />
+        <ResourceDisplay data={this.props.data} />
+        <ControlPanel data={this.props.data} />
       </player>
     )
   }

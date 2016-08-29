@@ -520,19 +520,68 @@ input:-moz-placeholder {
     animation: spinner .6s linear infinite;
     -webkit-animation: spinner .6s linear infinite; }
 
-game {
+#game {
   display: block;
-  padding: 5% 5% 0px;
+  position: relative;
+  padding: 0px;
+  font-family: "helvetica neue", arial, sans-serif;
   color: #FFF;
   background-color: #333435; }
-  game player, game player > name, game player > time {
+  #game table,
+  #game tbody,
+  #game tr {
+    display: block;
+    width: 100%;
+    font-size: 0px; }
+  #game table {
+    padding: 15px 0px; }
+  #game tr {
+    position: relative;
+    max-height: 25px;
+    text-align: center; }
+  #game .building > * {
     display: block; }
-  game building > * {
-    display: block; }
-  game .gridCell {
-    text-align: center;
-    border: 1px gray solid;
-    padding: 5px;
+  #game .gridCell {
+    display: inline-block;
+    height: 25px;
+    width: 25px;
     margin: 0px;
-    min-width: 50px;
-    height: 50px; }
+    padding: 0px;
+    font-size: 10px;
+    text-align: center;
+    border: 1px #555 solid;
+    box-sizing: border-box;
+    overflow: hidden; }
+    #game .gridCell nothing {
+      display: none;
+      height: 100%;
+      width: 100%;
+      background-color: green; }
+    #game .gridCell :not(nothing) {
+      background-color: blue; }
+
+.player {
+  display: block; }
+  .player .hud-window {
+    position: absolute;
+    display: inline-block;
+    padding: 2px 4px;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 5px; }
+  .player #player-display {
+    top: 30px;
+    left: 30px; }
+  .player #alert-display {
+    top: 30px;
+    left: 50%;
+    width: 300px;
+    margin-left: -150px; }
+  .player #resource-display {
+    top: 30px;
+    right: 30px; }
+  .player #control-panel {
+    bottom: 30px;
+    left: 50%;
+    width: 300px;
+    margin-left: -150px; }

@@ -1,0 +1,31 @@
+.player {
+  display: block;
+  .hud-window {
+    position: absolute;
+    display: inline-block;
+    padding: 2px 4px;
+    color: #333;
+    background-color: $ghost;
+    border-radius: 5px;
+  }
+  #player-display {
+    top: 30px;
+    left: 30px;
+  }
+  #alert-display {
+    top: 30px;
+    left: 50%;
+    width: 300px;
+    margin-left: -150px;
+  }
+  #resource-display {
+    top: 30px;
+    right: 30px;
+  }
+  #control-panel {
+    bottom: 30px;
+    left: 50%;
+    width: 300px;
+    margin-left: -150px;
+  }
+}

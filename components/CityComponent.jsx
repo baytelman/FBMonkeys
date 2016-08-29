@@ -25,11 +25,12 @@ var City = React.createClass({
     clearInterval(this.interval);
   },
   render: function() {
-    let rows = [];
-    let size = 5;
-    for (var y = -size; y <= size; y++) {
+    let rows  = [];
+    let xsize = 28
+    let ysize = 14;
+    for (var y = -ysize; y <= ysize; y++) {
       let columns = [];
-      for (var x = -size; x <= size; x++) {
+      for (var x = -xsize; x <= xsize; x++) {
         let building = this.state.city.buildingAtLocation(new SquareCoordinate(x, y));
         let bComponent = <Building data={building} />;
         columns.push(<td className="gridCell" key={'row' + x + '_col' + y}>{bComponent}</td>);
@@ -37,7 +38,7 @@ var City = React.createClass({
       rows.push(<tr key={'col' + y}>{columns}</tr>);
     }
     return (
-      <game>
+      <game id='game'>
         <table id={this.state.city.id}>
           <tbody>{rows}</tbody>
         </table>
