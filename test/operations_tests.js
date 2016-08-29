@@ -114,14 +114,10 @@ describe('Character Operations', () => {
 
 	it('choose highest-priotity operations first', () => {
 		let resTypes = ['a', 'b', 'c']; /* Allow a:100, b:200, c:300 */
-		let allowedResources = resTypes.map(function(type, index) {
-			return new CityResource(type, (index + 1) * 100);
-		});
-
-		let effecs = allowedResources.map(function(res) {
+		let effecs = resTypes.map(function(type, index) {
 			return new EnableResourceEffect({
-				type: res.type,
-				amount: res.amount
+				type: type,
+				amount: (index + 1) * 100
 			});
 		});
 		let player = new CityPlayer({ effects: effecs });
@@ -154,9 +150,57 @@ describe('Character Operations', () => {
 		updates = player.updateTime(time);
 		generatedResource = updates[1];
 		assert.instanceOf(generatedResource, CityResource);
-		assert.strictEqual(generatedResource.type, 'c'); /* We have 300 c */
-
+		assert.strictEqual(generatedResource.type, 'c'); /* We have 300. From now on this is unavailable c */
 		assert.strictEqual(character.currentOperation, null);
+
+	});
+
+	it('choose enabled operations only', () => {
+		let resTypes = ['a', 'b', 'c']; /* Allow a lot of a, b, and c */
+		let effecs = resTypes.map(function(type) {
+			return new EnableResourceEffect({
+				type: type,
+				amount: 10000
+			});
+		});
+		let player = new CityPlayer({ effects: effecs });
+
+		let operations = resTypes.map(function(type) {
+			return new EarnResourceForPlayerOperation({
+				time: time,
+				resources: [new CityResource(type, 100)],
+			});
+		});
+		let character = new CityCharacter({
+			operations:operations
+		});
+		player.addCharacter(character);
+
+		let updates = player.updateTime(0);
+		/* Began earning a */
+		assert.instanceOf(character.currentOperation, EarnResourceForPlayerOperation);
+		assert.strictEqual(character.currentOperation.resources[0].type, resTypes[0]);
+		operations[0].disable();
+
+		/* Finish a, but move to b now, because a is disabled */
+		updates = player.updateTime(time);
+		assert.strictEqual(updates.length, 3, "completed 'a', earned 'a' and began 'b'");
+		let generatedResource = updates[1];
+		assert.instanceOf(generatedResource, CityResource);
+		assert.strictEqual(generatedResource.type, resTypes[0]);
+		/* We are making b now */
+		assert.instanceOf(character.currentOperation, EarnResourceForPlayerOperation);
+		assert.strictEqual(character.currentOperation.resources[0].type, resTypes[1]);
+		operations[0].enable();
+		/* Finish b, but move to a now, because a is enabled */
+		updates = player.updateTime(time);
+		generatedResource = updates[1];
+		assert.instanceOf(generatedResource, CityResource);
+		assert.strictEqual(generatedResource.type, resTypes[1]);
+		/* We are back to making a */
+		/* We are making b now */
+		assert.instanceOf(character.currentOperation, EarnResourceForPlayerOperation);
+		assert.strictEqual(character.currentOperation.resources[0].type, resTypes[0]);
 	});
 
 	it("builds buldings if required", () => {
