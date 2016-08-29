@@ -1,4 +1,4 @@
-var assert = require('chai').assert
+var assert = require('chai').assert;
 var Player = require('../lib/_base/Player.js').Player;
 var SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
 
