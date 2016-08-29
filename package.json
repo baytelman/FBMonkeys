@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "webpack-dev-server --inline --hot",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "gulp": "gulp"
+    "gulp": "gulp",
+    "postinstall": "webpack --progress --colors"
   },
   "author": "Felipe and Sepi",
   "license": "ISC",
