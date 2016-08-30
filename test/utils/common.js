@@ -5,7 +5,10 @@ var CityPlayer = require('../../lib/city/CityPlayer.js').CityPlayer;
 
 export class CityTestUtilities {
 
-  static enabledCityPlayer(city, maxResource) {
+  static enabledCityPlayer(city, type, maxResource) {
+    if (!type) {
+      type = CityResource.kResourceGold;
+    }
     if (!maxResource) {
       maxResource = CityTestUtilities.maxResourceDefault;
     }
@@ -13,7 +16,7 @@ export class CityTestUtilities {
       name: "Name",
       effects: [
         new EnableResourceEffect({
-          type: CityResource.kResourceGold,
+          type: type,
           amount: maxResource
         })
       ]
