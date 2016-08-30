@@ -1,12 +1,12 @@
 var assert = require('chai').assert;
-var Player = require('../lib/_base/Player.js').Player;
 var SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
 
 var MutableObject = require("../lib/_base/utils/Utils.js").MutableObject;
+var CityTestUtilities = require("./utils/common.js").CityTestUtilities;
+
 var EffectJS = require("../lib/_base/Effect.js");
 var EnableResourceEffect = EffectJS.EnableResourceEffect;
 
-var CityTestUtilities = require("./utils/common.js").CityTestUtilities;
 
 var CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
 var CityJS = require('../lib/city/City.js')
