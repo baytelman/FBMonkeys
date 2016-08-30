@@ -43,7 +43,6 @@ describe('Character Operations', () => {
 		});
 		player.addCharacter(character);
 
-		console.log(player.city.buildings);
 		let updates = player.updateTime(time);
 		assert.closeTo(player.city.buildings[0].progress(), 0.1, 0.01);
 
