@@ -7,6 +7,7 @@
 $text: #363B3E;
 $body: #FAFAFB;
 $wrapper: transparent;
+$main-window: #444;
 $game: #333435;
 
 /* Links */
@@ -29,3 +30,15 @@ $error-text-red-light: #FFD7D4;
 
 $ghost: rgba(255,255,255,0.7);
 $shadow: rgba(0,0,0,0.7);
+
+/* Game */
+
+// $gridColor: #555;
+$gridColor: $game;
+$gridBackground: #002110;
+
+$placementLocation: #103120;
+$invalidPlacementLocation: #800000;
+$placementHover: lightblue;
+
+$buildingBackground: #143E9C;

@@ -1,38 +1,51 @@
 var React = require('react');
 
-var buildingStore = require('../../stores/BuildingStore.js').default;
+var CharacterIcon = require('../characters/CharacterIconComponent.jsx').default;
 
-function getBuildingsState () {
-  return buildingStore.getBuildings();
+var CharacterStore = require('../../stores/CharacterStore.js').default;
+
+function getCharactersState () {
+  return CharacterStore.getCharacters();
 }
 
 var PlayerDisplay = React.createClass({
   getInitialState: function() {
     return {
-      buildings: getBuildingsState()
+      characters: getCharactersState()
     }
   },
   updateState: function() {
     this.setState({
-      buildings: getBuildingsState()
+      characters: getCharactersState()
     });
   },
-  buildChildren: function (building) {
+  componentWillMount: function () {
+    CharacterStore.on("change", this._onChange);
+  },
+  componentWillUnmount: function () {
+    CharacterStore.removeListener("change", this._onChange);
+  },
+  buildChildren: function (character) {
+    var isSelected = false;
+    if (this.props.selection.type === 'character') {
+      isSelected = (character.name === this.props.selection.name) ? true : false;
+    }
     return(
-      <div key={building.id}>
-        <div>{building.name} - <span>{building.type}</span></div>
-      </div>
+      <CharacterIcon key={character.id} character={character} isSelected={isSelected}/>
     )
   },
   render: function() {
-    var buildings = this.state.buildings;
+    var characters = this.state.characters;
     return(
       <div id='player-display' className='hud-window'>
-        <name>{this.props.data.name}</name>
-        <time>{Math.round(this.props.data.time)}</time>
-        <buildings>{buildings.map(this.buildChildren)}</buildings>
+        <name className='name'>{this.props.data.name}</name>
+        <time className='time'>Day {Math.round(this.props.data.time)}</time>
+        <characters className='characters'>{characters.map(this.buildChildren)}</characters>
       </div>
     )
+  },
+  _onChange: function () {
+    this.updateState();
   }
 });
 

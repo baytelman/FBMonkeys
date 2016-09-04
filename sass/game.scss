@@ -17,29 +17,64 @@
     position: relative;
     max-height: 25px;
     text-align: center;
-  }
-  .building > * {
-    display: block;
-  }
-  .gridCell {
-    display: inline-block;
-    height: 25px;
-    width: 25px;
-    margin: 0px;
-    padding: 0px;
-    font-size: 10px;
-    text-align: center;
-    border: 1px #555 solid;
-    box-sizing: border-box;
-    overflow: hidden;
-    nothing {
-      display: none;
-      height: 100%;
-      width: 100%;
-      background-color: green;
+    .gridCell {
+      display: inline-block;
+      height: 25px;
+      width: 25px;
+      margin: 0px;
+      padding: 0px;
+      font-size: 11px;
+      text-align: center;
+      border-right: 1px solid $gridColor;
+      border-bottom: 1px solid $gridColor;
+      box-sizing: border-box;
+      overflow: hidden;
+      nothing {
+        display: block;
+        height: 100%;
+        width: 100%;
+        background-color: $gridBackground;
+        &.cell-placement-hover-state {
+          background-color: $placementLocation;
+          &:hover {
+            background-color: $placementHover;
+          }
+        }
+      }
+      > :not(nothing) {
+        display: block;
+        height: 100%;
+        width: 100%;
+        background-color: $buildingBackground;
+        &.cell-placement-hover-state {
+          background-color: $invalidPlacementLocation;
+          &:hover {
+            cursor: not-allowed;
+          }
+        }
+        &.building {
+          .building-name,
+          .building-status {
+            display: block;
+            height: 50%;
+            line-height: 11px;
+          }
+        }
+      }
+      &:first-of-type {
+        border-left: 1px solid $gridColor;
+      }
     }
-    :not(nothing) {
-      background-color: blue;
+    &:first-of-type {
+      td.gridCell {
+        border-top: 1px solid $gridColor;
+      }
+    }
+  }
+  .building {
+    cursor: pointer;
+    & > * {
+      display: block;
     }
   }
 }
