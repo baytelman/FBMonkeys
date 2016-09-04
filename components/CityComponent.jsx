@@ -30,6 +30,7 @@ function getModeState () {
 var City = React.createClass({
   getInitialState: function() {
     return {
+      secondsElapsed: 0,
       player: this.props.data,
       buildings: getBuildingsState(),
       selection: getSelectionState(),
@@ -38,6 +39,7 @@ var City = React.createClass({
   },
   tick: function() {
     this.state.player.updateTime(1);
+    this.setState({secondsElapsed: this.state.secondsElapsed + 1});
   },
   updateModeState: function () {
     this.setState({

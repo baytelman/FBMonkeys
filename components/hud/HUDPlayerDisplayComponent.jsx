@@ -39,7 +39,7 @@ var PlayerDisplay = React.createClass({
     return(
       <div id='player-display' className='hud-window'>
         <name className='name'>{this.props.data.name}</name>
-        <time className='time'>Day {Math.round(this.props.data.time)}</time>
+        <time className='time'>Time: {Math.round(this.props.data.time)}</time>
         <characters className='characters'>{characters.map(this.buildChildren)}</characters>
       </div>
     )
