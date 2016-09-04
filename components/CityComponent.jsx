@@ -31,7 +31,7 @@ var City = React.createClass({
   getInitialState: function() {
     return {
       secondsElapsed: 0,
-      player: this.props.data,
+      player: this.props.player,
       buildings: getBuildingsState(),
       selection: getSelectionState(),
       mode: getModeState()
@@ -88,17 +88,17 @@ var City = React.createClass({
           x:x,
           y:y
         }
-        let bComponent = <Building data={building} location={location} player={this.props.data} mode={this.state.mode}/>;
+        let bComponent = <Building data={building} location={location} player={this.props.player} mode={this.state.mode}/>;
         columns.push(<td className="gridCell" key={'row' + x + '_col' + y}>{bComponent}</td>);
       }
       rows.push(<tr key={'col' + y}>{columns}</tr>);
     }
     return (
       <game id='game'>
-        <table id={this.props.data.city.id} onClick={this._onClick}>
+        <table id={this.props.player.city.id} onClick={this._onClick}>
           <tbody>{rows}</tbody>
         </table>
-        <Player data={this.props.data} selection={this.state.selection} />
+        <Player player={this.props.player} selection={this.state.selection} />
       </game>
     );
   },

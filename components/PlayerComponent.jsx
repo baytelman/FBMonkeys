@@ -14,12 +14,12 @@ var Player = React.createClass({
   render: function() {
     var playerClassName = 'player hud';
     return(
-      <player className={playerClassName} id={this.props.data.id}>
-        <PlayerDisplay data={this.props.data} selection={this.props.selection} />
-        <AlertDisplay data={this.props.data} />
-        <ResourceDisplay data={this.props.data} />
-        <ControlPanel data={this.props.data} />
-        <SelectionDisplay data={this.props.data} selection={this.props.selection} />
+      <player className={playerClassName} id={this.props.player.id}>
+        <PlayerDisplay data={this.props.player} selection={this.props.selection} />
+        <AlertDisplay data={this.props.player} />
+        <ResourceDisplay data={this.props.player} />
+        <ControlPanel data={this.props.player} />
+        <SelectionDisplay data={this.props.player} selection={this.props.selection} />
       </player>
     )
   }
