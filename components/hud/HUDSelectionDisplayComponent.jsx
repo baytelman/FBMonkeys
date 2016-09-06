@@ -1,9 +1,9 @@
 var React = require('react');
 
-var CharacterMenuComponent = require('../menus/CharacterMenuComponent.jsx').default;
-var BuildingMenuComponent  = require('../menus/BuildingMenuComponent.jsx').default;
-var BuildMenuComponent     = require('../menus/BuildMenuComponent.jsx').default;
-var CancelMenuComponent    = require('../menus/CancelMenuComponent.jsx').default;
+var CharacterMenu = require('../menus/CharacterMenuComponent.jsx').default;
+var BuildingMenu  = require('../menus/BuildingMenuComponent.jsx').default;
+var BuildMenu     = require('../menus/BuildMenuComponent.jsx').default;
+var CancelMenu    = require('../menus/CancelMenuComponent.jsx').default;
 
 var SelectionDisplay = React.createClass({
   getInitialState: function() {
@@ -11,13 +11,13 @@ var SelectionDisplay = React.createClass({
   },
   getSelectedMenu: function () {
     if (this.props.selection.type === 'character') {
-      return <CharacterMenuComponent selection={this.props.selection} />;
+      return <CharacterMenu selection={this.props.selection} />;
     } else if (this.props.selection.type === 'building') {
-      return <BuildingMenuComponent selection={this.props.selection} />;
+      return <BuildingMenu selection={this.props.selection} />;
     } else if (this.props.selection.type === 'build') {
-      return <BuildMenuComponent selection={this.props.selection} />;
+      return <BuildMenu selection={this.props.selection} />;
     } else if (this.props.selection.type === 'buildingForPlacement') {
-      return <CancelMenuComponent selection={this.props.selection} />;
+      return <CancelMenu selection={this.props.selection} />;
     } else {
       return false;
     }

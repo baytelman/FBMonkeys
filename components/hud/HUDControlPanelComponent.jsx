@@ -1,6 +1,7 @@
 var React = require('react');
 
 var SelectionActions = require('../../actions/SelectionActions.js');
+var PlayerActions = require('../../actions/PlayerActions.js');
 
 var ControlPanel = React.createClass({
   getInitialState: function() {
@@ -18,6 +19,9 @@ var ControlPanel = React.createClass({
     )
   },
   _onBuildingMenuClick: function (event) {
+    if (this.props.mode === 'placing') {
+      PlayerActions.setMode('normal');
+    }
     var data = {
       type: 'build',
       list: 'basic'

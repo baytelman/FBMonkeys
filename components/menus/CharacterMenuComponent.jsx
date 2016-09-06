@@ -17,12 +17,14 @@ var CharacterMenu = React.createClass({
   },
   render: function() {
     var health = this.props.selection.currentHealth + '/' + this.props.selection.health;
+    var location = this.props.selection.location.x + ' , ' + this.props.selection.location.y;
     return(
       <div id='character-menu'>
         <div>Name: {this.props.selection.name}</div>
         <div>Health: {health}</div>
         <div>Race: {this.props.selection.race}</div>
         <div>Age: {this.props.selection.age}</div>
+        <div>Location: {location}</div>
         <div>Gender: {this.props.selection.gender}</div>
         <div>Mood: {this.props.selection.mood}</div>
         <div>Sleep: {this.props.selection.sleep}</div>

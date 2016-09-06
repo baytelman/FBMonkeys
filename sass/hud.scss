@@ -1,5 +1,12 @@
 .player {
   display: block;
+  position: fixed;
+  // Make individual HUD Display components fixed postion so they dont block clicks on the game board
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
   .hud-window {
     position: absolute;
     display: inline-block;
@@ -7,5 +14,6 @@
     color: #333;
     background-color: $ghost;
     border-radius: 5px;
+    pointer-events: all;
   }
 }

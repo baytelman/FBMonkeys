@@ -16,6 +16,7 @@ export function addCharacter(data) {
       race:          data.race,
       gender:        data.gender,
       age:           data.age,
+      location:      data.location,
       health:        data.health,
       currentHealth: data.currentHealth,
       experience:    data.experience,

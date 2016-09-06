@@ -1,6 +1,7 @@
 var React = require('react');
 
 var SelectionActions = require('../../actions/SelectionActions.js');
+var PlayerActions    = require('../../actions/PlayerActions.js');
 
 var CharacterIcon = React.createClass({
   getInitialState: function() {
@@ -23,6 +24,9 @@ var CharacterIcon = React.createClass({
     console.log(msg);
   },
   _onClick: function () {
+    if (this.props.mode === 'placing') {
+      PlayerActions.setMode('normal');
+    }
     var data = {
       type: 'character',
       name: this.props.character.name,
@@ -30,6 +34,7 @@ var CharacterIcon = React.createClass({
       health: this.props.character.health,
       race: this.props.character.race,
       age: this.props.character.age,
+      location: this.props.character.location,
       gender: this.props.character.gender,
       mood: this.props.character.mood,
       sleep: this.props.character.sleep,

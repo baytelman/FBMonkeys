@@ -1,8 +1,7 @@
 var React = require('react');
 
-var PlayerActions = require('../../actions/PlayerActions.js');
-
 var SelectionActions = require('../../actions/SelectionActions.js');
+var PlayerActions = require('../../actions/PlayerActions.js');
 
 var CancelMenu = React.createClass({
   getInitialState: function() {
@@ -16,6 +15,7 @@ var CancelMenu = React.createClass({
     )
   },
   _onClick: function () {
+    event.stopPropagation();
     PlayerActions.setMode('normal');
     SelectionActions.setSelection({});
   }

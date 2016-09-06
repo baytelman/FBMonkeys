@@ -430,8 +430,8 @@ input:-moz-placeholder {
   position: absolute;
   top: 0px;
   height: 100%;
-  width: 100%;
-  min-width: 980px;
+  width: auto;
+  min-width: 100%;
   background-color: #444; }
 
 /*******************/
@@ -542,7 +542,8 @@ input:-moz-placeholder {
   #game tr {
     position: relative;
     max-height: 25px;
-    text-align: center; }
+    text-align: center;
+    white-space: nowrap; }
     #game tr .gridCell {
       display: inline-block;
       height: 25px;
@@ -568,54 +569,64 @@ input:-moz-placeholder {
         display: block;
         height: 100%;
         width: 100%;
-        background-color: #143E9C; }
+        background-color: #583415; }
         #game tr .gridCell > :not(nothing).cell-placement-hover-state {
           background-color: #800000; }
           #game tr .gridCell > :not(nothing).cell-placement-hover-state:hover {
             cursor: not-allowed; }
-        #game tr .gridCell > :not(nothing).building .building-name,
-        #game tr .gridCell > :not(nothing).building .building-status {
-          display: block;
-          height: 50%;
-          line-height: 11px; }
+        #game tr .gridCell > :not(nothing).building {
+          cursor: pointer; }
+          #game tr .gridCell > :not(nothing).building > * {
+            display: block; }
+          #game tr .gridCell > :not(nothing).building .building-name,
+          #game tr .gridCell > :not(nothing).building .building-status {
+            display: block;
+            height: 50%;
+            line-height: 11px; }
+        #game tr .gridCell > :not(nothing).character-entity {
+          cursor: pointer;
+          background-color: #143E9C; }
       #game tr .gridCell:first-of-type {
         border-left: 1px solid #333435; }
     #game tr:first-of-type td.gridCell {
       border-top: 1px solid #333435; }
-  #game .building {
-    cursor: pointer; }
-    #game .building > * {
-      display: block; }
 
 .player {
-  display: block; }
+  display: block;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  pointer-events: none; }
   .player .hud-window {
     position: absolute;
     display: inline-block;
     padding: 4px 8px;
     color: #333;
     background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 5px; }
+    border-radius: 5px;
+    pointer-events: all; }
 
-#player-display {
+#character-display {
   top: 30px;
   left: 30px; }
-  #player-display .name,
-  #player-display .time {
+  #character-display .name,
+  #character-display .time {
     display: block; }
-  #player-display .name {
+  #character-display .name {
     font-size: 13px;
     line-height: 15px; }
-  #player-display .time {
+  #character-display .time {
     font-size: 11px;
     line-height: 15px;
     margin-bottom: 2px; }
-  #player-display .characters .character {
+  #character-display .characters .character {
     display: block;
     margin-bottom: 2px; }
-    #player-display .characters .character:hover {
+    #character-display .characters .character:hover {
       cursor: pointer; }
-    #player-display .characters .character .character-icon {
+    #character-display .characters .character .character-icon {
       background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(0, 0, 0, 0.4)), color-stop(100%, rgba(0, 0, 0, 0.75)));
       background: -webkit-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.4) 0, rgba(0, 0, 0, 0.75) 100%);
       background: -moz-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.4) 0, rgba(0, 0, 0, 0.75) 100%);
@@ -628,15 +639,15 @@ input:-moz-placeholder {
       width: 25px;
       box-sizing: border-box;
       vertical-align: middle; }
-      #player-display .characters .character .character-icon.selected {
+      #character-display .characters .character .character-icon.selected {
         border: 2px solid blue; }
-      #player-display .characters .character .character-icon .character-health {
+      #character-display .characters .character .character-icon .character-health {
         position: absolute;
         bottom: 0px;
         height: 4px;
         width: 100%;
         background-color: red; }
-    #player-display .characters .character .character-name {
+    #character-display .characters .character .character-name {
       margin-left: 4px;
       font-size: 11px;
       vertical-align: middle; }
@@ -696,7 +707,7 @@ input:-moz-placeholder {
 
 #selection-display {
   max-width: 35%;
-  bottom: 30px;
+  bottom: 10px;
   left: 30px; }
   #selection-display.hidden {
     display: none; }
@@ -722,7 +733,7 @@ input:-moz-placeholder {
     vertical-align: middle; }
 
 #control-panel {
-  bottom: 30px;
+  bottom: 10px;
   left: 50%;
   width: 300px;
   margin-left: -150px;

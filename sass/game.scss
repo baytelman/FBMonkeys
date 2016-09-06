@@ -17,6 +17,7 @@
     position: relative;
     max-height: 25px;
     text-align: center;
+    white-space: nowrap;
     .gridCell {
       display: inline-block;
       height: 25px;
@@ -53,12 +54,20 @@
           }
         }
         &.building {
+          cursor: pointer;
+          & > * {
+            display: block;
+          }
           .building-name,
           .building-status {
             display: block;
             height: 50%;
             line-height: 11px;
           }
+        }
+        &.character-entity {
+          cursor: pointer;
+          background-color: $charBackground;
         }
       }
       &:first-of-type {
@@ -69,12 +78,6 @@
       td.gridCell {
         border-top: 1px solid $gridColor;
       }
-    }
-  }
-  .building {
-    cursor: pointer;
-    & > * {
-      display: block;
     }
   }
 }

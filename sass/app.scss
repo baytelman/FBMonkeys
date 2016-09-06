@@ -16,8 +16,9 @@
   position: absolute;
   top: 0px;
   height: 100%;
-  width: 100%;
-  min-width: $body_desktop_min_width;
+  width: auto;
+  // width: 100%;
+  min-width: 100%;
   background-color: $main-window;
 }
 

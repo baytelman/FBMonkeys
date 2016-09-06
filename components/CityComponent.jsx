@@ -4,13 +4,16 @@ var SquareCoordinateJS = require('../lib/_base/SquareCoordinate.js');
 var SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
 
 var Player = require('./PlayerComponent.jsx').default;
-var Building = require('./BuildingComponent.jsx').default;
+var Tile = require('./TileComponent.jsx').default;
+
+var SelectionStore = require('../stores/SelectionStore.js').default;
+var SelectionActions = require('../actions/SelectionActions.js');
 
 var BuildingStore = require('../stores/BuildingStore.js').default;
 var BuildingActions = require('../actions/BuildingActions.js');
 
-var SelectionStore = require('../stores/SelectionStore.js').default;
-var SelectionActions = require('../actions/SelectionActions.js');
+var CharacterStore = require('../stores/CharacterStore.js').default;
+var CharacterActions = require('../actions/CharacterActions.js');
 
 var PlayerStore = require('../stores/PlayerStore.js').default;
 var PlayerActions = require('../actions/PlayerActions.js');
@@ -18,33 +21,30 @@ var PlayerActions = require('../actions/PlayerActions.js');
 function getSelectionState () {
   return SelectionStore.getSelection();
 }
-
 function getBuildingsState () {
   return BuildingStore.getBuildings();
 }
-
+function getCharactersState () {
+  return CharacterStore.getCharacters();
+}
 function getModeState () {
   return PlayerStore.getMode();
 }
 
 var City = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       secondsElapsed: 0,
       player: this.props.player,
-      buildings: getBuildingsState(),
       selection: getSelectionState(),
+      buildings: getBuildingsState(),
+      characters: getCharactersState(),
       mode: getModeState()
     }
   },
   tick: function() {
     this.state.player.updateTime(1);
     this.setState({secondsElapsed: this.state.secondsElapsed + 1});
-  },
-  updateModeState: function () {
-    this.setState({
-      mode: getModeState()
-    });
   },
   updateSelectionState: function () {
     this.setState({
@@ -56,40 +56,61 @@ var City = React.createClass({
       buildings: getBuildingsState()
     });
   },
-  componentWillMount: function() {
-    PlayerStore.on("change", this._onModeChange);
+  updateCharacterState: function () {
+    this.setState({
+      characters: getCharactersState()
+    });
+  },
+  updateModeState: function () {
+    this.setState({
+      mode: getModeState()
+    });
+  },
+  componentWillMount: function () {
     SelectionStore.on("change", this._onSelectionChange);
     BuildingStore.on("change", this._onBuildingChange);
+    CharacterStore.on("change", this._onCharacterChange);
+    PlayerStore.on("change", this._onModeChange);
   },
-  componentDidMount: function() {
+  componentDidMount: function () {
     this.interval = setInterval(this.tick, 1000);
   },
   componentWillUnmount: function() {
-    PlayerStore.removeListener("change", this._onModeChange);
     SelectionStore.removeListener("change", this._onSelectionChange);
     BuildingStore.removeListener("change", this._onBuildingChange);
+    CharacterStore.removeListener("change", this._onCharacterChange);
+    PlayerStore.removeListener("change", this._onModeChange);
     clearInterval(this.interval);
   },
-  render: function() {
+  render: function () {
     let rows  = [];
     let xsize = 28;
     let ysize = 14;
+    // let xsize = 49;
+    // let ysize = 49;
     for (var y = -ysize; y <= ysize; y++) {
       let columns = [];
       for (var x = -xsize; x <= xsize; x++) {
-        var building = null;
+        var building  = null,
+            character = null;
         // Check if this location contains a building
         for (var i = 0; i < this.state.buildings.length; i++) {
           if ((this.state.buildings[i].location.x === x) && (this.state.buildings[i].location.y === y)) {
             building = this.state.buildings[i];
           }
         }
+        // Check if this location contains a character
+        for (var i = 0; i < this.state.characters.length; i++) {
+          if ((this.state.characters[i].location.x === x) && (this.state.characters[i].location.y === y)) {
+            character = this.state.characters[i];
+          }
+        }
         let location = {
           x:x,
           y:y
         }
-        let bComponent = <Building data={building} location={location} player={this.props.player} mode={this.state.mode}/>;
-        columns.push(<td className="gridCell" key={'row' + x + '_col' + y}>{bComponent}</td>);
+        let tileComponent = <Tile building={building} location={location} player={this.state.player} selection={this.state.selection} characters={this.state.characters} character={character} mode={this.state.mode}/>;
+        columns.push(<td className="gridCell" key={'row' + x + '_col' + y}>{tileComponent}</td>);
       }
       rows.push(<tr key={'col' + y}>{columns}</tr>);
     }
@@ -98,21 +119,21 @@ var City = React.createClass({
         <table id={this.props.player.city.id} onClick={this._onClick}>
           <tbody>{rows}</tbody>
         </table>
-        <Player player={this.props.player} selection={this.state.selection} />
+        <Player player={this.props.player} selection={this.state.selection} characters={this.state.characters} mode={this.state.mode}/>
       </game>
     );
   },
-  _onModeChange: function () {
-    this.updateModeState();
-    console.log('Mode state changed in CityComponent')
+  _onSelectionChange: function () {
+    this.updateSelectionState();
   },
   _onBuildingChange: function () {
     this.updateBuildingState();
-    console.log('Building state changed in CityComponent')
   },
-  _onSelectionChange: function () {
-    this.updateSelectionState();
-    console.log('Selection state changed in CityComponent')
+  _onCharacterChange: function () {
+    this.updateCharacterState();
+  },
+  _onModeChange: function () {
+    this.updateModeState();
   },
   _onClick: function () {
     var data = {};

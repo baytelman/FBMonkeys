@@ -1,13 +1,7 @@
 var React = require('react');
 
-var BuildingStore = require('../../stores/BuildingStore.js').default;
-
 var SelectionActions = require('../../actions/SelectionActions.js');
-
 var PlayerActions = require('../../actions/PlayerActions.js');
-
-// TODO: POPULATE MENU WITH AVAILABLE BUILDINGS LIST INCLUDING RESOURCE COST INFO
-// TODO: Creating building should properly add it to BuildingStore
 
 var BuildMenu = React.createClass({
   getInitialState: function() {

@@ -2,6 +2,9 @@ import { EventEmitter } from "events";
 
 import dispatcher from "../dispatcher.js";
 
+var SquareCoordinateJS = require('../lib/_base/SquareCoordinate.js');
+var SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
+
 class CharacterStore extends EventEmitter {
   constructor() {
     super();
@@ -13,6 +16,7 @@ class CharacterStore extends EventEmitter {
         race: 'human',
         gender: 'male',
         age: 33,
+        location: new SquareCoordinate(2,2),
         health: 100,
         currentHealth: 92,
         experience: 10,
@@ -40,6 +44,7 @@ class CharacterStore extends EventEmitter {
         race: 'human',
         gender: 'female',
         age: 47,
+        location: new SquareCoordinate(-2,-2),
         health: 100,
         currentHealth: 100,
         experience: 20,
@@ -74,6 +79,7 @@ class CharacterStore extends EventEmitter {
       race:          data.race,
       gender:        data.gender,
       age:           data.age,
+      location:      data.location,
       health:        data.health,
       currentHealth: data.currentHealth,
       experience:    data.experience,
