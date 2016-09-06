@@ -10,7 +10,7 @@ var MainWindow = React.createClass({
         var player = this.props.player;
         return(
             <div id="main-window">
-                <CityComponent data={player} />
+                <CityComponent player={player} />
             </div>
         );
     }
