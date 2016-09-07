@@ -6,6 +6,7 @@
 /****************************************************************************************/
 
 @import "colors";
+@import "mixins";
 @import "size";
 @import "normalize";
 
@@ -54,6 +55,10 @@ input:-ms-input-placeholder, /* IE 10+ */
 input:-moz-placeholder { /* Firefox 18- */
   font-size: 13px;
   color: #555;
+}
+
+.hidden {
+  display: none;
 }
 
 /***************************************** End ******************************************/

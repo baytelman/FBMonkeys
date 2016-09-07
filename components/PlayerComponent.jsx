@@ -1,27 +1,35 @@
 var React = require('react');
 
-var Resource = require('./ResourceComponent.jsx').default;
+var CharacterDisplay = require('./hud/HUDCharacterDisplayComponent.jsx').default;
+var AlertDisplay     = require('./hud/HUDAlertDisplayComponent.jsx').default;
+var ResourceDisplay  = require('./hud/HUDResourceDisplayComponent.jsx').default;
+var ControlPanel     = require('./hud/HUDControlPanelComponent.jsx').default;
+var SelectionDisplay = require('./hud/HUDSelectionDisplayComponent.jsx').default;
 
+var SelectionActions = require('../actions/SelectionActions.js');
+var PlayerActions = require('../actions/PlayerActions.js');
+
+// THE PLAYER COMPONENT IS THE CAMERA
 var Player = React.createClass({
   getInitialState: function() {
-    return {
-      data: this.props.data
-    }
+    return {}
   },
   render: function() {
-    let resources = this.props.data.resources;
-    let resourcesComponents = Object.keys(resources).map(function(key) {
-      return <Resource key={key} data={ new Resource(key, resources[key]) } />;
-    });
+    var playerClassName = 'player hud';
     return(
-      <player id={this.state.data.id}>
-        <name>{this.state.data.name}</name>
-        <time>{Math.round(this.state.data.time)}</time>
-        <resources>
-          {resourcesComponents}
-        </resources>
+      <player className={playerClassName} id={this.props.player.id} onClick={this._onClick}>
+        <CharacterDisplay data={this.props.player} selection={this.props.selection} characters={this.props.characters} mode={this.props.mode}/>
+        <AlertDisplay data={this.props.player} />
+        <ResourceDisplay data={this.props.player} />
+        <ControlPanel data={this.props.player} mode={this.props.mode} />
+        <SelectionDisplay data={this.props.player} selection={this.props.selection} />
       </player>
     )
+  },
+  _onClick: function () {
+    // var data = {};
+    // SelectionActions.setSelection(data);
+    // PlayerActions.setMode('normal');
   }
 });
 

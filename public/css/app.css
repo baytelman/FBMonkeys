@@ -11,6 +11,7 @@
 /* Links */
 /* Errors */
 /* General */
+/* Game */
 /*******************************************************************************/
 /************************************ SIZES ************************************/
 /*******************************************************************************/
@@ -413,6 +414,9 @@ input:-moz-placeholder {
   font-size: 13px;
   color: #555; }
 
+.hidden {
+  display: none; }
+
 /***************************************** End ******************************************/
 #wrapper {
   display: block;
@@ -426,9 +430,9 @@ input:-moz-placeholder {
   position: absolute;
   top: 0px;
   height: 100%;
-  width: 100%;
-  min-width: 980px;
-  background-color: transparent; }
+  width: auto;
+  min-width: 100%;
+  background-color: #444; }
 
 /*******************/
 /* Loading Spinner */
@@ -520,19 +524,221 @@ input:-moz-placeholder {
     animation: spinner .6s linear infinite;
     -webkit-animation: spinner .6s linear infinite; }
 
-game {
+#game {
   display: block;
-  padding: 5% 5% 0px;
+  position: relative;
+  padding: 0px;
+  font-family: "helvetica neue", arial, sans-serif;
   color: #FFF;
   background-color: #333435; }
-  game player, game player > name, game player > time {
-    display: block; }
-  game building > * {
-    display: block; }
-  game .gridCell {
+  #game table,
+  #game tbody,
+  #game tr {
+    display: block;
+    width: 100%;
+    font-size: 0px; }
+  #game table {
+    padding: 15px 0px; }
+  #game tr {
+    position: relative;
+    max-height: 25px;
     text-align: center;
-    border: 1px gray solid;
-    padding: 5px;
+    white-space: nowrap; }
+    #game tr .gridCell {
+      display: inline-block;
+      height: 25px;
+      width: 25px;
+      margin: 0px;
+      padding: 0px;
+      font-size: 11px;
+      text-align: center;
+      border-right: 1px solid #333435;
+      border-bottom: 1px solid #333435;
+      box-sizing: border-box;
+      overflow: hidden; }
+      #game tr .gridCell nothing {
+        display: block;
+        height: 100%;
+        width: 100%;
+        background-color: #002110; }
+        #game tr .gridCell nothing.cell-placement-hover-state {
+          background-color: #103120; }
+          #game tr .gridCell nothing.cell-placement-hover-state:hover {
+            background-color: lightblue; }
+      #game tr .gridCell > :not(nothing) {
+        display: block;
+        height: 100%;
+        width: 100%;
+        background-color: #583415; }
+        #game tr .gridCell > :not(nothing).cell-placement-hover-state {
+          background-color: #800000; }
+          #game tr .gridCell > :not(nothing).cell-placement-hover-state:hover {
+            cursor: not-allowed; }
+        #game tr .gridCell > :not(nothing).building {
+          cursor: pointer; }
+          #game tr .gridCell > :not(nothing).building > * {
+            display: block; }
+          #game tr .gridCell > :not(nothing).building .building-name,
+          #game tr .gridCell > :not(nothing).building .building-status {
+            display: block;
+            height: 50%;
+            line-height: 11px; }
+        #game tr .gridCell > :not(nothing).character-entity {
+          cursor: pointer;
+          background-color: #143E9C; }
+      #game tr .gridCell:first-of-type {
+        border-left: 1px solid #333435; }
+    #game tr:first-of-type td.gridCell {
+      border-top: 1px solid #333435; }
+
+.player {
+  display: block;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  pointer-events: none; }
+  .player .hud-window {
+    position: absolute;
+    display: inline-block;
+    padding: 4px 8px;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+    pointer-events: all; }
+
+#character-display {
+  top: 30px;
+  left: 30px; }
+  #character-display .name,
+  #character-display .time {
+    display: block; }
+  #character-display .name {
+    font-size: 13px;
+    line-height: 15px; }
+  #character-display .time {
+    font-size: 11px;
+    line-height: 15px;
+    margin-bottom: 2px; }
+  #character-display .characters .character {
+    display: block;
+    margin-bottom: 2px; }
+    #character-display .characters .character:hover {
+      cursor: pointer; }
+    #character-display .characters .character .character-icon {
+      background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(0, 0, 0, 0.4)), color-stop(100%, rgba(0, 0, 0, 0.75)));
+      background: -webkit-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.4) 0, rgba(0, 0, 0, 0.75) 100%);
+      background: -moz-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.4) 0, rgba(0, 0, 0, 0.75) 100%);
+      background: -o-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.4) 0, rgba(0, 0, 0, 0.75) 100%);
+      background: -ms-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.4) 0, rgba(0, 0, 0, 0.75) 100%);
+      background: radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.4) 0, rgba(0, 0, 0, 0.75) 100%);
+      display: inline-block;
+      position: relative;
+      height: 25px;
+      width: 25px;
+      box-sizing: border-box;
+      vertical-align: middle; }
+      #character-display .characters .character .character-icon.selected {
+        border: 2px solid blue; }
+      #character-display .characters .character .character-icon .character-health {
+        position: absolute;
+        bottom: 0px;
+        height: 4px;
+        width: 100%;
+        background-color: red; }
+    #character-display .characters .character .character-name {
+      margin-left: 4px;
+      font-size: 11px;
+      vertical-align: middle; }
+
+#alert-display {
+  top: 30px;
+  left: 50%;
+  width: 500px;
+  margin-left: -250px;
+  background-color: transparent; }
+  #alert-display .alerts .alert {
+    display: block;
+    font-size: 13px;
+    color: #FFF;
+    opacity: 1;
+    -webkit-transition: opacity 10s ease-in;
+    -moz-transition: opacity 10s ease-in;
+    -ms-transition: opacity 10s ease-in;
+    -o-transition: opacity 10s ease-in;
+    transition: opacity 10s ease-in; }
+    #alert-display .alerts .alert.rendered {
+      opacity: 0;
+      -webkit-transition: opacity 10s ease-in;
+      -moz-transition: opacity 10s ease-in;
+      -ms-transition: opacity 10s ease-in;
+      -o-transition: opacity 10s ease-in;
+      transition: opacity 10s ease-in; }
+
+#resource-display {
+  top: 30px;
+  right: 30px; }
+  #resource-display > span {
+    font-size: 13px;
+    line-height: 16px; }
+  #resource-display .resources .resource {
+    display: block;
+    line-height: 16px;
+    text-align: right; }
+    #resource-display .resources .resource .resource-icon {
+      display: inline-block;
+      position: relative;
+      height: 12px;
+      width: 12px;
+      box-sizing: border-box;
+      vertical-align: middle; }
+      #resource-display .resources .resource .resource-icon.wood {
+        background-color: brown; }
+      #resource-display .resources .resource .resource-icon.stone {
+        background-color: grey; }
+      #resource-display .resources .resource .resource-icon.gold {
+        background-color: gold; }
+    #resource-display .resources .resource .resource-amount {
+      display: inline-block;
+      margin-right: 4px;
+      font-size: 11px;
+      vertical-align: middle; }
+
+#selection-display {
+  max-width: 35%;
+  bottom: 10px;
+  left: 30px; }
+  #selection-display.hidden {
+    display: none; }
+
+#character-menu {
+  line-height: 16px;
+  font-size: 13px; }
+
+#build-menu {
+  line-height: 16px;
+  font-size: 13px; }
+  #build-menu ul {
     margin: 0px;
-    min-width: 50px;
-    height: 50px; }
+    padding: 0px;
+    list-style-type: none; }
+
+#cancel-menu {
+  font-size: 20px; }
+  #cancel-menu .cancel-msg {
+    margin-left: 4px;
+    font-size: 13px; }
+  #cancel-menu span {
+    vertical-align: middle; }
+
+#control-panel {
+  bottom: 10px;
+  left: 50%;
+  width: 300px;
+  margin-left: -150px;
+  font-size: 13px; }
+  #control-panel ul {
+    margin: 0px;
+    padding: 0px;
+    list-style-type: none; }

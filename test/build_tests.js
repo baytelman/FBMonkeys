@@ -2,7 +2,7 @@ var assert = require('chai').assert
 var Player = require('../lib/_base/Player.js').Player;
 var SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
 
-var CityTestUtilities = require("./utils/common.js").CityTestUtilities;
+var CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
 var CityJS = require('../lib/city/City.js')
 var City = CityJS.City;
 var OverlappingBuildingError = CityJS.OverlappingBuildingError;
@@ -82,7 +82,7 @@ describe('Building Construction', () => {
 	let resource = CityResource.gold(100);
 
 	it('have action costs', () => {
-		let player = CityTestUtilities.enabledCityPlayer();
+		let player = new CityPlayer();
 		let building = new Building({
 			costs: [resource]
 		});
@@ -101,7 +101,7 @@ describe('Building Construction', () => {
 	});
 
 	it('cannot take place in same place', () => {
-		let player = CityTestUtilities.enabledCityPlayer();
+		let player = new CityPlayer();
 		let building = new Building({
 			costs: [resource]
 		});

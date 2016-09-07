@@ -2,26 +2,33 @@
 @import "basic";
 
 #wrapper {
-    display: block;
-    position: relative;
-    min-height: 100%;
-    width: 100%;
-    background-color: $wrapper;
+  display: block;
+  position: relative;
+  min-height: 100%;
+  width: 100%;
+  background-color: $wrapper;
 }
 
 #react-container {}
 
 #main-window {
-    display: block;
-    position: absolute;
-    top: 0px;
-    height: 100%;
-    width: 100%;
-    min-width: $body_desktop_min_width;
-    background-color: transparent;
+  display: block;
+  position: absolute;
+  top: 0px;
+  height: 100%;
+  width: auto;
+  // width: 100%;
+  min-width: 100%;
+  background-color: $main-window;
 }
 
 // Import non-component stylesheets
 @import "spinner";
 // Import component stylesheets
 @import "game";
+@import "hud";
+@import "characters";
+@import "alerts";
+@import "resources";
+@import "selection";
+@import "controlpanel";
