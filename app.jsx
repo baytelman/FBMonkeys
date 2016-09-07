@@ -40,8 +40,8 @@ var player = Data;
 
 // Render with props
 ReactDOM.render(
-    <MainWindow player={player}></MainWindow>,
-    document.getElementById('react-container')
+  <MainWindow player={player}></MainWindow>,
+  document.getElementById('react-container')
 );
 
 /************************************/
