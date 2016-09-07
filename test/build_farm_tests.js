@@ -16,7 +16,7 @@ var PlayerEarnResourceEffect = require("../lib/city/CityPlayer.js").PlayerEarnRe
 var BuildingJS = require('../lib/city/Building.js');
 var Building = BuildingJS.Building;
 
-describe('Building a farm', () => {
+describe('Building a wooden farm', () => {
   let time = 10;
   let woodType = CityResource.kResourceWood;
   let wood = CityResource.wood(10);
