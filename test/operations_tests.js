@@ -4,7 +4,6 @@ var SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordin
 var MutableObject = require("../lib/_base/utils/Utils.js").MutableObject;
 
 var EffectJS = require("../lib/_base/Effect.js");
-var EnableResourceEffect = EffectJS.EnableResourceEffect;
 
 
 var CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
@@ -95,13 +94,7 @@ describe('Character Operations', () => {
 
 	it('choose enabled operations only', () => {
 		let resTypes = ['a', 'b', 'c']; /* Allow a lot of a, b, and c */
-		let effecs = resTypes.map(function(type) {
-			return new EnableResourceEffect({
-				type: type,
-				amount: 10000
-			});
-		});
-		let player = new CityPlayer({ effects: effecs });
+		let player = new CityPlayer();
 
 		let operations = resTypes.map(function(type) {
 			return new EarnResourceForPlayerOperation({
@@ -144,13 +137,7 @@ describe('Character Operations', () => {
 
 	it('can change priority', () => {
 		let resTypes = ['a', 'b', 'c', 'd']; /* Allow a lot of a, b, c and d */
-		let effecs = resTypes.map(function(type) {
-			return new EnableResourceEffect({
-				type: type,
-				amount: amount
-			});
-		});
-		let player = new CityPlayer({ effects: effecs });
+		let player = new CityPlayer();
 
 		let operations = resTypes.map(function(type) {
 			return new EarnResourceForPlayerOperation({
