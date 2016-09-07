@@ -9,3 +9,4 @@
 
 # Ignore npm-debug log
 npm-debug.log 
+index.ejs
