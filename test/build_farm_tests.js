@@ -14,9 +14,6 @@ var EarnResourceForPlayerOperation = CharacterOperationJS.EarnResourceForPlayerO
 var InvestResourceInBuildingOperation = CharacterOperationJS.InvestResourceInBuildingOperation;
 var PlayerEarnResourceEffect = require("../lib/city/CityPlayer.js").PlayerEarnResourceEffect;
 
-var BuildingJS = require('../lib/city/Building.js');
-var Building = BuildingJS.Building;
-
 describe('Building a wooden farm', () => {
   let time = 10;
   let wood = CityResource.wood(10);
