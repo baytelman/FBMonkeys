@@ -2,7 +2,7 @@ var assert = require('chai').assert;
 var CitySerializer = require("../lib/city/CitySerializer.js").CitySerializer;
 
 var SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
-var CityTestUtilities = require("./utils/common.js").CityTestUtilities;
+var CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
 
 var CityResource = require('../lib/city/CityResource.js').CityResource;
 var City = require('../lib/city/City.js').City;
@@ -31,9 +31,11 @@ describe('Character Operations', () => {
 		let building = new Building({
 			costs: [ CityResource.construction(construction)],
 		});
-		let player = CityTestUtilities.enabledCityPlayer(new City({
-			defaultBuilding:building
-		}));
+		let player = new CityPlayer({
+			city:new City({
+				defaultBuilding:building
+			})
+		});
 
 		let character = new CityCharacter({
 			operations:[new CompleteBuildingOperation({
