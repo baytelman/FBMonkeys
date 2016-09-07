@@ -42,7 +42,7 @@ describe('City', () => {
 			});
 		}
 		locations.forEach(function(location, index) {
-			assert.strictEqual(city.buildingAtLocation(location), buildings[index]);
+			assert.strictEqual(typeof city.buildingAtLocation(location), typeof buildings[index]);
 		});
 	});
 

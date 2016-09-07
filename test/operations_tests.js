@@ -187,17 +187,18 @@ describe('Character Operations', () => {
 			location: new SquareCoordinate(-1,0)
 		});
 
+		let placedBuilding = player.city.buildings[1];
 		let updates = player.updateTime(time);
-		assert.strictEqual(Math.round(100*building.progress()), Math.round(100.0*(1.0/construction)));
+		assert.strictEqual(Math.round(100*placedBuilding.progress()), Math.round(100.0*(1.0/construction)));
 		assert.instanceOf(updates[0], CompleteBuildingOperation, "Began incremental construction");
 		assert.instanceOf(updates[1], CompleteBuildingOperation, "Finish incremental construcion");
 		assert.instanceOf(updates[2], CityResource, "Constructed incrementally part the project (building)");
 		assert.instanceOf(updates[3], CompleteBuildingOperation, "Began next construction");
 
 		updates = player.updateTime(8*time);
-		assert.isFalse(building.isCompleted());
+		assert.isFalse(placedBuilding.isCompleted());
 		updates = player.updateTime(time);
-		assert.isTrue(building.isCompleted());
+		assert.isTrue(placedBuilding.isCompleted());
 		assert.isNull(character.currentOperation);
 		assert.instanceOf(updates[0], CompleteBuildingOperation, "Completed building");
 		assert.instanceOf(updates[1], CityResource, "Final incremental construction");
