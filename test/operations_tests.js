@@ -14,6 +14,7 @@ var CityResource = require('../lib/city/CityResource.js').CityResource;
 
 var CharacterOperationJS = require("../lib/city/CharacterOperation.js");
 var CityCharacter = CharacterOperationJS.CityCharacter;
+var CharacterOperation = CharacterOperationJS.CharacterOperation;
 var EarnResourceForPlayerOperation = CharacterOperationJS.EarnResourceForPlayerOperation;
 
 var BuildingJS = require('../lib/city/Building.js');
@@ -39,8 +40,8 @@ describe('Character Operations', () => {
 		player.addCharacter(character);
 
 		let updates = player.updateTime(time/2);
-		assert.instanceOf(updates[0], EarnResourceForPlayerOperation, "Began earning");
-		assert.strictEqual(updates.length, 1);
+		assert.instanceOf(updates[0].object, EarnResourceForPlayerOperation, "Began earning");
+		assert.strictEqual(updates[updates.length-1].type, EarnResourceForPlayerOperation.kCharacterOperationProgressEvent);
 	});
 
 	it('can be completed fully', () => {
@@ -51,13 +52,15 @@ describe('Character Operations', () => {
 		player.addCharacter(character);
 
 		let updates = player.updateTime(time);
-		assert.instanceOf(updates[0], EarnResourceForPlayerOperation, "Began earning");
-		assert.isFalse(updates[0].completed, "Began earning");
-		assert.instanceOf(updates[1], EarnResourceForPlayerOperation, "Completed earning");
-		assert.isTrue(updates[1].completed, "Completed earning");
-		assert.instanceOf(updates[2], CityResource);
-		assert.instanceOf(updates[3], EarnResourceForPlayerOperation, "Began next earning");
-		assert.strictEqual(updates.length, 4, "Began, Complete, Resource, Began");
+		assert.instanceOf(updates[0].object, EarnResourceForPlayerOperation, "Began earning");
+		assert.isFalse(updates[0].object.completed, "Began earning");
+
+		assert.instanceOf(updates[updates.length - 3].object, EarnResourceForPlayerOperation, "Completed earning");
+		assert.isTrue(updates[updates.length - 3].object.completed, "Completed earning");
+
+		assert.instanceOf(updates[updates.length - 2].object, CityResource);
+
+		assert.instanceOf(updates[updates.length - 1].object, EarnResourceForPlayerOperation, "Began next earning");
 	});
 
 	it('can be completed partially', () => {
@@ -73,21 +76,21 @@ describe('Character Operations', () => {
 		player.addCharacter(character);
 
 		let updates = player.updateTime(time/4.0);
-		assert.instanceOf(updates[0], EarnResourceForPlayerOperation, "Began earning");
+		assert.instanceOf(updates[0].object, EarnResourceForPlayerOperation, "Began earning");
 		assert.instanceOf(character.currentOperation, EarnResourceForPlayerOperation);
-		assert.strictEqual(updates.length, 1, "Began");
 
 		updates = player.updateTime(time/4.0);
-		assert.strictEqual(updates.length, 0, "Nothing new");
+		updates.forEach(function(update) {
+			assert.strictEqual(update.type, CharacterOperation.kCharacterOperationProgressEvent, "Nothing new");
+		});
 		assert.instanceOf(character.currentOperation, EarnResourceForPlayerOperation);
 		assert.isFalse(player.canAfford(resources));
 
 		updates = player.updateTime(time/2.0);
 
-		assert.instanceOf(updates[0], EarnResourceForPlayerOperation, "Completed earning");
-		assert.instanceOf(updates[1], CityResource);
-		assert.instanceOf(updates[2], EarnResourceForPlayerOperation, "Began next earning");
-		assert.strictEqual(updates.length, 3, "Completed, Earned Resources, New");
+		assert.instanceOf(updates[updates.length-3].object, EarnResourceForPlayerOperation, "Completed earning");
+		assert.instanceOf(updates[updates.length-2].object, CityResource);
+		assert.instanceOf(updates[updates.length-1].object, EarnResourceForPlayerOperation, "Began next earning");
 
 		assert.isTrue(player.canAfford(resources));
 	});
@@ -115,8 +118,7 @@ describe('Character Operations', () => {
 
 		/* Finish a, but move to b now, because a is disabled */
 		updates = player.updateTime(time);
-		assert.strictEqual(updates.length, 3, "completed 'a', earned 'a' and began 'b'");
-		let generatedResource = updates[1];
+		let generatedResource = updates[updates.length - 3].object;
 		assert.instanceOf(generatedResource, CityResource);
 		assert.strictEqual(generatedResource.type, resTypes[0]);
 		/* We are making b now */
@@ -125,7 +127,7 @@ describe('Character Operations', () => {
 		operations[0].enable();
 		/* Finish b, but move to a now, because a is enabled */
 		updates = player.updateTime(time);
-		generatedResource = updates[1];
+		generatedResource = updates[updates.length - 3].object;
 		assert.instanceOf(generatedResource, CityResource);
 		assert.strictEqual(generatedResource.type, resTypes[1]);
 		/* We are back to making a */
@@ -190,18 +192,19 @@ describe('Character Operations', () => {
 		let placedBuilding = player.city.buildings[1];
 		let updates = player.updateTime(time);
 		assert.strictEqual(Math.round(100*placedBuilding.progress()), Math.round(100.0*(1.0/construction)));
-		assert.instanceOf(updates[0], CompleteBuildingOperation, "Began incremental construction");
-		assert.instanceOf(updates[1], CompleteBuildingOperation, "Finish incremental construcion");
-		assert.instanceOf(updates[2], CityResource, "Constructed incrementally part the project (building)");
-		assert.instanceOf(updates[3], CompleteBuildingOperation, "Began next construction");
+		assert.instanceOf(updates[0].object, CompleteBuildingOperation, "Began incremental construction");
+		assert.instanceOf(updates[updates.length - 4].object, CompleteBuildingOperation, "Finish operation");
+		assert.instanceOf(updates[updates.length - 3].object, CityResource, "Producing some construction");
+		assert.instanceOf(updates[updates.length - 2].object, Building, "Constructed incrementally part the project (building)");
+		assert.instanceOf(updates[updates.length - 1].object, CompleteBuildingOperation, "Began next construction");
 
 		updates = player.updateTime(8*time);
 		assert.isFalse(placedBuilding.isCompleted());
 		updates = player.updateTime(time);
 		assert.isTrue(placedBuilding.isCompleted());
 		assert.isNull(character.currentOperation);
-		assert.instanceOf(updates[0], CompleteBuildingOperation, "Completed building");
-		assert.instanceOf(updates[1], CityResource, "Final incremental construction");
-		assert.instanceOf(updates[2], Building);
+		assert.instanceOf(updates[updates.length - 3].object, CompleteBuildingOperation, "Completed building");
+		assert.instanceOf(updates[updates.length - 2].object, CityResource, "Final incremental construction");
+		assert.instanceOf(updates[updates.length - 1].object, Building);
 	});
 });
