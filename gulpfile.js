@@ -1,5 +1,5 @@
-var gulp    = require('gulp');
-var replace = require('gulp-replace');
+const gulp    = require('gulp');
+const replace = require('gulp-replace');
 
 var productionUrl       = 'https://sleepy-gorge-61610.herokuapp.com';
 var webpackDevServerUrl = 'http://localhost:8080';

@@ -1,13 +1,13 @@
-var assert = require('chai').assert
-var PlayerJS = require('../lib/_base/Player.js');
-var Player = PlayerJS.Player;
+const assert = require('chai').assert
+const PlayerJS = require('../lib/_base/Player.js');
+const Player = PlayerJS.Player;
 
-var EffectJS = require('../lib/_base/Effect.js');
+const EffectJS = require('../lib/_base/Effect.js');
 
-var ResourceJS = require('../lib/_base/Resource.js');
-var Resource = ResourceJS.Resource;
-var ResourceConsumingAction = ResourceJS.ResourceConsumingAction;
-var InsuficientResourcesError = ResourceJS.InsuficientResourcesError;
+const ResourceJS = require('../lib/_base/Resource.js');
+const Resource = ResourceJS.Resource;
+const ResourceConsumingAction = ResourceJS.ResourceConsumingAction;
+const InsuficientResourcesError = ResourceJS.InsuficientResourcesError;
 
 describe('Resources', () => {
 

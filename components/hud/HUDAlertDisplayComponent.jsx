@@ -1,8 +1,8 @@
-var React = require('react');
+const React = require('react');
 
-var Alert = require('../alerts/AlertComponent.jsx').default;
+const Alert = require('../alerts/AlertComponent.jsx').default;
 
-var AlertStore = require('../../stores/AlertStore.js').default;
+const AlertStore = require('../../stores/AlertStore.js').default;
 
 function getAlertsState () {
   return AlertStore.getAlerts();

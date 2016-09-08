@@ -1,6 +1,6 @@
-var assert = require('chai').assert
-var A = require("./utils/inheritance_helpers.js").A;
-var B = require("./utils/inheritance_helpers.js").B;
+const assert = require('chai').assert
+const A = require("./utils/inheritance_helpers.js").A;
+const B = require("./utils/inheritance_helpers.js").B;
 
 describe('Inheritance and Mutation', () => {
   let a = new A();

@@ -1,23 +1,23 @@
-var React = require('react');
+const React = require('react');
 
-var SquareCoordinateJS = require('../lib/_base/SquareCoordinate.js');
-var SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
+const SquareCoordinateJS = require('../lib/_base/SquareCoordinate.js');
+const SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
 
-var Player = require('./PlayerComponent.jsx').default;
-var CharactersLayer = require('./CharactersLayerComponent.jsx').default;
-var Tile = require('./TileComponent.jsx').default;
+const Player = require('./PlayerComponent.jsx').default;
+const CharactersLayer = require('./CharactersLayerComponent.jsx').default;
+const Tile = require('./TileComponent.jsx').default;
 
-var SelectionStore = require('../stores/SelectionStore.js').default;
-var SelectionActions = require('../actions/SelectionActions.js');
+const SelectionStore = require('../stores/SelectionStore.js').default;
+const SelectionActions = require('../actions/SelectionActions.js');
 
-var BuildingStore = require('../stores/BuildingStore.js').default;
-var BuildingActions = require('../actions/BuildingActions.js');
+const BuildingStore = require('../stores/BuildingStore.js').default;
+const BuildingActions = require('../actions/BuildingActions.js');
 
-var CharacterStore = require('../stores/CharacterStore.js').default;
-var CharacterActions = require('../actions/CharacterActions.js');
+const CharacterStore = require('../stores/CharacterStore.js').default;
+const CharacterActions = require('../actions/CharacterActions.js');
 
-var PlayerStore = require('../stores/PlayerStore.js').default;
-var PlayerActions = require('../actions/PlayerActions.js');
+const PlayerStore = require('../stores/PlayerStore.js').default;
+const PlayerActions = require('../actions/PlayerActions.js');
 
 function getSelectionState () {
   return SelectionStore.getSelection();

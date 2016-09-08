@@ -1,18 +1,18 @@
-var assert = require('chai').assert
-var Player = require('../lib/_base/Player.js').Player;
-var SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
+const assert = require('chai').assert
+const Player = require('../lib/_base/Player.js').Player;
+const SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
 
-var CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
-var CityJS = require('../lib/city/City.js')
-var City = CityJS.City;
-var OverlappingBuildingError = CityJS.OverlappingBuildingError;
+const CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
+const CityJS = require('../lib/city/City.js')
+const City = CityJS.City;
+const OverlappingBuildingError = CityJS.OverlappingBuildingError;
 
-var CityResource = require('../lib/city/CityResource.js').CityResource;
+const CityResource = require('../lib/city/CityResource.js').CityResource;
 
-var BuildingJS = require('../lib/city/Building.js');
-var Building = BuildingJS.Building;
-var BuildingConstructionAction = BuildingJS.BuildingConstructionAction
-var ProjectAlreadyCompletedError = BuildingJS.ProjectAlreadyCompletedError;
+const BuildingJS = require('../lib/city/Building.js');
+const Building = BuildingJS.Building;
+const BuildingConstructionAction = BuildingJS.BuildingConstructionAction
+const ProjectAlreadyCompletedError = BuildingJS.ProjectAlreadyCompletedError;
 
 describe('City', () => {
 	it('starts with one building', () => {

@@ -2,7 +2,7 @@ import { EventEmitter } from "events";
 
 import dispatcher from "../dispatcher.js";
 
-var UUIDjs = require('uuid-js');
+const UUIDjs = require('uuid-js');
 
 class AlertStore extends EventEmitter {
   constructor() {

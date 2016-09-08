@@ -1,20 +1,20 @@
-var assert = require('chai').assert;
-var CharacterOperationJS = require("../lib/city/CharacterOperation.js");
-var CityJS = require('../lib/city/City.js')
+const assert = require('chai').assert;
+const CharacterOperationJS = require("../lib/city/CharacterOperation.js");
+const CityJS = require('../lib/city/City.js')
 
-var SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
+const SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
 
-var GameModule = require('../lib/controller/GameController.js').GameModule;
-var CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
-var CityResource = require('../lib/city/CityResource.js').CityResource;
+const GameModule = require('../lib/controller/GameController.js').GameModule;
+const CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
+const CityResource = require('../lib/city/CityResource.js').CityResource;
 
-var CityCharacter = CharacterOperationJS.CityCharacter;
-var EarnResourceForPlayerOperation = CharacterOperationJS.EarnResourceForPlayerOperation;
-var InvestResourceInBuildingOperation = CharacterOperationJS.InvestResourceInBuildingOperation;
+const CityCharacter = CharacterOperationJS.CityCharacter;
+const EarnResourceForPlayerOperation = CharacterOperationJS.EarnResourceForPlayerOperation;
+const InvestResourceInBuildingOperation = CharacterOperationJS.InvestResourceInBuildingOperation;
 
-var City = CityJS.City;
+const City = CityJS.City;
 
-var PlayerEarnResourceEffect = require("../lib/city/CityPlayer.js").PlayerEarnResourceEffect;
+const PlayerEarnResourceEffect = require("../lib/city/CityPlayer.js").PlayerEarnResourceEffect;
 
 describe('Building a wooden farm', () => {
   let time = 10;

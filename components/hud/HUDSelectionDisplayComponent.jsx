@@ -1,9 +1,9 @@
-var React = require('react');
+const React = require('react');
 
-var CharacterMenu = require('../menus/CharacterMenuComponent.jsx').default;
-var BuildingMenu  = require('../menus/BuildingMenuComponent.jsx').default;
-var BuildMenu     = require('../menus/BuildMenuComponent.jsx').default;
-var CancelMenu    = require('../menus/CancelMenuComponent.jsx').default;
+const CharacterMenu = require('../menus/CharacterMenuComponent.jsx').default;
+const BuildingMenu  = require('../menus/BuildingMenuComponent.jsx').default;
+const BuildMenu     = require('../menus/BuildMenuComponent.jsx').default;
+const CancelMenu    = require('../menus/CancelMenuComponent.jsx').default;
 
 var SelectionDisplay = React.createClass({
   getInitialState: function() {
