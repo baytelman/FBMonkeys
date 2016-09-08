@@ -38,7 +38,7 @@ describe('Resources', () => {
     assert.strictEqual(moreResources.amount,  amount * multiplier);
   });
 
-  it('can be earned until a maximum defined by effects', () => {
+  it('can be earned', () => {
     let player = enabledPlayer();
     let resource = new Resource(resourceType, amount);
     assert.strictEqual(player.getResourceAmountForType(resourceType),  0);
@@ -48,9 +48,6 @@ describe('Resources', () => {
 
     let moreResources = resource.resourceWithMultiplier(multiplier);
     assert.strictEqual(moreResources.amount,  amount * multiplier);
-
-    player.earnResource(moreResources);
-    assert.strictEqual(player.getResourceAmountForType(resourceType),  maxResourceDefault);
   });
 
   it('are consumed', () => {
