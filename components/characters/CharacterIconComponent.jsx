@@ -11,7 +11,7 @@ var CharacterIcon = React.createClass({
     var id = 'char-' + this.props.character.id.toString();
     var iconClassName = (this.props.isSelected) ? 'character-icon selected' : 'character-icon';
     return(
-      <character className='character' id={id} onMouseOver={this._onHover} onClick={this._onClick}>
+      <character className='character-list-item' id={id} onMouseOver={this._onHover} onClick={this._onClick}>
         <div className={iconClassName}>
           <div className='character-health'></div>
         </div>
