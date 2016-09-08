@@ -73,7 +73,7 @@ describe('Character Operations', () => {
 			operations:[operations]
 		});
 
-		player.addCharacter(character);
+		character = player.addCharacter(character);
 
 		let updates = player.updateTime(time/4.0);
 		assert.instanceOf(updates[0].object, EarnResourceForPlayerOperation, "Began earning");
@@ -108,7 +108,7 @@ describe('Character Operations', () => {
 		let character = new CityCharacter({
 			operations:operations
 		});
-		player.addCharacter(character);
+		character = player.addCharacter(character);
 
 		let updates = player.updateTime(0.1);
 		/* Began earning a */
@@ -184,12 +184,11 @@ describe('Character Operations', () => {
 		let building = new Building({
 			costs: [ CityResource.construction(construction)],
 		});
-		player.city.addBuilding({
+		let placedBuilding = player.city.addBuilding({
 			building: building,
 			location: new SquareCoordinate(-1,0)
 		});
 
-		let placedBuilding = player.city.buildings[1];
 		let updates = player.updateTime(time);
 		assert.strictEqual(Math.round(100*placedBuilding.progress()), Math.round(100.0*(1.0/construction)));
 		assert.instanceOf(updates[0].object, CompleteBuildingOperation, "Began incremental construction");

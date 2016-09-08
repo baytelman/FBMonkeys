@@ -33,17 +33,16 @@ describe('Building a wooden farm', () => {
     let character = new CityCharacter({
       operations:operations
     });
+    character = player.addCharacter(character);
+
     character.setOperationPriority(operations[1], 0);
     character.setOperationPriority(operations[0], 1);
 
-    player.addCharacter(character);
     let farm = GameModule.kFarm;
-    player.city.addBuilding({
+    let placedFarm = player.city.addBuilding({
       building:farm,
       location:new SquareCoordinate(-1,0)
     });
-
-    let placedFarm = player.city.buildings[1];
 
     /* Half a turn */
     player.updateTime(time/2);

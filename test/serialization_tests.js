@@ -46,7 +46,8 @@ describe('Character Operations', () => {
 		player.addCharacter(character);
 
 		let updates = player.updateTime(time);
-		assert.closeTo(player.city.buildings[0].progress(), 0.1, 0.01);
+		let b = Object.values(player.city.buildings)[0];
+		assert.closeTo(b.progress(), 0.1, 0.01);
 
 		let json = CitySerializer.serialize(player);
 		assert.include(json, player.id);
@@ -54,6 +55,7 @@ describe('Character Operations', () => {
 
 		updates = player.updateTime(time);
 		assert.isTrue(updates.length > 0);
-		assert.closeTo(player.city.buildings[0].progress(), 0.2, 0.01);
+		b = Object.values(player.city.buildings)[0];
+		assert.closeTo(b.progress(), 0.2, 0.01);
 	});
 });
