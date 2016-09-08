@@ -12,7 +12,7 @@
     width: 100%;
     font-size: 0px;
   }
-  table { padding: 15px 0px; }
+  table { padding: $gameGridVerticalPadding 0px; }
   tr {
     position: relative;
     max-height: 25px;

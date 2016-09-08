@@ -17,14 +17,6 @@ var Tile = React.createClass({
   },
   render: function() {
     var hoverStateClass = (this.props.mode === 'placing') ? ' cell-placement-hover-state' : '';
-    // if (this.props.character) {
-    //   var characterClassName = 'entity character-entity char-' + this.props.character.name + hoverStateClass;
-    //   return (
-    //     <characterentity className={characterClassName} onClick={this._onCharacterClick}>
-    //       <span>{this.props.character.name}</span>
-    //     </characterentity>
-    //   )
-    // }
     if (!this.props.building) {
       return <nothing className={hoverStateClass} onClick={this._onEmptyClick} onMouseOver={this._onEmptyHover}></nothing>;
     }
@@ -77,29 +69,7 @@ var Tile = React.createClass({
     } else {
       console.log('Hovering Empty Space in normal mode');
     }
-  },
-  _onCharacterClick: function (event) {
-    event.preventDefault();
-    event.stopPropagation();
-    if (this.props.mode === 'placing') {
-      return false;
-    }
-    var data = {
-      type: 'character',
-      name: this.props.character.name,
-      currentHealth: this.props.character.currentHealth,
-      health: this.props.character.health,
-      race: this.props.character.race,
-      age: this.props.character.age,
-      location: this.props.character.location,
-      gender: this.props.character.gender,
-      mood: this.props.character.mood,
-      sleep: this.props.character.sleep,
-      social: this.props.character.social,
-      skills: this.props.character.skills
-    };
-    SelectionActions.setSelection(data);
-  },
+  }
 });
 
 export default Tile;

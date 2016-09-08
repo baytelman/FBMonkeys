@@ -14,7 +14,6 @@ const BuildingStore = require('../stores/BuildingStore.js').default;
 const BuildingActions = require('../actions/BuildingActions.js');
 
 const CharacterStore = require('../stores/CharacterStore.js').default;
-const CharacterActions = require('../actions/CharacterActions.js');
 
 const PlayerStore = require('../stores/PlayerStore.js').default;
 const PlayerActions = require('../actions/PlayerActions.js');
@@ -101,6 +100,8 @@ var City = React.createClass({
           }
         }
         // Check if this location contains a character
+        // TODO: Update this setting of character in tiles according to the use of the new CharactersLayerComponent
+        // Perhaps this is deprecated altogether?
         for (var i = 0; i < this.state.characters.length; i++) {
           if ((this.state.characters[i].location.x === x) && (this.state.characters[i].location.y === y)) {
             character = this.state.characters[i];
@@ -110,7 +111,7 @@ var City = React.createClass({
           x:x,
           y:y
         }
-        let tileComponent = <Tile building={building} location={location} player={this.state.player} selection={this.state.selection} characters={this.state.characters} character={character} mode={this.state.mode}/>;
+        let tileComponent = <Tile building={building} location={location} player={this.state.player} selection={this.state.selection} mode={this.state.mode}/>;
         columns.push(<td className="gridCell" key={'row' + x + '_col' + y}>{tileComponent}</td>);
       }
       rows.push(<tr key={'col' + y}>{columns}</tr>);
@@ -120,7 +121,7 @@ var City = React.createClass({
         <table id={this.props.player.city.id} onClick={this._onClick}>
           <tbody>{rows}</tbody>
         </table>
-        <CharactersLayer characters={this.state.characters} />
+        <CharactersLayer characters={this.state.characters} mode={this.state.mode} />
         <Player player={this.props.player} selection={this.state.selection} characters={this.state.characters} mode={this.state.mode}/>
       </game>
     );

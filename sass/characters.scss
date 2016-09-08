@@ -1,9 +1,13 @@
 #characters-layer {
   position: absolute;
   top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
+  left: 50%;
+  // width: 100%;
+  // height: 100%;
+  height: 725px;
+  width: 1425px;
+  margin: $gameGridVerticalPadding -712.5px 0px;
+  pointer-events: none;
   .character-model {
     display: inline-block;
     position: absolute;
@@ -12,5 +16,12 @@
     background-color: red;
     box-sizing: border-box;
     overflow: hidden;
+    cursor: pointer;
+    pointer-events: all;
+    -webkit-transition: all 2s linear;
+    -moz-transition: all 2s linear;
+    -ms-transition: all 2s linear;
+    -o-transition: all 2s linear;
+    transition: all 2s linear;
   }
 }

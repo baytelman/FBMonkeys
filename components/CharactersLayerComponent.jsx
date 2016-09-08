@@ -9,7 +9,7 @@ var CharactersLayerComponent = React.createClass({
   buildChildren: function (character) {
     let className = 'character character-id-' + character.id;
     return (
-        <Character key={character.id} character={character} className={className} location={character.location} />
+        <Character key={character.id} mode={this.props.mode} character={character} className={className} location={character.location} />
     )
   },
   render: function () {

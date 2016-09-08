@@ -9,7 +9,7 @@ export function getCharacters() {
 export function addCharacter(data) {
   dispatcher.dispatch({
     type: "ADD_CHARACTER",
-    data: {
+    character: {
       id:            data.id,
       name:          data.name,
       type:          data.type,
@@ -32,6 +32,14 @@ export function addCharacter(data) {
 export function deleteCharacter(id) {
   dispatcher.dispatch({
     type: "DELETE_CHARACTER",
-    data: id
+    id: id
+  })
+}
+
+export function updateCharacterLocation(id,location) {
+  dispatcher.dispatch({
+    type: "UPDATE_CHARACTER_LOCATION",
+    id: id,
+    location: location
   })
 }

@@ -103,6 +103,15 @@ class CharacterStore extends EventEmitter {
     this.characters = characters;
     this.emit("change");
   }
+  updateCharacterLocation(id,location) {
+    // If character exists, update its location
+    for (var i = 0; i < this.characters.length; i++) {
+      if (this.characters[i].id === id) {
+        this.characters[i].location = location;
+      }
+    }
+    this.emit("change");
+  }
   handleActions(action) {
     console.log("CharacterStore received an action:", action);
     switch(action.type) {
@@ -111,13 +120,15 @@ class CharacterStore extends EventEmitter {
         break;
       }
       case "ADD_CHARACTER": {
-        let character = action.data
-        this.addCharacter(character);
+        this.addCharacter(action.character);
         break;
       }
       case "DELETE_CHARACTER": {
-        let id = action.data
-        this.deleteCharacter(id);
+        this.deleteCharacter(action.id);
+        break;
+      }
+      case "UPDATE_CHARACTER_LOCATION": {
+        this.updateCharacterLocation(action.id,action.location);
         break;
       }
       default: {
