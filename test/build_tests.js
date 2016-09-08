@@ -17,32 +17,33 @@ var ProjectAlreadyCompletedError = BuildingJS.ProjectAlreadyCompletedError;
 describe('City', () => {
 	it('starts with one building', () => {
 		let city = new City();
-		assert.strictEqual(city.buildings.length, 1)
+		assert.strictEqual(Object.keys(city.buildings).length, 1)
 
-		let location = city.buildings[0].location;
+		let location = Object.values(city.buildings)[0].location;
 		assert.isTrue(location.is(new SquareCoordinate(0,0)));
 	});
 
 	it('can retrieve building by location', () => {
 		let city = new City();
+		let b = Object.values(city.buildings)[0];
 		let locations = [
-			city.buildings[0].location,
+			b.location,
 			new SquareCoordinate(1,0),
 			new SquareCoordinate(0,-1),
 		];
 		let buildings = [
-			city.buildings[0],
+			b,
 			new Building(),
 			new Building(),
 		];
 		for (var i = 1; i < buildings.length; i++) {
-			city.addBuilding({
+			city.planBuilding({
 				building: buildings[i],
 				location: locations[i],
 			});
 		}
 		locations.forEach(function(location, index) {
-			assert.strictEqual(city.buildingAtLocation(location), buildings[index]);
+			assert.strictEqual(typeof city.buildingAtLocation(location), typeof buildings[index]);
 		});
 	});
 
@@ -55,7 +56,7 @@ describe('City', () => {
 			new SquareCoordinate(-8,5),
 		];
 		locations.forEach(function(location, index) {
-			city.addBuilding({
+			city.planBuilding({
 				building: new Building(),
 				location: location,
 			});
@@ -70,10 +71,11 @@ describe('City', () => {
 
 	it('cannot overlap buildings', () => {
 		let city = new City();
-		let location = city.buildings[0].location;
+		let b = Object.values(city.buildings)[0];
+		let location = b.location;
 		let building = new Building();
 
-		assert.throw(()=>city.addBuilding({building:building}));
+		assert.throw(()=>city.planBuilding({building:building}));
 	});
 
 });
@@ -97,7 +99,7 @@ describe('Building Construction', () => {
 		assert.isTrue(action.isAffordable(player));
 
 		action.executeForPlayer(player);
-		assert.strictEqual(player.city.buildings.length, 2);
+		assert.strictEqual(Object.keys(player.city.buildings).length, 2);
 	});
 
 	it('cannot take place in same place', () => {

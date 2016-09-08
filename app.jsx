@@ -51,4 +51,3 @@ ReactDOM.render(
 // Require Mixpanel
 var Mixpanel = require('./lib/helpers/mixpanel.js');
 mixpanel.track('City Instance Loaded');
-
