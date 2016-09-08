@@ -15,7 +15,7 @@ var BuildingJS = require('../lib/city/Building.js');
 var Building = BuildingJS.Building;
 var CompleteBuildingOperation = CharacterOperationJS.CompleteBuildingOperation;
 
-describe('Character Operations', () => {
+describe('Serialization', () => {
 	let time = 10;
 	let amount = 100;
 	let resource =  CityResource.gold(amount);
@@ -25,7 +25,7 @@ describe('Character Operations', () => {
 		resources: resources,
 	});
 
-	it('begins operation operation', () => {
+	it('Deserialized player continues building', () => {
 		let construction = 10;
 		let building = new Building({
 			costs: [ CityResource.construction(construction)],
