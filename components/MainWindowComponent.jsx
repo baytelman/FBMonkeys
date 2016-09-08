@@ -1,6 +1,6 @@
 var React = require('react');
 
-var CityComponent = require('./CityComponent.jsx').default;
+var GameComponent = require('./GameComponent.jsx').default;
 
 var MainWindow = React.createClass({
     getInitialState: function () {
@@ -10,7 +10,7 @@ var MainWindow = React.createClass({
         var player = this.props.player;
         return(
             <div id="main-window">
-                <CityComponent player={player} />
+                <GameComponent player={player} />
             </div>
         );
     }

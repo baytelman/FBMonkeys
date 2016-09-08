@@ -8,6 +8,7 @@
 /node_modules
 
 # Ignore npm-debug log
-npm-debug.log 
-public
-index.ejs
+npm-debug.log
+
+# Ignore public folder containing webpack-bundled js and css
+/public

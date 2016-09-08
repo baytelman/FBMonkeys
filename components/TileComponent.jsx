@@ -17,14 +17,14 @@ var Tile = React.createClass({
   },
   render: function() {
     var hoverStateClass = (this.props.mode === 'placing') ? ' cell-placement-hover-state' : '';
-    if (this.props.character) {
-      var characterClassName = 'entity character-entity char-' + this.props.character.name + hoverStateClass;
-      return (
-        <characterentity className={characterClassName} onClick={this._onCharacterClick}>
-          <span>{this.props.character.name}</span>
-        </characterentity>
-      )
-    }
+    // if (this.props.character) {
+    //   var characterClassName = 'entity character-entity char-' + this.props.character.name + hoverStateClass;
+    //   return (
+    //     <characterentity className={characterClassName} onClick={this._onCharacterClick}>
+    //       <span>{this.props.character.name}</span>
+    //     </characterentity>
+    //   )
+    // }
     if (!this.props.building) {
       return <nothing className={hoverStateClass} onClick={this._onEmptyClick} onMouseOver={this._onEmptyHover}></nothing>;
     }

@@ -4,6 +4,7 @@ var SquareCoordinateJS = require('../lib/_base/SquareCoordinate.js');
 var SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
 
 var Player = require('./PlayerComponent.jsx').default;
+var CharactersLayer = require('./CharactersLayerComponent.jsx').default;
 var Tile = require('./TileComponent.jsx').default;
 
 var SelectionStore = require('../stores/SelectionStore.js').default;
@@ -119,6 +120,7 @@ var City = React.createClass({
         <table id={this.props.player.city.id} onClick={this._onClick}>
           <tbody>{rows}</tbody>
         </table>
+        <CharactersLayer characters={this.state.characters} />
         <Player player={this.props.player} selection={this.state.selection} characters={this.state.characters} mode={this.state.mode}/>
       </game>
     );

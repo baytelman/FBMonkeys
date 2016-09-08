@@ -621,12 +621,12 @@ input:-moz-placeholder {
     font-size: 11px;
     line-height: 15px;
     margin-bottom: 2px; }
-  #character-display .characters .character {
+  #character-display .characters .character-list-item {
     display: block;
     margin-bottom: 2px; }
-    #character-display .characters .character:hover {
+    #character-display .characters .character-list-item:hover {
       cursor: pointer; }
-    #character-display .characters .character .character-icon {
+    #character-display .characters .character-list-item .character-icon {
       background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(0, 0, 0, 0.4)), color-stop(100%, rgba(0, 0, 0, 0.75)));
       background: -webkit-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.4) 0, rgba(0, 0, 0, 0.75) 100%);
       background: -moz-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.4) 0, rgba(0, 0, 0, 0.75) 100%);
@@ -639,15 +639,15 @@ input:-moz-placeholder {
       width: 25px;
       box-sizing: border-box;
       vertical-align: middle; }
-      #character-display .characters .character .character-icon.selected {
+      #character-display .characters .character-list-item .character-icon.selected {
         border: 2px solid blue; }
-      #character-display .characters .character .character-icon .character-health {
+      #character-display .characters .character-list-item .character-icon .character-health {
         position: absolute;
         bottom: 0px;
         height: 4px;
         width: 100%;
         background-color: red; }
-    #character-display .characters .character .character-name {
+    #character-display .characters .character-list-item .character-name {
       margin-left: 4px;
       font-size: 11px;
       vertical-align: middle; }
@@ -742,3 +742,18 @@ input:-moz-placeholder {
     margin: 0px;
     padding: 0px;
     list-style-type: none; }
+
+#characters-layer {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%; }
+  #characters-layer .character-model {
+    display: inline-block;
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background-color: red;
+    box-sizing: border-box;
+    overflow: hidden; }
