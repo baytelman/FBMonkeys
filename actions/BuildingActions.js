@@ -13,7 +13,7 @@ export function getBuildingAtLocation(location) {
   })
 }
 
-export function addBuilding(building) {
+export function planBuilding(building) {
   dispatcher.dispatch({
     type: "ADD_BUILDING",
     building: building

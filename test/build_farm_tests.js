@@ -1,17 +1,19 @@
 var assert = require('chai').assert;
+var CharacterOperationJS = require("../lib/city/CharacterOperation.js");
+var CityJS = require('../lib/city/City.js')
+
 var SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
 
 var GameModule = require('../lib/controller/GameController.js').GameModule;
 var CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
 var CityResource = require('../lib/city/CityResource.js').CityResource;
 
-var CityJS = require('../lib/city/City.js')
-var City = CityJS.City;
-
-var CharacterOperationJS = require("../lib/city/CharacterOperation.js");
 var CityCharacter = CharacterOperationJS.CityCharacter;
 var EarnResourceForPlayerOperation = CharacterOperationJS.EarnResourceForPlayerOperation;
 var InvestResourceInBuildingOperation = CharacterOperationJS.InvestResourceInBuildingOperation;
+
+var City = CityJS.City;
+
 var PlayerEarnResourceEffect = require("../lib/city/CityPlayer.js").PlayerEarnResourceEffect;
 
 describe('Building a wooden farm', () => {
@@ -21,28 +23,18 @@ describe('Building a wooden farm', () => {
 
   it('requires a character to fetch wood', () => {
     let player = new CityPlayer();
-    let operations = [
-      new EarnResourceForPlayerOperation({
-        time: time,
-        resources: [new CityResource(CityResource.kResourceWood, 1)],
-      }),
-      new InvestResourceInBuildingOperation({
-        time: time,
-      })
-    ];
-    let character = new CityCharacter({
-      operations:operations
-    });
+    let character = GameModule.kWoodChopper;
     character = player.addCharacter(character);
 
-    character.setOperationPriority(operations[1], 0);
-    character.setOperationPriority(operations[0], 1);
+    character.setOperationPriority(character.operations[1], 0);
+    character.setOperationPriority(character.operations[0], 1);
 
     let farm = GameModule.kFarm;
-    let placedFarm = player.city.addBuilding({
+    let placedFarmEvent = player.city.planBuilding({
       building:farm,
       location:new SquareCoordinate(-1,0)
     });
+    let placedFarm = player.city.buildings[placedFarmEvent.object.id];
 
     /* Half a turn */
     player.updateTime(time/2);

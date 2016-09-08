@@ -55,7 +55,7 @@ var Tile = React.createClass({
       var buildingName = this.props.selection.name;
       var x = this.props.location.x;
       var y = this.props.location.y;
-      this.props.player.city.addBuilding({
+      this.props.player.city.planBuilding({
         building: new BuildingModel({
           name: buildingName,
           costs: [CityResource.construction(120)],

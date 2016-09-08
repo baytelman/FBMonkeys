@@ -15,7 +15,6 @@ var BuildingJS = require('../lib/city/Building.js');
 var Building = BuildingJS.Building;
 var CompleteBuildingOperation = CharacterOperationJS.CompleteBuildingOperation;
 
-
 describe('Character Operations', () => {
 	let time = 10;
 	let amount = 100;

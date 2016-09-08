@@ -37,7 +37,7 @@ describe('City', () => {
 			new Building(),
 		];
 		for (var i = 1; i < buildings.length; i++) {
-			city.addBuilding({
+			city.planBuilding({
 				building: buildings[i],
 				location: locations[i],
 			});
@@ -56,7 +56,7 @@ describe('City', () => {
 			new SquareCoordinate(-8,5),
 		];
 		locations.forEach(function(location, index) {
-			city.addBuilding({
+			city.planBuilding({
 				building: new Building(),
 				location: location,
 			});
@@ -75,7 +75,7 @@ describe('City', () => {
 		let location = b.location;
 		let building = new Building();
 
-		assert.throw(()=>city.addBuilding({building:building}));
+		assert.throw(()=>city.planBuilding({building:building}));
 	});
 
 });

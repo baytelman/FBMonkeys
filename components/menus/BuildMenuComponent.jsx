@@ -36,7 +36,7 @@ var BuildMenu = React.createClass({
     // Generate random x/y coords between -10 and 10
     // var x = Math.floor(Math.random()*21)-10;
     // var y = Math.floor(Math.random()*21)-10;
-    // player.city.addBuilding({
+    // player.city.planBuilding({
     //   building: new Building({
     //     name: buildingName,
     //     costs: [CityResource.construction(120)],

@@ -33,7 +33,7 @@ class BuildingStore extends EventEmitter {
     }
     return null;
   }
-  addBuilding(building) {
+  planBuilding(building) {
     this.buildings.push(building);
     this.emit("change");
   }
@@ -49,7 +49,7 @@ class BuildingStore extends EventEmitter {
         break;
       }
       case "ADD_BUILDING": {
-        this.addBuilding(action.building);
+        this.planBuilding(action.building);
         break;
       }
       default: {

@@ -5,7 +5,7 @@ var MutableObject = require("../lib/_base/utils/Utils.js").MutableObject;
 
 var EffectJS = require("../lib/_base/Effect.js");
 
-
+var CityEvent = require('../lib/city/CityEvent.js').CityEvent;
 var CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
 var CityJS = require('../lib/city/City.js')
 var City = CityJS.City;
@@ -41,7 +41,7 @@ describe('Character Operations', () => {
 
 		let updates = player.updateTime(time/2);
 		assert.instanceOf(updates[0].object, EarnResourceForPlayerOperation, "Began earning");
-		assert.strictEqual(updates[updates.length-1].type, EarnResourceForPlayerOperation.kCharacterOperationProgressEvent);
+		assert.strictEqual(updates[updates.length-1].type, CityEvent.kCharacterOperationProgressEvent);
 	});
 
 	it('can be completed fully', () => {
@@ -81,7 +81,7 @@ describe('Character Operations', () => {
 
 		updates = player.updateTime(time/4.0);
 		updates.forEach(function(update) {
-			assert.strictEqual(update.type, CharacterOperation.kCharacterOperationProgressEvent, "Nothing new");
+			assert.strictEqual(update.type, CityEvent.kCharacterOperationProgressEvent, "Nothing new");
 		});
 		assert.instanceOf(character.currentOperation, EarnResourceForPlayerOperation);
 		assert.isFalse(player.canAfford(resources));
@@ -184,10 +184,11 @@ describe('Character Operations', () => {
 		let building = new Building({
 			costs: [ CityResource.construction(construction)],
 		});
-		let placedBuilding = player.city.addBuilding({
+		let placedBuildingEvent = player.city.planBuilding({
 			building: building,
 			location: new SquareCoordinate(-1,0)
 		});
+		let placedBuilding = player.city.buildings[placedBuildingEvent.object.id];
 
 		let updates = player.updateTime(time);
 		assert.strictEqual(Math.round(100*placedBuilding.progress()), Math.round(100.0*(1.0/construction)));
