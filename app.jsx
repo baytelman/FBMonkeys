@@ -4,16 +4,16 @@
 /************************************/
 
 // React
-var React = require('react');
-var ReactDOM = require('react-dom');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
 // Components
-var MainWindow = require('./components/MainWindowComponent.jsx').default;
+const MainWindow = require('./components/MainWindowComponent.jsx').default;
 
 // Default Data (user)
-var Data                = require('./lib/demo_data.js');
+const Data                = require('./lib/demo_data.js');
 // LocalStorage Data
-var localStorageHandler = require('./public/js/localStorageHandler.js');
+const localStorageHandler = require('./public/js/localStorageHandler.js');
 
 /************************************/
 /*********** 2. Configure ***********/
@@ -49,5 +49,5 @@ ReactDOM.render(
 /************************************/
 
 // Require Mixpanel
-var Mixpanel = require('./lib/helpers/mixpanel.js');
+const Mixpanel = require('./lib/helpers/mixpanel.js');
 mixpanel.track('City Instance Loaded');

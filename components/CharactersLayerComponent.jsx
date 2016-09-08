@@ -1,6 +1,6 @@
-var React = require('react');
+const React = require('react');
 
-var Character = require('./characters/CharacterComponent.jsx').default;
+const Character = require('./characters/CharacterComponent.jsx').default;
 
 var CharactersLayerComponent = React.createClass({
   getInitialState: function () {

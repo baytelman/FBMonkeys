@@ -1,6 +1,6 @@
-var React = require('react');
+const React = require('react');
 
-var CharacterIcon = require('../characters/CharacterIconComponent.jsx').default;
+const CharacterIcon = require('../characters/CharacterIconComponent.jsx').default;
 
 var CharacterDisplay = React.createClass({
   getInitialState: function() {

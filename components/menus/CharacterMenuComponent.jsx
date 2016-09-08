@@ -1,4 +1,4 @@
-var React = require('react');
+const React = require('react');
 
 var CharacterMenu = React.createClass({
   getInitialState: function() {

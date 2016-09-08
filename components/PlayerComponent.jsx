@@ -1,13 +1,13 @@
-var React = require('react');
+const React = require('react');
 
-var CharacterDisplay = require('./hud/HUDCharacterDisplayComponent.jsx').default;
-var AlertDisplay     = require('./hud/HUDAlertDisplayComponent.jsx').default;
-var ResourceDisplay  = require('./hud/HUDResourceDisplayComponent.jsx').default;
-var ControlPanel     = require('./hud/HUDControlPanelComponent.jsx').default;
-var SelectionDisplay = require('./hud/HUDSelectionDisplayComponent.jsx').default;
+const CharacterDisplay = require('./hud/HUDCharacterDisplayComponent.jsx').default;
+const AlertDisplay     = require('./hud/HUDAlertDisplayComponent.jsx').default;
+const ResourceDisplay  = require('./hud/HUDResourceDisplayComponent.jsx').default;
+const ControlPanel     = require('./hud/HUDControlPanelComponent.jsx').default;
+const SelectionDisplay = require('./hud/HUDSelectionDisplayComponent.jsx').default;
 
-var SelectionActions = require('../actions/SelectionActions.js');
-var PlayerActions = require('../actions/PlayerActions.js');
+const SelectionActions = require('../actions/SelectionActions.js');
+const PlayerActions = require('../actions/PlayerActions.js');
 
 // THE PLAYER COMPONENT IS THE CAMERA
 var Player = React.createClass({

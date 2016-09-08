@@ -1,4 +1,4 @@
-var React = require('react');
+const React = require('react');
 
 window.CharacterActions = require('../../actions/CharacterActions.js');
 

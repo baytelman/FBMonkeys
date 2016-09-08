@@ -1,15 +1,15 @@
-var React = require('react');
+const React = require('react');
 
-var SquareCoordinateJS = require('../lib/_base/SquareCoordinate.js');
-var SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
-var BuildingJS = require('../lib/city/Building.js');
-var BuildingModel = BuildingJS.Building;
-var CityResourceJS = require('../lib/city/CityResource.js');
-var CityResource = CityResourceJS.CityResource;
+const SquareCoordinateJS = require('../lib/_base/SquareCoordinate.js');
+const SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
+const BuildingJS = require('../lib/city/Building.js');
+const BuildingModel = BuildingJS.Building;
+const CityResourceJS = require('../lib/city/CityResource.js');
+const CityResource = CityResourceJS.CityResource;
 
-var SelectionActions = require('../actions/SelectionActions.js');
-var PlayerActions = require('../actions/PlayerActions.js');
-var AlertActions = require("../actions/AlertActions.js");
+const SelectionActions = require('../actions/SelectionActions.js');
+const PlayerActions = require('../actions/PlayerActions.js');
+const AlertActions = require("../actions/AlertActions.js");
 
 var Tile = React.createClass({
   getInitialState: function() {

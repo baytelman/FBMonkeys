@@ -25,7 +25,7 @@ app.use(
 // Configuration specific to production env
 if (env == 'production') {
   // Force SSL on heroku by checking the 'x-forwarded-proto' header
-  var forceSSL = require('express-force-ssl');
+  const forceSSL = require('express-force-ssl');
   app.set('forceSSLOptions', {trustXFPHeader: true});
   app.use(forceSSL);
 }

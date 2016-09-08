@@ -1,8 +1,8 @@
-var React = require('react');
+const React = require('react');
 
-var ResourceIcon = require('../resources/ResourceIconComponent.jsx').default;
+const ResourceIcon = require('../resources/ResourceIconComponent.jsx').default;
 
-var ResourceStore = require('../../stores/ResourceStore.js').default;
+const ResourceStore = require('../../stores/ResourceStore.js').default;
 
 function getResourcesState () {
   return ResourceStore.getResources();

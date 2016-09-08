@@ -2,8 +2,8 @@ import { EventEmitter } from "events";
 
 import dispatcher from "../dispatcher.js";
 
-var SquareCoordinateJS = require('../lib/_base/SquareCoordinate.js');
-var SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
+const SquareCoordinateJS = require('../lib/_base/SquareCoordinate.js');
+const SquareCoordinate = SquareCoordinateJS.SquareCoordinate;
 
 class CharacterStore extends EventEmitter {
   constructor() {

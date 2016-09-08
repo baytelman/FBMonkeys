@@ -1,7 +1,7 @@
-var React = require('react');
+const React = require('react');
 
-var SelectionActions = require('../../actions/SelectionActions.js');
-var PlayerActions    = require('../../actions/PlayerActions.js');
+const SelectionActions = require('../../actions/SelectionActions.js');
+const PlayerActions    = require('../../actions/PlayerActions.js');
 
 var CharacterIcon = React.createClass({
   getInitialState: function() {

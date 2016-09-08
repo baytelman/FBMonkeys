@@ -1,6 +1,6 @@
-var React = require('react');
+const React = require('react');
 
-var GameComponent = require('./GameComponent.jsx').default;
+const GameComponent = require('./GameComponent.jsx').default;
 
 var MainWindow = React.createClass({
     getInitialState: function () {

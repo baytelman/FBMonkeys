@@ -1,3 +1,3 @@
-var EffectJS = require('../../lib/_base/Effect.js');
-var CityResource = require('../../lib/city/CityResource.js').CityResource;
-var CityPlayer = require('../../lib/city/CityPlayer.js').CityPlayer;
+const EffectJS = require('../../lib/_base/Effect.js');
+const CityResource = require('../../lib/city/CityResource.js').CityResource;
+const CityPlayer = require('../../lib/city/CityPlayer.js').CityPlayer;

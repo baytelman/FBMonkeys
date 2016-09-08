@@ -1,20 +1,20 @@
-var assert = require('chai').assert
-var Player = require('../lib/_base/Player.js').Player;
-var SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
+const assert = require('chai').assert
+const Player = require('../lib/_base/Player.js').Player;
+const SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
 
-var MutableObject = require("../lib/_base/utils/Utils.js").MutableObject;
+const MutableObject = require("../lib/_base/utils/Utils.js").MutableObject;
 
-var CityJS = require('../lib/city/City.js')
-var City = CityJS.City;
+const CityJS = require('../lib/city/City.js')
+const City = CityJS.City;
 
-var CityResource = require('../lib/city/CityResource.js').CityResource;
+const CityResource = require('../lib/city/CityResource.js').CityResource;
 
-var BuildingJS = require('../lib/city/Building.js');
-var Building = BuildingJS.Building;
+const BuildingJS = require('../lib/city/Building.js');
+const Building = BuildingJS.Building;
 
-var CityPlayerJS = require('../lib/city/CityPlayer.js');
-var CityPlayer = CityPlayerJS.CityPlayer;
-var PlayerEarnResourceEffect = CityPlayerJS.PlayerEarnResourceEffect;
+const CityPlayerJS = require('../lib/city/CityPlayer.js');
+const CityPlayer = CityPlayerJS.CityPlayer;
+const PlayerEarnResourceEffect = CityPlayerJS.PlayerEarnResourceEffect;
 
 describe('Buildings Effects', () => {
   let resource = CityResource.gold(100);

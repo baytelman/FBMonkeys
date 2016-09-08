@@ -1,6 +1,6 @@
-var assert = require('chai').assert;
-var GameController = require("../lib/controller/GameController.js").GameController;
-var CityEvent = require('../lib/city/CityEvent.js').CityEvent;
+const assert = require('chai').assert;
+const GameController = require("../lib/controller/GameController.js").GameController;
+const CityEvent = require('../lib/city/CityEvent.js').CityEvent;
 
 describe('Game Controller', () => {
   it('Implement Listener', () => {

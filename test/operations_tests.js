@@ -1,25 +1,25 @@
-var assert = require('chai').assert;
-var SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
+const assert = require('chai').assert;
+const SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
 
-var MutableObject = require("../lib/_base/utils/Utils.js").MutableObject;
+const MutableObject = require("../lib/_base/utils/Utils.js").MutableObject;
 
-var EffectJS = require("../lib/_base/Effect.js");
+const EffectJS = require("../lib/_base/Effect.js");
 
-var CityEvent = require('../lib/city/CityEvent.js').CityEvent;
-var CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
-var CityJS = require('../lib/city/City.js')
-var City = CityJS.City;
+const CityEvent = require('../lib/city/CityEvent.js').CityEvent;
+const CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
+const CityJS = require('../lib/city/City.js')
+const City = CityJS.City;
 
-var CityResource = require('../lib/city/CityResource.js').CityResource;
+const CityResource = require('../lib/city/CityResource.js').CityResource;
 
-var CharacterOperationJS = require("../lib/city/CharacterOperation.js");
-var CityCharacter = CharacterOperationJS.CityCharacter;
-var CharacterOperation = CharacterOperationJS.CharacterOperation;
-var EarnResourceForPlayerOperation = CharacterOperationJS.EarnResourceForPlayerOperation;
+const CharacterOperationJS = require("../lib/city/CharacterOperation.js");
+const CityCharacter = CharacterOperationJS.CityCharacter;
+const CharacterOperation = CharacterOperationJS.CharacterOperation;
+const EarnResourceForPlayerOperation = CharacterOperationJS.EarnResourceForPlayerOperation;
 
-var BuildingJS = require('../lib/city/Building.js');
-var Building = BuildingJS.Building;
-var CompleteBuildingOperation = CharacterOperationJS.CompleteBuildingOperation;
+const BuildingJS = require('../lib/city/Building.js');
+const Building = BuildingJS.Building;
+const CompleteBuildingOperation = CharacterOperationJS.CompleteBuildingOperation;
 
 describe('Character Operations', () => {
 	let time = 10;
