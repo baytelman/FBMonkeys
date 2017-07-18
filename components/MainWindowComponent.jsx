@@ -3,14 +3,12 @@ const React = require('react');
 const GameComponent = require('./GameComponent.jsx').default;
 
 var MainWindow = React.createClass({
-    getInitialState: function () {
-        return {};
-    },
     render: function () {
-        var player = this.props.player;
+        var controller = this.props.controller;
+        var player = controller.player;
         return(
             <div id="main-window">
-                <GameComponent player={player} />
+                <GameComponent controller={controller} player={player} />
             </div>
         );
     }

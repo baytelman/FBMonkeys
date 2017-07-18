@@ -1,48 +1,36 @@
 const React = require('react');
 
-const SelectionActions = require('../../actions/SelectionActions.js');
-const PlayerActions = require('../../actions/PlayerActions.js');
+const GameController = require('../../lib/controller/GameController.js').default;
+const BuildingJS = require('../../lib/city/Building.js');
+const BuildingConstructionAction = BuildingJS.BuildingConstructionAction
 
 var BuildMenu = React.createClass({
-  getInitialState: function() {
-    return {}
-  },
   render: function() {
+    let _this = this;
+    let controller = GameController.instance;
+    let buildingComponents = Object.values(controller.module.availableBuildings()).map((building) => {
+      let action = new BuildingConstructionAction({
+        building: building,
+      });
+      let addBuilding = function() {
+        action.executeForPlayer(controller.player);
+      };
+      if (action.isAffordable(controller.player)) {
+        return (<button key={ "btn_bld_" + building.id } className='build-entity' onClick={ addBuilding }>{ building.name }</button>);
+      } else {
+        return (<span key={ "btn_bld_dis_" + building.id }>({ building.name })</span>);
+      }
+    });
+
     return(
       <div id='build-menu'>
         <ul>
           <li>
-            <button className='build-entity' onClick={this._onBuildClick}>Shipyard</button>
-            <button className='build-entity' onClick={this._onBuildClick}>Starport</button>
-            <button className='build-entity' onClick={this._onBuildClick}>Hospital</button>
-            <button className='build-entity' onClick={this._onBuildClick}>Bunker</button>
-            <button className='build-entity' onClick={this._onBuildClick}>Scout Tower</button>
-            <button className='build-entity' onClick={this._onBuildClick}>Recreation Center</button>
-            <button className='build-entity' onClick={this._onBuildClick}>Dining Hall</button>
-            <button className='build-entity' onClick={this._onBuildClick}>House</button>
+          { buildingComponents }
           </li>
         </ul>
       </div>
     )
-  },
-  _onBuildClick: function (event) {
-    var buildingName = event.target.innerHTML;
-    PlayerActions.setMode('placing');
-    var data = {
-      type: 'buildingForPlacement',
-      name: buildingName
-    };
-    SelectionActions.setSelection(data);
-    // Generate random x/y coords between -10 and 10
-    // var x = Math.floor(Math.random()*21)-10;
-    // var y = Math.floor(Math.random()*21)-10;
-    // player.city.planBuilding({
-    //   building: new Building({
-    //     name: buildingName,
-    //     costs: [CityResource.construction(120)],
-    //   }),
-    //   location: new SquareCoordinate(x,y)
-    // });
   }
 });
 

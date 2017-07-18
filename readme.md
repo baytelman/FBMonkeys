@@ -15,6 +15,8 @@
 In order to run Unit Tests use:
 
 `mocha --compilers js:babel-core/register`
+or run coverage with:
+`nyc --reporter=html  mocha --compilers js:babel-core/register`
 
 ###Note: Don't forget to run a local redis server if you intend to use redis
 

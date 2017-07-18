@@ -1,38 +1,31 @@
-#resource-display {
-  top: 30px;
-  right: 30px;
-  & > span {
-    font-size: 13px;
-    line-height: 16px;
-  }
-  .resources {
-    .resource {
-      display: block;
-      line-height: 16px;
-      text-align: right;
-      .resource-icon {
-        display: inline-block;
-        position: relative;
-        height: 12px;
-        width: 12px;
-        box-sizing: border-box;
-        vertical-align: middle;
-        &.wood {
-          background-color: brown;
-        }
-        &.stone {
-          background-color: grey;
-        }
-        &.gold {
-          background-color: gold;
-        }
+.resources {
+  .resource {
+    display: block;
+    .resource-icon {
+      display: inline-block;
+      position: relative;
+      height: 12px;
+      width: 12px;
+      box-sizing: border-box;
+      vertical-align: middle;
+      &.wood {
+        background-color: brown;
       }
-      .resource-amount {
-        display: inline-block;
-        margin-right: 4px;
-        font-size: 11px;
-        vertical-align: middle;
+      &.stone {
+        background-color: grey;
       }
+      &.gold {
+        background-color: gold;
+      }
+      &.food {
+        background-color: green;
+      }
+    }
+    .resource-amount {
+      display: inline-block;
+      margin-right: 4px;
+      font-size: 11px;
+      vertical-align: middle;
     }
   }
 }

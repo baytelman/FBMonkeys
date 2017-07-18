@@ -1,11 +1,9 @@
 const assert = require('chai').assert
 const Player = require('../lib/_base/Player.js').Player;
-const SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
 
 const MutableObject = require("../lib/_base/utils/Utils.js").MutableObject;
 
-const CityJS = require('../lib/city/City.js')
-const City = CityJS.City;
+const City = require('../lib/city/City.js').default;
 
 const CityResource = require('../lib/city/CityResource.js').CityResource;
 
@@ -13,7 +11,7 @@ const BuildingJS = require('../lib/city/Building.js');
 const Building = BuildingJS.Building;
 
 const CityPlayerJS = require('../lib/city/CityPlayer.js');
-const CityPlayer = CityPlayerJS.CityPlayer;
+const CityPlayer = CityPlayerJS.default;
 const PlayerEarnResourceEffect = CityPlayerJS.PlayerEarnResourceEffect;
 
 describe('Buildings Effects', () => {
@@ -30,10 +28,10 @@ describe('Buildings Effects', () => {
         })
       ],
     });
-    let city = new City({
-      defaultBuilding: building
+    let player = new CityPlayer();
+    player.city.planBuilding({
+      building: building
     });
-    let player = new CityPlayer({city:city});
     let multiplier = 4;
     let moreResources = CityResource.resourcesWithMultiplier(resources, multiplier);
 

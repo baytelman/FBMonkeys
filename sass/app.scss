@@ -6,7 +6,6 @@
   position: relative;
   min-height: 100%;
   width: 100%;
-  background-color: $wrapper;
 }
 
 #react-container {}
@@ -19,17 +18,6 @@
   width: auto;
   // width: 100%;
   min-width: 100%;
-  background-color: $main-window;
 }
 
-// Import non-component stylesheets
-@import "spinner";
-// Import component stylesheets
-@import "game";
-@import "hud";
-@import "characterdisplay";
-@import "alerts";
 @import "resources";
-@import "selection";
-@import "controlpanel";
-@import "characters";

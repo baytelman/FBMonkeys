@@ -31,7 +31,8 @@ const localStorageHandler = require('./public/js/localStorageHandler.js');
 // }
 
 // Set props from retrieved data
-var player = Data;
+const GameController      = require('./lib/controller/GameController.js').default;
+const CityEvent           = require('./lib/city/CityEvent.js').CityEvent;
 // var something = ExampleStore.getData();
 
 /************************************/
@@ -40,7 +41,7 @@ var player = Data;
 
 // Render with props
 ReactDOM.render(
-  <MainWindow player={player}></MainWindow>,
+  <MainWindow controller={GameController.instance}></MainWindow>,
   document.getElementById('react-container')
 );
 

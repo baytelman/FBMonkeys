@@ -43,6 +43,7 @@
     "gulp": "^3.9.1",
     "gulp-replace": "^0.5.4",
     "mocha": "^3.0.2",
+    "nyc": "^11.0.3",
     "webpack": "^1.13.0",
     "webpack-dev-server": "^1.14.1"
   },

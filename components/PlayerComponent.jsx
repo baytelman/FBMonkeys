@@ -1,36 +1,28 @@
 const React = require('react');
 
-const CharacterDisplay = require('./hud/HUDCharacterDisplayComponent.jsx').default;
-const AlertDisplay     = require('./hud/HUDAlertDisplayComponent.jsx').default;
-const ResourceDisplay  = require('./hud/HUDResourceDisplayComponent.jsx').default;
-const ControlPanel     = require('./hud/HUDControlPanelComponent.jsx').default;
-const SelectionDisplay = require('./hud/HUDSelectionDisplayComponent.jsx').default;
+const BuildMenuComponent = require("../components/menus/BuildMenuComponent.jsx").default;
+const SaveMenuComponent = require("../components/menus/SaveMenuComponent.jsx").default;
+const ResourceDisplay = require("../components/hud/HUDResourceDisplayComponent.jsx").default;
+const CityDisplayComponent = require("../components/CityDisplayComponent.jsx").default;
 
-const SelectionActions = require('../actions/SelectionActions.js');
-const PlayerActions = require('../actions/PlayerActions.js');
-
-// THE PLAYER COMPONENT IS THE CAMERA
 var Player = React.createClass({
-  getInitialState: function() {
-    return {}
-  },
   render: function() {
-    var playerClassName = 'player hud';
     return(
-      <player className={playerClassName} id={this.props.player.id} onClick={this._onClick}>
-        <CharacterDisplay data={this.props.player} selection={this.props.selection} characters={this.props.characters} mode={this.props.mode}/>
-        <AlertDisplay data={this.props.player} />
-        <ResourceDisplay data={this.props.player} />
-        <ControlPanel data={this.props.player} mode={this.props.mode} />
-        <SelectionDisplay data={this.props.player} selection={this.props.selection} />
-      </player>
-    )
+      <div id={this.props.player.id}>
+      <div style={{
+        'zIndex': 1,
+        'position': 'relative',
+        'background': 'white',
+        'width': 400,
+      }}>
+        <ResourceDisplay player={this.props.player} data={this.props.player} />
+        <BuildMenuComponent player={this.props.player}/>
+        <SaveMenuComponent player={this.props.player}/>
+      </div>
+      <CityDisplayComponent player={this.props.player}/>
+      </div>
+    );
   },
-  _onClick: function () {
-    // var data = {};
-    // SelectionActions.setSelection(data);
-    // PlayerActions.setMode('normal');
-  }
 });
 
 export default Player;

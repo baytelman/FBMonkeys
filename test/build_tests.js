@@ -1,11 +1,9 @@
 const assert = require('chai').assert
 const Player = require('../lib/_base/Player.js').Player;
-const SquareCoordinate = require('../lib/_base/SquareCoordinate.js').SquareCoordinate;
 
-const CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
-const CityJS = require('../lib/city/City.js')
-const City = CityJS.City;
-const OverlappingBuildingError = CityJS.OverlappingBuildingError;
+const CityPlayer = require('../lib/city/CityPlayer.js').default;
+const CityEvent = require('../lib/city/CityEvent.js').CityEvent;
+const City = require('../lib/city/City.js').default;
 
 const CityResource = require('../lib/city/CityResource.js').CityResource;
 
@@ -15,124 +13,57 @@ const BuildingConstructionAction = BuildingJS.BuildingConstructionAction
 const ProjectAlreadyCompletedError = BuildingJS.ProjectAlreadyCompletedError;
 
 describe('City', () => {
-	it('starts with one building', () => {
+	it('starts with zero building', () => {
 		let city = new City();
-		assert.strictEqual(Object.keys(city.buildings).length, 1)
-
-		let location = Object.values(city.buildings)[0].location;
-		assert.isTrue(location.is(new SquareCoordinate(0,0)));
+		assert.strictEqual(Object.keys(city.buildings).length, 0)
 	});
-
-	it('can retrieve building by location', () => {
-		let city = new City();
-		let b = Object.values(city.buildings)[0];
-		let locations = [
-			b.location,
-			new SquareCoordinate(1,0),
-			new SquareCoordinate(0,-1),
-		];
-		let buildings = [
-			b,
-			new Building(),
-			new Building(),
-		];
-		for (var i = 1; i < buildings.length; i++) {
-			city.planBuilding({
-				building: buildings[i],
-				location: locations[i],
-			});
-		}
-		locations.forEach(function(location, index) {
-			assert.strictEqual(typeof city.buildingAtLocation(location), typeof buildings[index]);
-		});
-	});
-
-	it('have limits', () => {
-		let city = new City();
-		let locations = [
-			new SquareCoordinate(8,0),
-			new SquareCoordinate(0,10),
-			new SquareCoordinate(4,-10),
-			new SquareCoordinate(-8,5),
-		];
-		locations.forEach(function(location, index) {
-			city.planBuilding({
-				building: new Building(),
-				location: location,
-			});
-		});
-
-		let [minX, minY, maxX, maxY] = city.limits;
-		assert.strictEqual(minX, -8);
-		assert.strictEqual(minY, -10);
-		assert.strictEqual(maxX, 8);
-		assert.strictEqual(maxY, 10);
-	});
-
-	it('cannot overlap buildings', () => {
-		let city = new City();
-		let b = Object.values(city.buildings)[0];
-		let location = b.location;
-		let building = new Building();
-
-		assert.throw(()=>city.planBuilding({building:building}));
-	});
-
 });
 
 describe('Building Construction', () => {
 	let resource = CityResource.gold(100);
+	let time = 10;
+	let totalTime = 100;
+
+	let building = new Building({
+		costs: [resource],
+		time: totalTime,
+	});
 
 	it('have action costs', () => {
 		let player = new CityPlayer();
-		let building = new Building({
-			costs: [resource]
-		});
 
 		let action = new BuildingConstructionAction({
 			building: building,
-			location: new SquareCoordinate(1,0)
 		});
 
 		assert.isFalse(action.isAffordable(player));
 		player.earnResource(resource);
 		assert.isTrue(action.isAffordable(player));
 
+		assert.strictEqual(Object.keys(player.city.buildings).length, 0);
 		action.executeForPlayer(player);
-		assert.strictEqual(Object.keys(player.city.buildings).length, 2);
+		assert.strictEqual(Object.keys(player.city.buildings).length, 1);
 	});
 
-	it('cannot take place in same place', () => {
+	it('take time to build', () => {
+
 		let player = new CityPlayer();
-		let building = new Building({
-			costs: [resource]
+		player.city.planBuilding({
+			building: building
 		});
 
-		let action = new BuildingConstructionAction({
-			building: building,
-			location: new SquareCoordinate(1,0)
-		});
 
-		player.earnResource(resource);
-		player.earnResource(resource);
+		let updates = player.updateTime(time);
+		let b = Object.values(player.city.buildings)[0];
+		assert.closeTo(b.progress(), 0.1, 0.01);
 
-		action.executeForPlayer(player);
-		assert.throw(() =>action.executeForPlayer(player));
+		updates = player.updateTime(time);
+		assert.strictEqual(updates[updates.length-1].type, CityEvent.kBuildingProgressEvent);
+		b = Object.values(player.city.buildings)[0];
+		assert.closeTo(b.progress(), 0.2, 0.01);
 
-	});
-	it('have costs', () => {
-		let costs = [CityResource.construction(100)];
-		let building = new Building({
-			costs: costs
-		});
-
-		assert.isFalse(building.complete(CityResource.resourcesWithMultiplier(costs, 0.5)));
-		assert.isFalse(building.isCompleted());
-		assert.strictEqual(building.progress(), 0.5);
-
-		assert.isTrue(building.complete(CityResource.resourcesWithMultiplier(costs, 0.5)));
-		assert.isTrue(building.isCompleted());
-
-		assert.throw(()=>building.complete(CityResource.resourcesWithMultiplier(costs, 0.5)));
+		updates = player.updateTime(totalTime);
+		assert.strictEqual(updates[updates.length-1].type, CityEvent.kBuildingCompletedEvent);
+		assert.isTrue(b.isCompleted());
 	});
 });
