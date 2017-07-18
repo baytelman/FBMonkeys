@@ -71,7 +71,7 @@ var CityDisplay = React.createClass({
                 width: kAssetWidth,
                 height: kAssetWidth,
                 zIndex: 1,
-                backgroundImage: 'url(/images/buildings/' + b.asset + '.png)',
+                backgroundImage: 'url(/images/' + b.namespace + '.png)',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
                 backgroundSize: 'contain'

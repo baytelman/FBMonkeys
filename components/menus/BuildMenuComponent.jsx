@@ -15,6 +15,9 @@ var BuildMenu = React.createClass({
       let addBuilding = function() {
         action.executeForPlayer(controller.player);
       };
+      if (! action.isAvailable(controller.player)) {
+        return null;
+      }
       if (action.isAffordable(controller.player)) {
         return (<button key={ "btn_bld_" + building.id } className='build-entity' onClick={ addBuilding }>{ building.name }</button>);
       } else {
