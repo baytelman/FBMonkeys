@@ -1,11 +1,9 @@
 const assert = require('chai').assert
-const PlayerJS = require('../lib/_base/Player.js');
-const Player = PlayerJS.Player;
+const PlayerJS = require('../lib/city/CityPlayer.js');
+const CityPlayer = PlayerJS.default;
 
-const EffectJS = require('../lib/_base/Effect.js');
-
-const ResourceJS = require('../lib/_base/Resource.js');
-const Resource = ResourceJS.Resource;
+const ResourceJS = require('../lib/city/CityResource.js');
+const CityResource = ResourceJS.CityResource;
 const ResourceConsumingAction = ResourceJS.ResourceConsumingAction;
 const InsuficientResourcesError = ResourceJS.InsuficientResourcesError;
 
@@ -16,14 +14,14 @@ describe('Resources', () => {
   let multiplier = 10;
 
   it('can be multiplied', () => {
-    let resource = new Resource(resourceType, amount);
+    let resource = new CityResource(resourceType, amount);
     let moreResources = resource.resourceWithMultiplier(multiplier);
     assert.strictEqual(moreResources.amount,  amount * multiplier);
   });
 
   it('can be earned', () => {
-    let player = new Player();
-    let resource = new Resource(resourceType, amount);
+    let player = new CityPlayer();
+    let resource = new CityResource(resourceType, amount);
     assert.strictEqual(player.getResourceAmountForType(resourceType),  0);
 
     player.earnResource(resource);
@@ -35,9 +33,9 @@ describe('Resources', () => {
 
   it('are consumed', () => {
     let actionCalled = false;
-    let resources = [ new Resource(resourceType, amount) ];
+    let resources = [ new CityResource(resourceType, amount) ];
 
-    let player = new Player();
+    let player = new CityPlayer();
     let action = new ResourceConsumingAction(
       "Action",
       function() { return true; },

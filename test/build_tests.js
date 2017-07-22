@@ -1,5 +1,4 @@
 const assert = require('chai').assert
-const Player = require('../lib/_base/Player.js').Player;
 
 const CityPlayer = require('../lib/city/CityPlayer.js').default;
 const CityEvent = require('../lib/city/CityEvent.js').CityEvent;

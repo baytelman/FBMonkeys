@@ -1,7 +1,6 @@
 const assert = require('chai').assert
-const Player = require('../lib/_base/Player.js').Player;
 
-const MutableObject = require("../lib/_base/utils/Utils.js").MutableObject;
+const MutableObject = require("../lib/city/utils/Utils.js").MutableObject;
 
 const City = require('../lib/city/City.js').default;
 

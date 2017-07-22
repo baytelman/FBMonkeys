@@ -1,4 +1,4 @@
-const MutableObject = require("../../lib/_base/utils/Utils.js").MutableObject;
+const MutableObject = require("../../lib/city/utils/Utils.js").MutableObject;
 
 export class A {
   constructor() {
