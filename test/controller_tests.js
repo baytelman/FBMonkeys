@@ -1,10 +1,13 @@
 const assert = require('chai').assert;
 const GameController = require("../lib/controller/GameController.js").default;
 const GameModule = require('../lib/module/GameModule.js').default;
-const CityEvent = require('../lib/city/CityEvent.js').CityEvent;
+const CityEvent = require('../lib/city/CityEvent.js').default;
 const CityResource = require('../lib/city/CityResource.js').CityResource;
 
+const food = (amount) => new CityResource('food', amount);
+
 describe('Game Controller', () => {
+
   it('Can plan or install buildings', () => {
     let controller = new GameController();
     controller.startNewGame();
@@ -37,14 +40,14 @@ describe('Game Controller', () => {
     
     /* Producing food by a farm takes 50. Don't expect anything done on 5: */
     let events1 = controller.tick(5);
-    assert.isFalse(controller.player.canAfford([CityResource.food(1)]));
+    assert.isFalse(controller.player.canAfford([food(1)]));
     let tickedResourceEvents1 = events1.filter(e => e.type == CityEvent.kEarnResourceEvent);
     assert.strictEqual(sentResourceEvents.length, 0);
     assert.strictEqual(tickedResourceEvents1.length, 0);
     
     /* Producing food by a farm takes 50. Expect food on 55: */
     let events2 = controller.tick(50);
-    assert.isTrue(controller.player.canAfford([CityResource.food(1)]));
+    assert.isTrue(controller.player.canAfford([food(1)]));
     let tickedResourceEvents2 = events2.filter(e => e.type == CityEvent.kEarnResourceEvent);
     assert.strictEqual(sentResourceEvents.length, 1);
     assert.strictEqual(tickedResourceEvents2.length, 1);
@@ -66,5 +69,19 @@ describe('Game Controller', () => {
     controller.planBuilding(id, -1, -1);
     assert.strictEqual(Object.keys(controller.getAllMyBuilding()).length, 1);
     assert.isTrue(called);
+  });
+
+  it('JSON interface', () => {
+    let controller = new GameController();
+    controller.startNewGame();
+    let id = Object.keys(controller.module.availableBuildings())[0];
+    let buildingTemplate = controller.module.availableBuildings()[id];
+
+    controller.planBuilding(id, -1, -1);
+
+    let newBuildingId = Object.keys(controller.getAllMyBuilding())[0];
+    let building = controller.getBuilding(newBuildingId);
+
+    assert.equal(buildingTemplate.name, building.name);
   });
 });

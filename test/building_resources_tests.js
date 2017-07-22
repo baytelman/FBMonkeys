@@ -13,8 +13,10 @@ const CityPlayerJS = require('../lib/city/CityPlayer.js');
 const CityPlayer = CityPlayerJS.default;
 const PlayerEarnResourceEffect = CityPlayerJS.PlayerEarnResourceEffect;
 
+const gold = (amount) => new CityResource('gold', amount);
+
 describe('Buildings Effects', () => {
-  let resource = CityResource.gold(100);
+  let resource = gold(100);
 
   it('can grant resources', () => {
     let resources = [resource];
@@ -40,5 +42,9 @@ describe('Buildings Effects', () => {
 
     updates = player.updateTime(time);
     assert.isTrue(player.canAfford(moreResources));
+
+		const b = Object.values(player.city.buildings)[0];
+		assert.include(b.toString(), 'Producing');
+		assert.include(b.effects[0].toString(), 'Producing');
   });
 });
