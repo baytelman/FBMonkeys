@@ -2,10 +2,11 @@ const assert = require('chai').assert
 const PlayerJS = require('../lib/city/CityPlayer.js');
 const CityPlayer = PlayerJS.default;
 
-const ResourceJS = require('../lib/city/CityResource.js');
-const CityResource = ResourceJS.CityResource;
-const ResourceConsumingAction = ResourceJS.ResourceConsumingAction;
-const InsuficientResourcesError = ResourceJS.InsuficientResourcesError;
+import { CityResource,
+  ResourceConsumingAction,
+  InsuficientResourcesError,
+  UnavailableActionError
+} from '../lib/city/CityResource';
 
 const resourceType = "kTestResourceType";
 const resourceType2 = "kTestResourceType2";
@@ -81,10 +82,10 @@ describe('Resources', () => {
   it('cannot spend if dont have', () => {   
     let player = new CityPlayer(playerCapacity);
     let resource = createResource(amount);
-    assert.throw(()=> player.spendResource(resource));
+    assert.throw(() => (player.spendResources([resource])), InsuficientResourcesError);
     
     player.earnResources([resource.resourceWithMultiplier(.5)]);
-    assert.throw(()=> player.spendResource(resource));
+    assert.throw(()=> player.spendResources([resource]), new InsuficientResourcesError());
     
     player.earnResources([resource.resourceWithMultiplier(.5)]);
     player.spendResources([resource]);
@@ -114,7 +115,7 @@ describe('Resource Consuming Actions', () => {
     assert.equal(kActionName, action.displayName());
     
     assert.isFalse(action.isAvailable(player));
-    assert.throw(()=>action.executeForPlayer(player));
+    assert.throw(()=>action.executeForPlayer(player), UnavailableActionError);
     assert.isFalse(actionCalled);
     
     available = true;
@@ -141,7 +142,7 @@ describe('Resource Consuming Actions', () => {
     assert.isTrue(action.isAvailable(player));
     assert.isFalse(action.isAffordable(player));
     
-    assert.throw(()=>action.executeForPlayer(player));
+    assert.throw(()=>action.executeForPlayer(player), InsuficientResourcesError);
     assert.isFalse(actionCalled);
     
     player.earnResources(resources);
