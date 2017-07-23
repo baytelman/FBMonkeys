@@ -11,7 +11,8 @@ const Building = BuildingJS.Building;
 const BuildingConstructionAction = BuildingJS.BuildingConstructionAction
 const ProjectAlreadyCompletedError = BuildingJS.ProjectAlreadyCompletedError;
 
-const gold = (amount) => new CityResource('gold', amount);
+const kGold = 'gold';
+const gold = (amount) => new CityResource(kGold, amount);
 
 describe('City', () => {
 	it('starts with zero building', () => {
@@ -31,14 +32,18 @@ describe('Building Construction', () => {
 	});
 	
 	it('have action costs', () => {
-		let player = new CityPlayer();
+		let player = new CityPlayer({
+			initialCapacity: {
+				[kGold]: 1000
+			}
+		});
 		
 		let action = new BuildingConstructionAction({
 			building: building,
 		});
 		
 		assert.isFalse(action.isAffordable(player));
-		player.earnResource(resource);
+		player.earnResources([resource]);
 		assert.isTrue(action.isAffordable(player));
 		
 		assert.strictEqual(Object.keys(player.city.buildings).length, 0);

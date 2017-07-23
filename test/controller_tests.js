@@ -4,8 +4,6 @@ const GameModule = require('../lib/module/GameModule.js').default;
 const CityEvent = require('../lib/city/CityEvent.js').default;
 const CityResource = require('../lib/city/CityResource.js').CityResource;
 
-const food = (amount) => new CityResource('food', amount);
-
 describe('Game Controller', () => {
 
   it('Can plan or install buildings', () => {
@@ -40,14 +38,14 @@ describe('Game Controller', () => {
     
     /* Producing food by a farm takes 50. Don't expect anything done on 5: */
     let events1 = controller.tick(5);
-    assert.isFalse(controller.player.canAfford([food(1)]));
+    assert.isFalse(controller.player.canAfford([GameModule.food(1)]));
     let tickedResourceEvents1 = events1.filter(e => e.type == CityEvent.kEarnResourceEvent);
     assert.strictEqual(sentResourceEvents.length, 0);
     assert.strictEqual(tickedResourceEvents1.length, 0);
     
     /* Producing food by a farm takes 50. Expect food on 55: */
     let events2 = controller.tick(50);
-    assert.isTrue(controller.player.canAfford([food(1)]));
+    assert.isTrue(controller.player.canAfford([GameModule.food(1)]));
     let tickedResourceEvents2 = events2.filter(e => e.type == CityEvent.kEarnResourceEvent);
     assert.strictEqual(sentResourceEvents.length, 1);
     assert.strictEqual(tickedResourceEvents2.length, 1);

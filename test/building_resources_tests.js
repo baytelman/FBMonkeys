@@ -13,7 +13,8 @@ const CityPlayerJS = require('../lib/city/CityPlayer.js');
 const CityPlayer = CityPlayerJS.default;
 const PlayerEarnResourceEffect = CityPlayerJS.PlayerEarnResourceEffect;
 
-const gold = (amount) => new CityResource('gold', amount);
+const kGold = 'gold';
+const gold = (amount) => new CityResource(kGold, amount);
 
 describe('Buildings Effects', () => {
   let resource = gold(100);
@@ -29,7 +30,11 @@ describe('Buildings Effects', () => {
         })
       ],
     });
-    let player = new CityPlayer();
+    let player = new CityPlayer({
+			initialCapacity: {
+				[kGold]: 1000
+			}
+		});
     player.city.planBuilding({
       building: building
     });
