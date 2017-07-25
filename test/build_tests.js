@@ -1,6 +1,6 @@
 const assert = require('chai').assert
 
-const CityPlayer = require('../lib/city/CityPlayer.js').default;
+const CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
 const CityEvent = require('../lib/city/CityEvent.js').default;
 const City = require('../lib/city/City.js').default;
 

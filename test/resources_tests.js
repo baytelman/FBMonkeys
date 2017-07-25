@@ -1,6 +1,6 @@
 const assert = require('chai').assert
 const PlayerJS = require('../lib/city/CityPlayer.js');
-const CityPlayer = PlayerJS.default;
+const CityPlayer = PlayerJS.CityPlayer;
 
 import { CityResource,
   ResourceConsumingAction,

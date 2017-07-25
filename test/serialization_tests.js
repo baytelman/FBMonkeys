@@ -1,13 +1,14 @@
 const assert = require('chai').assert;
+
+const BuildingJS = require('../lib/city/Building.js');
+const Building = BuildingJS.Building;
 const CitySerializer = require("../lib/city/CitySerializer.js").default;
 
-const CityPlayer = require('../lib/city/CityPlayer.js').default;
+const CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
 
 const CityResource = require('../lib/city/CityResource.js').CityResource;
 const City = require('../lib/city/City.js').default;
 
-const BuildingJS = require('../lib/city/Building.js');
-const Building = BuildingJS.Building;
 
 describe('Serialization', () => {
 	let time = 10;

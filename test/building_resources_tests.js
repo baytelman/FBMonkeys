@@ -10,7 +10,7 @@ const BuildingJS = require('../lib/city/Building.js');
 const Building = BuildingJS.Building;
 
 const CityPlayerJS = require('../lib/city/CityPlayer.js');
-const CityPlayer = CityPlayerJS.default;
+const CityPlayer = CityPlayerJS.CityPlayer;
 const PlayerEarnResourceEffect = CityPlayerJS.PlayerEarnResourceEffect;
 
 const kGold = 'gold';

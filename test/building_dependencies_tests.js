@@ -1,7 +1,7 @@
 import {assert} from 'chai'
 import {CityResource} from '../lib/city/CityResource';
 import {Building, BuildingConstructionAction} from '../lib/city/Building';
-import CityPlayer from '../lib/city/CityPlayer';
+import {CityPlayer} from '../lib/city/CityPlayer';
 
 const gold = (amount) => new CityResource('gold', amount);
 
