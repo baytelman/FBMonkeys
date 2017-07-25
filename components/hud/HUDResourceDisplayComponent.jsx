@@ -3,13 +3,18 @@ const ResourceIcon = require('../resources/ResourceIconComponent.jsx').default;
 
 var ResourceDisplay = React.createClass({
   buildChildren: function (resource) {
-    return(
-      <ResourceIcon key={resource.id} name={resource.type} amount={resource.amount} />
-    );
+    if (resource.amount) {
+      return (<ResourceIcon
+        key={resource.id}
+        name={resource.type}
+        amount={resource.amount}
+        max={this.props.player.initialCapacity[resource.type]}/>);
+    }
+    return null;
   },
-  render: function() {
-    let resources = this.props.player.resources;
-    return(
+  render: function () {
+    let resources = Object.values(this.props.player.resources);
+    return (
       <div id='resource-display' className='hud-window'>
         <span>ResourceDisplay</span>
         <resources className='resources'>
