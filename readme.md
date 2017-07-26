@@ -36,7 +36,9 @@ or run coverage with:
 ```
 
 ###Note: Run the `webpack` command (to recompile app.js, etc.) before committing and deploying to production.
-
+```
+npm run postinstall
+```
 ----------------------------------------------
 
 #Important Note: Deploy and/or push to origin while app is in the `Production` state.
