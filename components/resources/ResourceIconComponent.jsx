@@ -10,7 +10,7 @@ var ResourceIcon = React.createClass({
         title     = this.props.name + ': ' + this.props.amount;
     return(
       <resource id={id} className='resource' title={title}>
-        <amount className='resource-amount'>{this.props.amount}</amount> /
+        <amount className='resource-amount'>{Math.floor(this.props.amount)}</amount> /
         <amount className='max-amount'>{this.props.max}</amount>
         <div className={className}></div>
       </resource>
