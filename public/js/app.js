@@ -20307,13 +20307,26 @@
 	      return capacity;
 	    }
 	  }, {
+	    key: 'getAchievements',
+	    value: function getAchievements() {
+	      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	          _ref2$completedOnly = _ref2.completedOnly,
+	          completedOnly = _ref2$completedOnly === undefined ? true : _ref2$completedOnly;
+	
+	      var achievements = {};
+	      Object.values(this.city.buildings).forEach(function (b) {
+	        if (b.namespace && (!completedOnly || b.isCompleted())) {
+	          achievements[b.namespace] = 1 + (achievements[b.namespace] || 0);
+	        }
+	      });
+	      return achievements;
+	    }
+	  }, {
 	    key: 'fulfillsRequirements',
 	    value: function fulfillsRequirements(requirements) {
-	      var conditions = Object.values(this.city.buildings).map(function (b) {
-	        return b.isCompleted() && b.namespace;
-	      });
+	      var achievements = this.getAchievements();
 	      return requirements.every(function (req) {
-	        return conditions.indexOf(req) > -1;
+	        return (achievements[req] || 0) > 0;
 	      });
 	    }
 	  }]);
@@ -20327,11 +20340,11 @@
 	  _inherits(PlayerEarnResourceEffect, _FrequencyEffect);
 	
 	  function PlayerEarnResourceEffect() {
-	    var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	        _ref2$resources = _ref2.resources,
-	        resources = _ref2$resources === undefined ? [] : _ref2$resources,
-	        _ref2$frequency = _ref2.frequency,
-	        frequency = _ref2$frequency === undefined ? 1 : _ref2$frequency;
+	    var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref3$resources = _ref3.resources,
+	        resources = _ref3$resources === undefined ? [] : _ref3$resources,
+	        _ref3$frequency = _ref3.frequency,
+	        frequency = _ref3$frequency === undefined ? 1 : _ref3$frequency;
 	
 	    _classCallCheck(this, PlayerEarnResourceEffect);
 	
@@ -20368,10 +20381,10 @@
 	  _createClass(CapacityGrantingEffect, [{
 	    key: 'modifyCapacity',
 	    value: function modifyCapacity(capacity) {
-	      Object.entries(this.addCapacity).forEach(function (_ref3) {
-	        var _ref4 = _slicedToArray(_ref3, 2),
-	            key = _ref4[0],
-	            value = _ref4[1];
+	      Object.entries(this.addCapacity).forEach(function (_ref4) {
+	        var _ref5 = _slicedToArray(_ref4, 2),
+	            key = _ref5[0],
+	            value = _ref5[1];
 	
 	        capacity[key] = (capacity[key] || 0) + value;
 	      });
@@ -20805,7 +20818,7 @@
 /* 170 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -20864,13 +20877,13 @@
 	  }
 	
 	  _createClass(CityResource, [{
-	    key: 'resourceWithMultiplier',
+	    key: "resourceWithMultiplier",
 	    value: function resourceWithMultiplier(resources) {
 	      var m = this.amount * resources;
 	      return new this.constructor(this.type, m);
 	    }
 	  }], [{
-	    key: 'resourcesWithMultiplier',
+	    key: "resourcesWithMultiplier",
 	    value: function resourcesWithMultiplier(resources, multiplier) {
 	      var mResources = [];
 	      resources.forEach(function (resource) {
@@ -20879,7 +20892,7 @@
 	      return CityResource.aggregateSameTypeResources(mResources);
 	    }
 	  }, {
-	    key: 'aggregateSameTypeResources',
+	    key: "aggregateSameTypeResources",
 	    value: function aggregateSameTypeResources(array) {
 	      var _constructor = null;
 	      var aggregatedResources = {};
@@ -20897,7 +20910,7 @@
 	      return aggregatedArray;
 	    }
 	  }, {
-	    key: 'resourcesCoverCosts',
+	    key: "resourcesCoverCosts",
 	    value: function resourcesCoverCosts(resources, costs) {
 	      var remainder = CityResource.aggregateSameTypeResources(resources.concat(CityResource.resourcesWithMultiplier(costs, -1)));
 	      var missing = 0;
@@ -20932,28 +20945,31 @@
 	  }
 	
 	  _createClass(ResourceConsumingAction, [{
-	    key: 'displayName',
+	    key: "displayName",
 	    value: function displayName() {
 	      return this.displayNameFunction();
 	    }
 	  }, {
-	    key: 'isAvailable',
+	    key: "isAvailable",
 	    value: function isAvailable(player) {
 	      return this.availabilityFunction(player);
 	    }
 	  }, {
-	    key: 'isAffordable',
+	    key: "isAffordable",
 	    value: function isAffordable(player) {
-	      var costs = CityResource.aggregateSameTypeResources(this.costs());
+	      var costs = CityResource.aggregateSameTypeResources(this.costs(player));
 	      return player.canAfford(costs);
 	    }
 	  }, {
-	    key: 'costs',
-	    value: function costs() {
-	      return this.costCalculationFunction();
+	    key: "costs",
+	    value: function costs(player) {
+	      if (!player) {
+	        throw new Error("Cost can only be calculated for a specific player");
+	      }
+	      return this.costCalculationFunction(player);
 	    }
 	  }, {
-	    key: 'executeForPlayer',
+	    key: "executeForPlayer",
 	    value: function executeForPlayer(player) {
 	      if (!this.isAvailable(player)) {
 	        throw new UnavailableActionError();
@@ -20961,7 +20977,7 @@
 	      if (!this.isAffordable(player)) {
 	        throw new InsuficientResourcesError();
 	      }
-	      player.spendResources(this.costs());
+	      player.spendResources(this.costs(player));
 	      this.actionFunction(player);
 	    }
 	  }]);
@@ -21090,6 +21106,8 @@
 	        requirements = _ref$requirements === undefined ? [] : _ref$requirements,
 	        _ref$costs = _ref.costs,
 	        costs = _ref$costs === undefined ? [] : _ref$costs,
+	        _ref$costFactor = _ref.costFactor,
+	        costFactor = _ref$costFactor === undefined ? 1.3 : _ref$costFactor,
 	        _ref$time = _ref.time,
 	        time = _ref$time === undefined ? 0 : _ref$time,
 	        _ref$effects = _ref.effects,
@@ -21105,6 +21123,7 @@
 	
 	    this.requirements = requirements;
 	    this.costs = costs;
+	    this.costFactor = costFactor;
 	    this.buildingTime = time;
 	
 	    /* Copy effects, because we will mutate them (start time) */
@@ -21186,13 +21205,21 @@
 	
 	    _classCallCheck(this, BuildingConstructionAction);
 	
-	    return _possibleConstructorReturn(this, (BuildingConstructionAction.__proto__ || Object.getPrototypeOf(BuildingConstructionAction)).call(this, "Build", function (player) {
-	      return player.fulfillsRequirements(building.requirements);
+	    var _this2 = _possibleConstructorReturn(this, (BuildingConstructionAction.__proto__ || Object.getPrototypeOf(BuildingConstructionAction)).call(this, "Build", function (player) {
+	      return player.fulfillsRequirements(this.building.requirements);
 	    }, function (player) {
-	      return building.costs;
+	      var factor = 1;
+	      if (this.building.namespace) {
+	        var achievements = player.getAchievements({ completedOnly: false });
+	        factor = Math.pow(this.building.costFactor, achievements[this.building.namespace] || 0);
+	      }
+	      return _CityResource.CityResource.resourcesWithMultiplier(this.building.costs, factor);
 	    }, function (player) {
-	      player.city.planBuilding({ building: building });
+	      player.city.planBuilding({ building: this.building });
 	    }));
+	
+	    _this2.building = building;
+	    return _this2;
 	  }
 	
 	  return BuildingConstructionAction;
@@ -21829,7 +21856,7 @@
 	      React.createElement(
 	        'amount',
 	        { className: 'resource-amount' },
-	        this.props.amount
+	        Math.floor(this.props.amount)
 	      ),
 	      ' /',
 	      React.createElement(
