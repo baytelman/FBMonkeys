@@ -73,4 +73,31 @@ describe('Building Construction', () => {
 		assert.isTrue(b.isCompleted());
 		assert.notInclude(b.toString(), 'Building');
 	});
+	
+	it('have increasing costs', () => {
+		let player = new CityPlayer({
+			initialCapacity: {
+				[kGold]: 1000
+			}
+		});
+		player.earnResources(CityResource.resourcesWithMultiplier([resource], 100));	
+		
+		let building = new Building({
+			costs: [resource],
+			time: totalTime,
+			costFactor: 2
+		});
+		
+		let action = new BuildingConstructionAction({
+			building: building,
+		});
+		
+		action.executeForPlayer(player);
+		let costForSecond = action.costs(player);
+		assert.strictEqual(costForSecond[0].amount, 100 * 2);
+		
+		action.executeForPlayer(player);
+		let costForThird = action.costs(player);
+		assert.strictEqual(costForThird[0].amount, 100 * 4);
+	});
 });
