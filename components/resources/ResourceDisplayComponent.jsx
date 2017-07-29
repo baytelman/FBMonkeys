@@ -1,5 +1,5 @@
 const React = require('react');
-const ResourceIcon = require('../resources/ResourceIconComponent.jsx').default;
+const ResourceIcon = require('./ResourceIconComponent.jsx').default;
 
 var ResourceDisplay = React.createClass({
   render: function () {

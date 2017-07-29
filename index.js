@@ -5,12 +5,22 @@ global.rootRequire = function (name) {
 
 var env = process.env.NODE_ENV || 'development'
   , express         = require('express')
+  , sassMiddleware  = require('node-sass-middleware')
   , app             = express();
 
 app.set('port', (process.env.PORT || 5000) );
 app.set('view engine', 'ejs');
 
 require('express-helpers')(app);
+
+app.use(
+  sassMiddleware({
+    src: __dirname + '/sass',
+    dest: __dirname + '/public/css',
+    prefix:  '/css',
+    debug: true,
+  })
+);
 
 // Configuration specific to production env
 if (env == 'production') {

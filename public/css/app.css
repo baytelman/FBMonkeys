@@ -66,15 +66,24 @@ input:-moz-placeholder {
     height: 12px;
     width: 12px;
     box-sizing: border-box;
-    vertical-align: middle; }
+    vertical-align: middle;
+    background-size: contain; }
     .resources .resource .resource-icon.wood {
-      background-color: brown; }
+      background-image: url(../images/resources/wood.png); }
     .resources .resource .resource-icon.stone {
       background-color: grey; }
     .resources .resource .resource-icon.gold {
       background-color: gold; }
-    .resources .resource .resource-icon.food {
-      background-color: green; }
+    .resources .resource .resource-icon.banana {
+      background-image: url(../images/resources/banana.png); }
+  .resources .resource.wood {
+    color: brown; }
+  .resources .resource.stone {
+    background-color: grey; }
+  .resources .resource.gold {
+    background-color: gold; }
+  .resources .resource.banana {
+    background-color: yellow; }
   .resources .resource .resource-amount {
     display: inline-block;
     margin-right: 4px;
