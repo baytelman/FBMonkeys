@@ -5,31 +5,36 @@ const BuildingJS = require('../../lib/city/Building.js');
 const BuildingConstructionAction = BuildingJS.BuildingConstructionAction
 
 var BuildMenu = React.createClass({
-  render: function() {
+  render: function () {
     let _this = this;
     let controller = GameController.instance;
-    let buildingComponents = Object.values(controller.module.availableBuildings()).map((building) => {
-      let action = new BuildingConstructionAction({
-        building: building,
+    let buildingComponents = Object
+      .values(controller.module.availableBuildings())
+      .map((building) => {
+        let action = new BuildingConstructionAction({building: building});
+        let addBuilding = function () {
+          action.executeForPlayer(controller.player);
+        };
+        if (!action.isAvailable(controller.player)) {
+          return null;
+        }
+        return (
+          <button
+            key={"btn_bld_" + building.id}
+            disabled={!action.isAffordable(controller.player)}
+            className='build-entity'
+            onClick={addBuilding}
+            title={ action.costs(controller.player).map((c) => "[" + c.toString() + "]").join(" + ") }>
+            {building.name}
+          </button>
+        );
       });
-      let addBuilding = function() {
-        action.executeForPlayer(controller.player);
-      };
-      if (! action.isAvailable(controller.player)) {
-        return null;
-      }
-      if (action.isAffordable(controller.player)) {
-        return (<button key={ "btn_bld_" + building.id } className='build-entity' onClick={ addBuilding }>{ building.name }</button>);
-      } else {
-        return (<span key={ "btn_bld_dis_" + building.id }>({ building.name })</span>);
-      }
-    });
 
-    return(
+    return (
       <div id='build-menu'>
         <ul>
           <li>
-          { buildingComponents }
+            {buildingComponents}
           </li>
         </ul>
       </div>

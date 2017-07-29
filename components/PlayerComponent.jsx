@@ -2,7 +2,7 @@ const React = require('react');
 
 const BuildMenuComponent = require("../components/menus/BuildMenuComponent.jsx").default;
 const SaveMenuComponent = require("../components/menus/SaveMenuComponent.jsx").default;
-const ResourceDisplay = require("../components/hud/HUDResourceDisplayComponent.jsx").default;
+const ResourceDisplay = require("../components/resources/ResourceDisplayComponent.jsx").default;
 const CityDisplayComponent = require("../components/CityDisplayComponent.jsx").default;
 
 var Player = React.createClass({

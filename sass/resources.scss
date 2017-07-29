@@ -8,8 +8,9 @@
       width: 12px;
       box-sizing: border-box;
       vertical-align: middle;
+      background-size: contain;
       &.wood {
-        background-color: brown;
+        background-image: url(../images/resources/wood.png);
       }
       &.stone {
         background-color: grey;
@@ -17,9 +18,21 @@
       &.gold {
         background-color: gold;
       }
-      &.food {
-        background-color: green;
+      &.banana {
+        background-image: url(../images/resources/banana.png);
       }
+    }
+    &.wood {
+      color: brown;
+    }
+    &.stone {
+      background-color: grey;
+    }
+    &.gold {
+      background-color: gold;
+    }
+    &.banana {
+      background-color: yellow;
     }
     .resource-amount {
       display: inline-block;

@@ -31,6 +31,20 @@ describe('Building Construction', () => {
 		time: totalTime,
 	});
 	
+	it('cannot compute costs without a player', () => {
+		let player = new CityPlayer({
+			initialCapacity: {
+				[kGold]: 1000
+			}
+		});
+		
+		let action = new BuildingConstructionAction({
+			building: building,
+		});
+
+		assert.throw(() => action.costs(), Error);
+	});
+
 	it('have action costs', () => {
 		let player = new CityPlayer({
 			initialCapacity: {

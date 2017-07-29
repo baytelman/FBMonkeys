@@ -19935,30 +19935,25 @@
 	    var _this = this;
 	    var controller = GameController.instance;
 	    var buildingComponents = Object.values(controller.module.availableBuildings()).map(function (building) {
-	      var action = new BuildingConstructionAction({
-	        building: building
-	      });
+	      var action = new BuildingConstructionAction({ building: building });
 	      var addBuilding = function addBuilding() {
 	        action.executeForPlayer(controller.player);
 	      };
 	      if (!action.isAvailable(controller.player)) {
 	        return null;
 	      }
-	      if (action.isAffordable(controller.player)) {
-	        return React.createElement(
-	          'button',
-	          { key: "btn_bld_" + building.id, className: 'build-entity', onClick: addBuilding },
-	          building.name
-	        );
-	      } else {
-	        return React.createElement(
-	          'span',
-	          { key: "btn_bld_dis_" + building.id },
-	          '(',
-	          building.name,
-	          ')'
-	        );
-	      }
+	      return React.createElement(
+	        'button',
+	        {
+	          key: "btn_bld_" + building.id,
+	          disabled: !action.isAffordable(controller.player),
+	          className: 'build-entity',
+	          onClick: addBuilding,
+	          title: action.costs(controller.player).map(function (c) {
+	            return "[" + c.toString() + "]";
+	          }).join(" + ") },
+	        building.name
+	      );
 	    });
 	
 	    return React.createElement(
@@ -20818,7 +20813,7 @@
 /* 170 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -20877,13 +20872,18 @@
 	  }
 	
 	  _createClass(CityResource, [{
-	    key: "resourceWithMultiplier",
+	    key: 'toString',
+	    value: function toString() {
+	      return this.type + ': ' + Math.ceil(this.amount);
+	    }
+	  }, {
+	    key: 'resourceWithMultiplier',
 	    value: function resourceWithMultiplier(resources) {
 	      var m = this.amount * resources;
 	      return new this.constructor(this.type, m);
 	    }
 	  }], [{
-	    key: "resourcesWithMultiplier",
+	    key: 'resourcesWithMultiplier',
 	    value: function resourcesWithMultiplier(resources, multiplier) {
 	      var mResources = [];
 	      resources.forEach(function (resource) {
@@ -20892,7 +20892,7 @@
 	      return CityResource.aggregateSameTypeResources(mResources);
 	    }
 	  }, {
-	    key: "aggregateSameTypeResources",
+	    key: 'aggregateSameTypeResources',
 	    value: function aggregateSameTypeResources(array) {
 	      var _constructor = null;
 	      var aggregatedResources = {};
@@ -20910,7 +20910,7 @@
 	      return aggregatedArray;
 	    }
 	  }, {
-	    key: "resourcesCoverCosts",
+	    key: 'resourcesCoverCosts',
 	    value: function resourcesCoverCosts(resources, costs) {
 	      var remainder = CityResource.aggregateSameTypeResources(resources.concat(CityResource.resourcesWithMultiplier(costs, -1)));
 	      var missing = 0;
@@ -20945,23 +20945,23 @@
 	  }
 	
 	  _createClass(ResourceConsumingAction, [{
-	    key: "displayName",
+	    key: 'displayName',
 	    value: function displayName() {
 	      return this.displayNameFunction();
 	    }
 	  }, {
-	    key: "isAvailable",
+	    key: 'isAvailable',
 	    value: function isAvailable(player) {
 	      return this.availabilityFunction(player);
 	    }
 	  }, {
-	    key: "isAffordable",
+	    key: 'isAffordable',
 	    value: function isAffordable(player) {
 	      var costs = CityResource.aggregateSameTypeResources(this.costs(player));
 	      return player.canAfford(costs);
 	    }
 	  }, {
-	    key: "costs",
+	    key: 'costs',
 	    value: function costs(player) {
 	      if (!player) {
 	        throw new Error("Cost can only be calculated for a specific player");
@@ -20969,7 +20969,7 @@
 	      return this.costCalculationFunction(player);
 	    }
 	  }, {
-	    key: "executeForPlayer",
+	    key: 'executeForPlayer',
 	    value: function executeForPlayer(player) {
 	      if (!this.isAvailable(player)) {
 	        throw new UnavailableActionError();
@@ -21126,9 +21126,8 @@
 	    this.costFactor = costFactor;
 	    this.buildingTime = time;
 	
-	    /* Copy effects, because we will mutate them (start time) */
-	    this.effects = effects.map(_Utils.MutableObject.mutableCopy);
-	    this.permanentEffects = permanentEffects.map(_Utils.MutableObject.mutableCopy);
+	    this.effects = effects;
+	    this.permanentEffects = permanentEffects;
 	
 	    this.time = 0;
 	  }
@@ -21171,13 +21170,18 @@
 	      parents = Object.assign(parents, { project: this });
 	      var updated = [];
 	
-	      var wasCompleted = this.isCompleted();
+	      /* This works for buildings with `buildingTime == 0` */
+	      var wasCompleted = this.time > 0 && this.isCompleted();
 	
 	      this.time += deltaSeconds;
 	      this.time = Math.round(this.time * 100) / 100;
 	
 	      if (this.isCompleted()) {
 	        if (!wasCompleted) {
+	          /* Copy effects, because we will mutate them (start time) */
+	          this.effects = this.effects.map(_Utils.MutableObject.mutableCopy);
+	          this.permanentEffects = this.permanentEffects.map(_Utils.MutableObject.mutableCopy);
+	
 	          updated.push(new _CityEvent2.default({ type: _CityEvent2.default.kBuildingCompletedEvent, object: this }));
 	          deltaSeconds = this.time - this.buildingTime;
 	        }
@@ -21810,7 +21814,7 @@
 	      React.createElement(
 	        'span',
 	        null,
-	        'ResourceDisplay'
+	        'Resources'
 	      ),
 	      React.createElement(
 	        'resources',
@@ -21818,8 +21822,7 @@
 	        resources.map(function (resource) {
 	          return resource.amount && React.createElement(ResourceIcon, {
 	            key: resource.id,
-	            name: resource.type,
-	            amount: resource.amount,
+	            resource: resource,
 	            max: capacity[resource.type] });
 	        })
 	      )
@@ -21847,22 +21850,25 @@
 	    return {};
 	  },
 	  render: function render() {
-	    var id = 'resource-' + this.props.id,
-	        className = 'resource-icon ' + this.props.name.toLowerCase(),
-	        title = this.props.name + ': ' + this.props.amount;
+	    var id = 'resource-' + this.props.resource.id;
+	    var className = 'resource-icon ' + this.props.resource.type.toLowerCase();
+	    var amount = Math.floor(this.props.resource.amount);
+	    var title = this.props.resource.toString();
+	    var max = this.props.max;
+	
 	    return React.createElement(
 	      'resource',
 	      { id: id, className: 'resource', title: title },
 	      React.createElement(
 	        'amount',
 	        { className: 'resource-amount' },
-	        Math.floor(this.props.amount)
+	        amount
 	      ),
-	      ' /',
+	      '/',
 	      React.createElement(
 	        'amount',
 	        { className: 'max-amount' },
-	        this.props.max
+	        max
 	      ),
 	      React.createElement('div', { className: className })
 	    );

@@ -14,9 +14,11 @@
 
 In order to run Unit Tests use:
 
-`mocha --compilers js:babel-core/register`
+`npm test`
+or
+`npm run watch`
 or run coverage with:
-`nyc --reporter=html  mocha --compilers js:babel-core/register`
+`npm run coverage`
 
 ###Note: Don't forget to run a local redis server if you intend to use redis
 
