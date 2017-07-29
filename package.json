@@ -7,6 +7,7 @@
     "dev": "webpack-dev-server --inline --hot",
     "test": "mocha --compilers js:babel-core/register",
     "watch": "mocha --compilers js:babel-core/register -w",
+    "coverage": "nyc --reporter=lcov --reporter=html --reporter=text mocha --compilers js:babel-core/register",
     "gulp": "gulp",
     "postinstall": "webpack --progress --colors"
   },
@@ -34,8 +35,8 @@
     "chai": "^3.5.0",
     "gulp": "^3.9.1",
     "gulp-replace": "^0.5.4",
-    "mocha": "^3.0.2",
-    "nyc": "^11.0.3",
+    "mocha": "^3.4.2",
+    "nyc": "^11.1.0",
     "webpack-dev-server": "^1.14.1"
   },
   "babel": {
