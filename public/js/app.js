@@ -21331,7 +21331,7 @@
 	    value: function getPlayerInitialCapacity() {
 	      var _ref;
 	
-	      return _ref = {}, _defineProperty(_ref, GameModule.kResourceGold, 50), _defineProperty(_ref, GameModule.kResourceFood, 5), _defineProperty(_ref, GameModule.kResourceWood, 100), _ref;
+	      return _ref = {}, _defineProperty(_ref, GameModule.kResourceGold, 50), _defineProperty(_ref, GameModule.kResourceBanana, 50), _defineProperty(_ref, GameModule.kResourceWood, 100), _ref;
 	    }
 	  }], [{
 	    key: 'gold',
@@ -21344,9 +21344,9 @@
 	      return new _CityResource.CityResource(GameModule.kResourceWood, amount);
 	    }
 	  }, {
-	    key: 'food',
-	    value: function food(amount) {
-	      return new _CityResource.CityResource(GameModule.kResourceFood, amount);
+	    key: 'banana',
+	    value: function banana(amount) {
+	      return new _CityResource.CityResource(GameModule.kResourceBanana, amount);
 	    }
 	  }]);
 	
@@ -21357,57 +21357,45 @@
 	
 	
 	GameModule.kResourceGold = 'gold';
-	GameModule.kResourceFood = 'food';
+	GameModule.kResourceBanana = 'banana';
+	GameModule.kResourceMonkey = 'monkey';
 	GameModule.kResourceWood = 'wood';
 	
-	GameModule.kCityHall = new _Building.Building({
-	  name: "City Hall",
-	  namespace: "building.basic.city_hall",
+	GameModule.kBananaTree = new _Building.Building({
+	  name: "Central Banana Tree",
+	  namespace: "building.basic.banana_tree",
 	  time: 50,
-	  costs: [GameModule.gold(9999)]
+	  costs: [GameModule.wood(9999)],
+	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect(_defineProperty({}, GameModule.kResourceMonkey, 1))]
 	});
 	
-	GameModule.kGoldMine = new _Building.Building({
-	  name: "Gold Mine",
-	  namespace: "building.basic.gold_mine",
+	GameModule.kCave = new _Building.Building({
+	  name: "Cave",
+	  namespace: "building.basic.cave",
 	  time: 50,
-	  costs: [GameModule.gold(100)],
+	  costs: [GameModule.wood(50)],
+	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect(_defineProperty({}, GameModule.kResourceMonkey, 1))]
+	});
+	
+	GameModule.kBananaField = new _Building.Building({
+	  name: "Banana Field",
+	  namespace: "building.basic.banana_field",
+	  time: 50,
+	  costs: [GameModule.banana(50)],
+	  costFactor: 2,
 	  effects: [new _CityPlayer.PlayerEarnResourceEffect({
-	    resources: [GameModule.gold(1)],
-	    frequency: 10
+	    resources: [GameModule.banana(5), GameModule.wood(1)],
+	    frequency: 5
 	  })]
 	});
 	
-	GameModule.kFarm = new _Building.Building({
-	  name: "Farm",
-	  namespace: "building.basic.farm",
+	GameModule.kBananaCrate = new _Building.Building({
+	  name: "Banana Crate",
+	  namespace: "building.basic.banana_crate",
 	  time: 30,
-	  costs: [GameModule.gold(10), GameModule.wood(10)],
-	  effects: [new _CityPlayer.PlayerEarnResourceEffect({
-	    resources: [GameModule.food(1)],
-	    frequency: 50
-	  })]
-	});
-	
-	GameModule.kGranary = new _Building.Building({
-	  name: "Granary",
-	  namespace: "building.basic.granary",
-	  time: 30,
-	  costs: [GameModule.gold(10), GameModule.wood(10)],
-	  requirements: ["building.basic.farm"],
-	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect(_defineProperty({}, GameModule.kResourceFood, 50))]
-	});
-	
-	GameModule.kLumberMill = new _Building.Building({
-	  name: "Lumber Mill",
-	  namespace: "building.basic.lumber_mill",
-	  time: 25,
-	  costs: [GameModule.wood(30)],
-	  effects: [new _CityPlayer.PlayerEarnResourceEffect({
-	    resources: [GameModule.wood(1)],
-	    frequency: 3
-	  })],
-	  permanentEffects: []
+	  costs: [GameModule.wood(10)],
+	  requirements: ["building.basic.banana_field"],
+	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect(_defineProperty({}, GameModule.kResourceBanana, 100))]
 	});
 	
 	GameModule.kAvailableBuildings = {};
@@ -21416,7 +21404,7 @@
 	    GameModule.kAvailableBuildings[value.id] = value;
 	  }
 	});
-	GameModule.kDefaultBuildings = [GameModule.kCityHall.id];
+	GameModule.kDefaultBuildings = [GameModule.kBananaTree.id];
 
 /***/ }),
 /* 175 */
@@ -21959,7 +21947,7 @@
 	                            width: kAssetWidth,
 	                            height: kAssetWidth,
 	                            zIndex: 1,
-	                            backgroundImage: 'url(/images/' + b.namespace + '.png)',
+	                            backgroundImage: 'url(/images/' + b.namespace.replace(/\./g, '/') + '.png)',
 	                            backgroundRepeat: 'no-repeat',
 	                            backgroundPosition: 'center',
 	                            backgroundSize: 'contain'
@@ -22027,9 +22015,8 @@
 	
 	var controller = GameController.instance;
 	
-	controller.installCompletedBuilding(GameModule.kCityHall.id);
-	controller.installCompletedBuilding(GameModule.kGoldMine.id);
-	controller.installCompletedBuilding(GameModule.kLumberMill.id);
+	controller.installCompletedBuilding(GameModule.kBananaTree.id);
+	controller.planBuilding(GameModule.kBananaField.id);
 	
 	var demoData = controller.player;
 	module.exports = demoData;
