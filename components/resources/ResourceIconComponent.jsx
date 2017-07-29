@@ -1,20 +1,24 @@
 const React = require('react');
 
 var ResourceIcon = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {}
   },
-  render: function() {
-    let id        = 'resource-' + this.props.id,
-        className = 'resource-icon ' + this.props.name.toLowerCase(),
-        title     = this.props.name + ': ' + this.props.amount;
-    return(
+  render: function () {
+    const id = 'resource-' + this.props.resource.id;
+    const className = 'resource-icon ' + this.props.resource.type.toLowerCase();
+    const amount = Math.floor(this.props.resource.amount);
+    const title = this.props.resource.toString();
+    const max = this.props.max;
+
+    return (
       <resource id={id} className='resource' title={title}>
-        <amount className='resource-amount'>{this.props.amount}</amount> /
-        <amount className='max-amount'>{this.props.max}</amount>
+        <amount className='resource-amount'>{amount}</amount>
+        /
+        <amount className='max-amount'>{max}</amount>
         <div className={className}></div>
       </resource>
-    )
+    );
   }
 });
 

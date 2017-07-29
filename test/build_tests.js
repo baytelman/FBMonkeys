@@ -31,6 +31,20 @@ describe('Building Construction', () => {
 		time: totalTime,
 	});
 	
+	it('cannot compute costs without a player', () => {
+		let player = new CityPlayer({
+			initialCapacity: {
+				[kGold]: 1000
+			}
+		});
+		
+		let action = new BuildingConstructionAction({
+			building: building,
+		});
+
+		assert.throw(() => action.costs(), Error);
+	});
+
 	it('have action costs', () => {
 		let player = new CityPlayer({
 			initialCapacity: {
@@ -72,5 +86,32 @@ describe('Building Construction', () => {
 		assert.strictEqual(updates[updates.length-1].type, CityEvent.kBuildingCompletedEvent);
 		assert.isTrue(b.isCompleted());
 		assert.notInclude(b.toString(), 'Building');
+	});
+	
+	it('have increasing costs', () => {
+		let player = new CityPlayer({
+			initialCapacity: {
+				[kGold]: 1000
+			}
+		});
+		player.earnResources(CityResource.resourcesWithMultiplier([resource], 100));	
+		
+		let building = new Building({
+			costs: [resource],
+			time: totalTime,
+			costFactor: 2
+		});
+		
+		let action = new BuildingConstructionAction({
+			building: building,
+		});
+		
+		action.executeForPlayer(player);
+		let costForSecond = action.costs(player);
+		assert.strictEqual(costForSecond[0].amount, 100 * 2);
+		
+		action.executeForPlayer(player);
+		let costForThird = action.costs(player);
+		assert.strictEqual(costForThird[0].amount, 100 * 4);
 	});
 });
