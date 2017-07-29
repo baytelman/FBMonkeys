@@ -14,8 +14,7 @@ var ResourceDisplay = React.createClass({
         <resources className='resources'>
           {resources.map((resource) => (resource.amount && <ResourceIcon
             key={resource.id}
-            name={resource.type}
-            amount={resource.amount}
+            resource={resource}
             max={capacity[resource.type]}/>))}
         </resources>
       </div>
