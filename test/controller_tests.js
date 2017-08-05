@@ -9,13 +9,13 @@ describe('Game Controller', () => {
   it('Can plan or install buildings', () => {
     let controller = new GameController();
     controller.startNewGame();
-    let farmEvent = controller.planBuilding(GameModule.kFarm.id);
-    let woodmillEvents = controller.installCompletedBuilding(GameModule.kLumberMill.id);
+    let fieldEvent = controller.planBuilding(GameModule.kBananaField.id);
+    let caveEvents = controller.installCompletedBuilding(GameModule.kCave.id);
     
-    let farm = controller.player.city.buildings[farmEvent.object.id];
-    let woodMill = controller.player.city.buildings[woodmillEvents[0].object.id];
-    assert.isFalse(farm.isCompleted());
-    assert.isTrue(woodMill.isCompleted());
+    let field = controller.player.city.buildings[fieldEvent.object.id];
+    let cave = controller.player.city.buildings[caveEvents[0].object.id];
+    assert.isFalse(field.isCompleted());
+    assert.isTrue(cave.isCompleted());
   });
 
   it('Generate Resources', () => {
@@ -23,7 +23,7 @@ describe('Game Controller', () => {
     controller.startNewGame();
     
     /* Let's add a building */
-    let events = controller.installCompletedBuilding(GameModule.kFarm.id);
+    let events = controller.installCompletedBuilding(GameModule.kBananaField.id);
     
     /* Let's force it complete */
     let buildingId = events[0].object.id;
@@ -36,16 +36,16 @@ describe('Game Controller', () => {
       sentResourceEvents.push(e);
     });
     
-    /* Producing food by a farm takes 50. Don't expect anything done on 5: */
-    let events1 = controller.tick(5);
-    assert.isFalse(controller.player.canAfford([GameModule.food(1)]));
+    /* Producing food by a farm takes 5. Don't expect anything done on 5: */
+    let events1 = controller.tick(1);
+    assert.isFalse(controller.player.canAfford([GameModule.banana(1)]));
     let tickedResourceEvents1 = events1.filter(e => e.type == CityEvent.kEarnResourceEvent);
     assert.strictEqual(sentResourceEvents.length, 0);
     assert.strictEqual(tickedResourceEvents1.length, 0);
     
-    /* Producing food by a farm takes 50. Expect food on 55: */
-    let events2 = controller.tick(50);
-    assert.isTrue(controller.player.canAfford([GameModule.food(1)]));
+    /* Producing food by a farm takes 5. Expect food on 6: */
+    let events2 = controller.tick(5);
+    assert.isTrue(controller.player.canAfford([GameModule.banana(1)]));
     let tickedResourceEvents2 = events2.filter(e => e.type == CityEvent.kEarnResourceEvent);
     assert.strictEqual(sentResourceEvents.length, 1);
     assert.strictEqual(tickedResourceEvents2.length, 1);
