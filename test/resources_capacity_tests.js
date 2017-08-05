@@ -28,7 +28,7 @@ let building = new Building({
   })]
 });
 
-describe('Resources', () => {
+describe('Resources Capacity', () => {
   
   let multiplier = 10;
   

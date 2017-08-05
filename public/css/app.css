@@ -63,8 +63,8 @@ input:-moz-placeholder {
   .resources .resource .resource-icon {
     display: inline-block;
     position: relative;
-    height: 12px;
-    width: 12px;
+    height: 18px;
+    width: 18px;
     box-sizing: border-box;
     vertical-align: middle;
     background-size: contain; }
@@ -76,6 +76,8 @@ input:-moz-placeholder {
       background-color: gold; }
     .resources .resource .resource-icon.banana {
       background-image: url(../images/resources/banana.png); }
+    .resources .resource .resource-icon.monkey {
+      background-image: url(../images/resources/monkey.png); }
   .resources .resource.wood {
     color: brown; }
   .resources .resource.stone {
