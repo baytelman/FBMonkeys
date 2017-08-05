@@ -19942,6 +19942,15 @@
 	      if (!action.isAvailable(controller.player)) {
 	        return null;
 	      }
+	      var costs = action.costs(controller.player);
+	      var costsDescription = costs.length > 0 && "Cost:\n" + costs.map(function (c) {
+	        return "[" + c.toString() + "]";
+	      }).join(" + ");
+	      var effectsDescription = building.effects.length > 0 && building.effects.map(function (c) {
+	        return "- " + c.getDescription();
+	      }).join("\n");
+	      var title = costsDescription + (effectsDescription ? "\n⋯\nEffects:\n" + effectsDescription : '');
+	
 	      return React.createElement(
 	        'button',
 	        {
@@ -19949,9 +19958,7 @@
 	          disabled: !action.isAffordable(controller.player),
 	          className: 'build-entity',
 	          onClick: addBuilding,
-	          title: action.costs(controller.player).map(function (c) {
-	            return "[" + c.toString() + "]";
-	          }).join(" + ") },
+	          title: title },
 	        building.name
 	      );
 	    });
@@ -20154,11 +20161,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.CapacityGrantingEffect = exports.PlayerEarnResourceEffect = exports.CityPlayer = undefined;
+	exports.CapacityGrantingEffect = exports.ResourceEffect = exports.PlayerEarnResourceEffect = exports.CityPlayer = undefined;
 	
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-	
-	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -20286,7 +20291,10 @@
 	  }, {
 	    key: 'getCapacity',
 	    value: function getCapacity() {
-	      var capacity = Object.assign({}, this.initialCapacity);
+	      var capacity = {
+	        additions: Object.assign({}, this.initialCapacity),
+	        totals: Object.assign({}, this.initialCapacity)
+	      };
 	
 	      Object.values(this.city.buildings).filter(function (b) {
 	        return b.isCompleted();
@@ -20295,11 +20303,10 @@
 	          return effect instanceof CapacityGrantingEffect;
 	        });
 	        effects.forEach(function (effect) {
-	          return effect.modifyCapacity(capacity);
+	          return effect.combine(capacity);
 	        });
 	      });
-	
-	      return capacity;
+	      return capacity.totals;
 	    }
 	  }, {
 	    key: 'getAchievements',
@@ -20357,38 +20364,76 @@
 	      return [event];
 	    }
 	  }, {
-	    key: 'toString',
-	    value: function toString() {
-	      return _get(PlayerEarnResourceEffect.prototype.__proto__ || Object.getPrototypeOf(PlayerEarnResourceEffect.prototype), 'toString', this).call(this) + " [" + this.resources + " " + (this.time - this.cycleStart) + "/" + this.frequency + " @ " + this.time + "]";
+	    key: 'getDescription',
+	    value: function getDescription() {
+	      return "Gives " + this.resources.map(function (r) {
+	        return r.toString();
+	      }).join(" + ") + " every " + this.frequency + " sec";
 	    }
 	  }]);
 	
 	  return PlayerEarnResourceEffect;
 	}(_Effect.FrequencyEffect);
 	
-	var CapacityGrantingEffect = exports.CapacityGrantingEffect = function () {
-	  function CapacityGrantingEffect(addCapacity) {
-	    _classCallCheck(this, CapacityGrantingEffect);
+	var ResourceEffect = exports.ResourceEffect = function () {
+	  function ResourceEffect() {
+	    var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref4$additions = _ref4.additions,
+	        additions = _ref4$additions === undefined ? 0 : _ref4$additions,
+	        _ref4$multipliers = _ref4.multipliers,
+	        multipliers = _ref4$multipliers === undefined ? 0 : _ref4$multipliers;
 	
-	    this.addCapacity = addCapacity;
+	    _classCallCheck(this, ResourceEffect);
+	
+	    this.additions = additions;
+	    this.multipliers = multipliers;
 	  }
 	
-	  _createClass(CapacityGrantingEffect, [{
-	    key: 'modifyCapacity',
-	    value: function modifyCapacity(capacity) {
-	      Object.entries(this.addCapacity).forEach(function (_ref4) {
-	        var _ref5 = _slicedToArray(_ref4, 2),
-	            key = _ref5[0],
-	            value = _ref5[1];
+	  _createClass(ResourceEffect, [{
+	    key: '_combine',
+	    value: function _combine(combined, local) {
+	      Object.entries(local).forEach(function (_ref5) {
+	        var _ref6 = _slicedToArray(_ref5, 2),
+	            key = _ref6[0],
+	            value = _ref6[1];
 	
-	        capacity[key] = (capacity[key] || 0) + value;
+	        combined[key] = (combined[key] || 0) + value;
 	      });
-	      return capacity;
+	      return combined;
+	    }
+	  }, {
+	    key: 'combine',
+	    value: function combine(combinedUnits) {
+	      combinedUnits.additions = this._combine(combinedUnits.additions || {}, this.additions);
+	      combinedUnits.multipliers = this._combine(combinedUnits.multipliers || {}, this.multipliers);
+	      combinedUnits.totals = Object.assign({}, combinedUnits.additions);
+	      Object.entries(combinedUnits.multipliers).forEach(function (_ref7) {
+	        var _ref8 = _slicedToArray(_ref7, 2),
+	            key = _ref8[0],
+	            value = _ref8[1];
+	
+	        if (combinedUnits.additions[key]) {
+	          combinedUnits.totals[key] *= Math.max(0, 1 + value);
+	        }
+	      });
+	      return combinedUnits;
 	    }
 	  }]);
-
-	  return CapacityGrantingEffect;
+	
+	  return ResourceEffect;
 	}();
+	
+	var CapacityGrantingEffect = exports.CapacityGrantingEffect = function (_ResourceEffect) {
+	  _inherits(CapacityGrantingEffect, _ResourceEffect);
+	
+	  function CapacityGrantingEffect() {
+	    _classCallCheck(this, CapacityGrantingEffect);
+	
+	    return _possibleConstructorReturn(this, (CapacityGrantingEffect.__proto__ || Object.getPrototypeOf(CapacityGrantingEffect)).apply(this, arguments));
+	  }
+	
+	  return CapacityGrantingEffect;
+	}(ResourceEffect);
 
 /***/ }),
 /* 167 */
@@ -20874,7 +20919,7 @@
 	  _createClass(CityResource, [{
 	    key: 'toString',
 	    value: function toString() {
-	      return this.type + ': ' + Math.ceil(this.amount);
+	      return this.type + ' x ' + Math.ceil(this.amount);
 	    }
 	  }, {
 	    key: 'resourceWithMultiplier',
@@ -21289,6 +21334,11 @@
 	    value: function toString() {
 	      return this.constructor.name + " (" + this.id + ") " + this.getStatus();
 	    }
+	  }, {
+	    key: 'getDescription',
+	    value: function getDescription() {
+	      return this.toString();
+	    }
 	  }]);
 
 	  return FrequencyEffect;
@@ -21366,7 +21416,9 @@
 	  namespace: "building.basic.banana_tree",
 	  time: 50,
 	  costs: [GameModule.wood(9999)],
-	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect(_defineProperty({}, GameModule.kResourceMonkey, 1))]
+	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
+	    additions: _defineProperty({}, GameModule.kResourceMonkey, 1)
+	  })]
 	});
 	
 	GameModule.kCave = new _Building.Building({
@@ -21374,7 +21426,9 @@
 	  namespace: "building.basic.cave",
 	  time: 50,
 	  costs: [GameModule.wood(50)],
-	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect(_defineProperty({}, GameModule.kResourceMonkey, 1))]
+	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
+	    additions: _defineProperty({}, GameModule.kResourceMonkey, 1)
+	  })]
 	});
 	
 	GameModule.kBananaField = new _Building.Building({
@@ -21395,7 +21449,9 @@
 	  time: 30,
 	  costs: [GameModule.wood(10)],
 	  requirements: ["building.basic.banana_field"],
-	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect(_defineProperty({}, GameModule.kResourceBanana, 100))]
+	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
+	    additions: _defineProperty({}, GameModule.kResourceBanana, 100)
+	  })]
 	});
 	
 	GameModule.kAvailableBuildings = {};
