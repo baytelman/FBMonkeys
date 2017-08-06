@@ -1,4 +1,5 @@
-const React = require('react');
+import React from 'react';
+import {ResourceIcon} from '../resources/ResourceIconComponent.jsx';
 
 var CharacterDisplay = React.createClass({
   render: function () {
@@ -11,13 +12,13 @@ var CharacterDisplay = React.createClass({
       <div id='character-display' className='hud-window'>
         <span>Characters</span>
         <characters className='characters'>
-          {
-            characters.map((character) => (
-              <div>
+          {characters.map((character) => (
+            <div>
+              {ResourceIcon('monkey')}
               {character.name}
-              </div>
-            ))
-          }
+            </div>
+          ))
+}
         </characters>
       </div>
     );
