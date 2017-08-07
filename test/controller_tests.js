@@ -49,17 +49,17 @@ describe('Game Controller', () => {
     assert.strictEqual(tickedResourceEvents1.length, 0);
     
     /* Producing food by a farm takes 5. Expect food on 6: */
-    let events2 = controller.tick(5);
+    controller.tick(5);
     assert.strictEqual(sentStoreResourceEvents.length, 1);
     assert.strictEqual(sentGrantResourceEvents.length, 0);
-    building.collectResources(controller.player);
+    let event = controller.collectFromBuilding(buildingId);
+
     assert.isTrue(controller.player.canAfford([GameModule.banana(1)]));
-    let tickedResourceEvents2 = events2.filter(e => e.type == CityEvent.kEarnResourceEvent);
     assert.strictEqual(sentStoreResourceEvents.length, 1);
     
     /* Need to allows collects to send events: */
-    // assert.strictEqual(sentGrantResourceEvents.length, 1);
-    // assert.strictEqual(tickedResourceEvents2.length, 1);
+    assert.strictEqual(sentGrantResourceEvents.length, 1);
+    assert.strictEqual(event.type, CityEvent.kEarnResourceEvent);
   });
   
   it('Can Place Buildings', () => {
