@@ -60,22 +60,6 @@ input:-moz-placeholder {
 
 .resources .resource {
   display: block; }
-  .resources .resource .resource-icon {
-    display: inline-block;
-    position: relative;
-    height: 12px;
-    width: 12px;
-    box-sizing: border-box;
-    vertical-align: middle;
-    background-size: contain; }
-    .resources .resource .resource-icon.wood {
-      background-image: url(../images/resources/wood.png); }
-    .resources .resource .resource-icon.stone {
-      background-color: grey; }
-    .resources .resource .resource-icon.gold {
-      background-color: gold; }
-    .resources .resource .resource-icon.banana {
-      background-image: url(../images/resources/banana.png); }
   .resources .resource.wood {
     color: brown; }
   .resources .resource.stone {
@@ -89,3 +73,22 @@ input:-moz-placeholder {
     margin-right: 4px;
     font-size: 11px;
     vertical-align: middle; }
+
+.resource-icon {
+  display: inline-block;
+  position: relative;
+  height: 12px;
+  width: 12px;
+  box-sizing: border-box;
+  vertical-align: middle;
+  background-size: contain; }
+  .resource-icon.wood {
+    background-image: url(../images/resources/wood.png); }
+  .resource-icon.stone {
+    background-color: grey; }
+  .resource-icon.gold {
+    background-color: gold; }
+  .resource-icon.banana {
+    background-image: url(../images/resources/banana.png); }
+  .resource-icon.monkey {
+    background-image: url(../images/resources/monkey.png); }

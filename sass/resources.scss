@@ -1,27 +1,6 @@
 .resources {
   .resource {
     display: block;
-    .resource-icon {
-      display: inline-block;
-      position: relative;
-      height: 12px;
-      width: 12px;
-      box-sizing: border-box;
-      vertical-align: middle;
-      background-size: contain;
-      &.wood {
-        background-image: url(../images/resources/wood.png);
-      }
-      &.stone {
-        background-color: grey;
-      }
-      &.gold {
-        background-color: gold;
-      }
-      &.banana {
-        background-image: url(../images/resources/banana.png);
-      }
-    }
     &.wood {
       color: brown;
     }
@@ -40,5 +19,30 @@
       font-size: 11px;
       vertical-align: middle;
     }
+  }
+}
+
+.resource-icon {
+  display: inline-block;
+  position: relative;
+  height: 12px;
+  width: 12px;
+  box-sizing: border-box;
+  vertical-align: middle;
+  background-size: contain;
+  &.wood {
+    background-image: url(../images/resources/wood.png);
+  }
+  &.stone {
+    background-color: grey;
+  }
+  &.gold {
+    background-color: gold;
+  }
+  &.banana {
+    background-image: url(../images/resources/banana.png);
+  }
+  &.monkey {
+    background-image: url(../images/resources/monkey.png);
   }
 }
