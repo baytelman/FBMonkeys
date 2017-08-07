@@ -10,7 +10,7 @@
     "sass": "node-sass --include-path sass sass/app.scss public/css/app.css",
     "coverage": "nyc --reporter=lcov --reporter=html --reporter=text mocha --compilers js:babel-core/register",
     "gulp": "gulp",
-    "postinstall": "node-sass --include-path sass sass/app.scss public/css/app.css && npm run gulp production && webpack --progress --colors"
+    "postinstall": "npm run gulp production && webpack --progress --colors"
   },
   "author": "Felipe and Sepi",
   "license": "ISC",
