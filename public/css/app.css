@@ -92,3 +92,17 @@ input:-moz-placeholder {
     background-image: url(../images/resources/banana.png); }
   .resource-icon.monkey {
     background-image: url(../images/resources/monkey.png); }
+
+collect {
+  height: 32px;
+  width: 32px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  background: white;
+  border-radius: 32px;
+  overflow: hidden; }
+
+collect > .resource-icon {
+  height: 32px;
+  width: 32px; }

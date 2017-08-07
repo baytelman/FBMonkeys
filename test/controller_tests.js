@@ -31,24 +31,35 @@ describe('Game Controller', () => {
     building.costs = [];
     building.isCompleted();
     
-    let sentResourceEvents = [];
+    let sentGrantResourceEvents = [];
     controller.on(CityEvent.kEarnResourceEvent, (e) => {
-      sentResourceEvents.push(e);
+      sentGrantResourceEvents.push(e);
+    });
+    let sentStoreResourceEvents = [];
+    controller.on(CityEvent.kStoreResourceEvent, (e) => {
+      sentStoreResourceEvents.push(e);
     });
     
     /* Producing food by a farm takes 5. Don't expect anything done on 5: */
     let events1 = controller.tick(1);
     assert.isFalse(controller.player.canAfford([GameModule.banana(1)]));
     let tickedResourceEvents1 = events1.filter(e => e.type == CityEvent.kEarnResourceEvent);
-    assert.strictEqual(sentResourceEvents.length, 0);
+    assert.strictEqual(sentGrantResourceEvents.length, 0);
+    assert.strictEqual(sentStoreResourceEvents.length, 0);
     assert.strictEqual(tickedResourceEvents1.length, 0);
     
     /* Producing food by a farm takes 5. Expect food on 6: */
-    let events2 = controller.tick(5);
+    controller.tick(5);
+    assert.strictEqual(sentStoreResourceEvents.length, 1);
+    assert.strictEqual(sentGrantResourceEvents.length, 0);
+    let event = controller.collectFromBuilding(buildingId);
+
     assert.isTrue(controller.player.canAfford([GameModule.banana(1)]));
-    let tickedResourceEvents2 = events2.filter(e => e.type == CityEvent.kEarnResourceEvent);
-    assert.strictEqual(sentResourceEvents.length, 1);
-    assert.strictEqual(tickedResourceEvents2.length, 1);
+    assert.strictEqual(sentStoreResourceEvents.length, 1);
+    
+    /* Need to allows collects to send events: */
+    assert.strictEqual(sentGrantResourceEvents.length, 1);
+    assert.strictEqual(event.type, CityEvent.kEarnResourceEvent);
   });
   
   it('Can Place Buildings', () => {
