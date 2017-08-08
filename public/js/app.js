@@ -66,9 +66,9 @@
 	var MainWindow = __webpack_require__(160).default;
 	
 	// Default Data (user)
-	var Data = __webpack_require__(180);
+	var Data = __webpack_require__(182);
 	// LocalStorage Data
-	var localStorageHandler = __webpack_require__(181);
+	var localStorageHandler = __webpack_require__(183);
 	
 	/************************************/
 	/*********** 2. Configure ***********/
@@ -87,7 +87,7 @@
 	
 	// Set props from retrieved data
 	var GameController = __webpack_require__(164).default;
-	var CityEvent = __webpack_require__(171).CityEvent;
+	var CityEvent = __webpack_require__(170).CityEvent;
 	// var something = ExampleStore.getData();
 	
 	/************************************/
@@ -102,7 +102,7 @@
 	/************************************/
 	
 	// Require Mixpanel
-	var Mixpanel = __webpack_require__(182);
+	var Mixpanel = __webpack_require__(184);
 	mixpanel.track('City Instance Loaded');
 
 /***/ }),
@@ -19883,9 +19883,10 @@
 	var React = __webpack_require__(2);
 	
 	var BuildMenuComponent = __webpack_require__(163).default;
-	var SaveMenuComponent = __webpack_require__(176).default;
-	var ResourceDisplay = __webpack_require__(177).default;
-	var CityDisplayComponent = __webpack_require__(179).default;
+	var SaveMenuComponent = __webpack_require__(177).default;
+	var ResourceDisplay = __webpack_require__(178).default;
+	var CharacterDisplay = __webpack_require__(180).default;
+	var CityDisplayComponent = __webpack_require__(181).default;
 	
 	var Player = React.createClass({
 	  displayName: "Player",
@@ -19902,9 +19903,10 @@
 	            'background': 'white',
 	            'width': 400
 	          } },
-	        React.createElement(ResourceDisplay, { player: this.props.player, data: this.props.player }),
 	        React.createElement(BuildMenuComponent, { player: this.props.player }),
-	        React.createElement(SaveMenuComponent, { player: this.props.player })
+	        React.createElement(SaveMenuComponent, { player: this.props.player }),
+	        React.createElement(CharacterDisplay, { player: this.props.player, data: this.props.player }),
+	        React.createElement(ResourceDisplay, { player: this.props.player, data: this.props.player })
 	      ),
 	      React.createElement(CityDisplayComponent, { player: this.props.player })
 	    );
@@ -19925,7 +19927,7 @@
 	var React = __webpack_require__(2);
 	
 	var GameController = __webpack_require__(164).default;
-	var BuildingJS = __webpack_require__(172);
+	var BuildingJS = __webpack_require__(171);
 	var BuildingConstructionAction = BuildingJS.BuildingConstructionAction;
 	
 	var BuildMenu = React.createClass({
@@ -20001,11 +20003,11 @@
 	
 	var CitySerializer = __webpack_require__(165).default;
 	
-	var _require = __webpack_require__(166),
+	var _require = __webpack_require__(173),
 	    CityPlayer = _require.CityPlayer;
 	
-	var GameModule = __webpack_require__(174).default;
-	var EventEmitter = __webpack_require__(175);
+	var GameModule = __webpack_require__(175).default;
+	var EventEmitter = __webpack_require__(176);
 	
 	var GameController = function (_EventEmitter) {
 	  _inherits(GameController, _EventEmitter);
@@ -20029,7 +20031,8 @@
 	    key: 'startNewGame',
 	    value: function startNewGame() {
 	      this.player = new CityPlayer({
-	        initialCapacity: this.module.getPlayerInitialCapacity()
+	        initialCapacity: this.module.getPlayerInitialCapacity(),
+	        characterFactories: this.module.getCharacterFactories()
 	      });
 	    }
 	  }, {
@@ -20059,6 +20062,14 @@
 	      var event = this.player.city.planBuilding({
 	        building: b
 	      });
+	      this._emit(event);
+	      return event;
+	    }
+	  }, {
+	    key: 'collectFromBuilding',
+	    value: function collectFromBuilding(id) {
+	      var b = this.player.city.buildings[id];
+	      var event = b.collectResources(this.player);
 	      this._emit(event);
 	      return event;
 	    }
@@ -20095,12 +20106,17 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var CityPlayer = __webpack_require__(166).CityPlayer;
-	var City = __webpack_require__(169).default;
-	var CityResource = __webpack_require__(170).CityResource;
-	var Building = __webpack_require__(172).Building;
-	var PlayerEarnResourceEffect = __webpack_require__(166).PlayerEarnResourceEffect;
-	var CapacityGrantingEffect = __webpack_require__(166).CapacityGrantingEffect;
+	var City = __webpack_require__(166).default;
+	var CityResource = __webpack_require__(169).CityResource;
+	var Building = __webpack_require__(171).Building;
+	
+	var FrequencyEffect = __webpack_require__(172).FrequencyEffect;
+	var CityPlayer = __webpack_require__(173).CityPlayer;
+	var PlayerEarnResourceEffect = __webpack_require__(173).PlayerEarnResourceEffect;
+	var BuildingStoreResourceEffect = __webpack_require__(173).BuildingStoreResourceEffect;
+	var CapacityGrantingEffect = __webpack_require__(173).CapacityGrantingEffect;
+	
+	var CityCharacter = __webpack_require__(174).default;
 	
 	var CitySerializer = function () {
 	  function CitySerializer() {
@@ -20139,7 +20155,7 @@
 	            knownObjects[v.id] = o;
 	            return o;
 	          } catch (error) {
-	            throw new Error("Cannot deserialize class '" + v["class"] + "'");
+	            throw new Error("Cannot deserialize class '" + v["class"] + "': " + error);
 	          }
 	        }
 	        return v;
@@ -20161,9 +20177,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.CapacityGrantingEffect = exports.ResourceEffect = exports.PlayerEarnResourceEffect = exports.CityPlayer = undefined;
-	
-	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	exports.OverlappingBuildingError = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -20173,267 +20187,133 @@
 	
 	var _Utils = __webpack_require__(168);
 	
-	var _Utils2 = _interopRequireDefault(_Utils);
+	var _CityResource = __webpack_require__(169);
 	
-	var _City = __webpack_require__(169);
-	
-	var _City2 = _interopRequireDefault(_City);
-	
-	var _CityEvent = __webpack_require__(171);
+	var _CityEvent = __webpack_require__(170);
 	
 	var _CityEvent2 = _interopRequireDefault(_CityEvent);
 	
-	var _Effect = __webpack_require__(173);
-	
-	var _CityResource = __webpack_require__(170);
+	var _Building = __webpack_require__(171);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _objectDestructuringEmpty(obj) { if (obj == null) throw new TypeError("Cannot destructure undefined"); }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	var OverlappingBuildingError = exports.OverlappingBuildingError = function (_Error) {
+	  _inherits(OverlappingBuildingError, _Error);
 	
-	var CityPlayer = exports.CityPlayer = function () {
-	  function CityPlayer() {
-	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	        _ref$name = _ref.name,
-	        name = _ref$name === undefined ? "PlayerName" : _ref$name,
-	        _ref$resources = _ref.resources,
-	        resources = _ref$resources === undefined ? [] : _ref$resources,
-	        _ref$initialCapacity = _ref.initialCapacity,
-	        initialCapacity = _ref$initialCapacity === undefined ? {} : _ref$initialCapacity,
-	        _ref$city = _ref.city,
-	        city = _ref$city === undefined ? new _City2.default() : _ref$city;
+	  function OverlappingBuildingError() {
+	    _classCallCheck(this, OverlappingBuildingError);
 	
-	    _classCallCheck(this, CityPlayer);
+	    return _possibleConstructorReturn(this, (OverlappingBuildingError.__proto__ || Object.getPrototypeOf(OverlappingBuildingError)).apply(this, arguments));
+	  }
+	
+	  return OverlappingBuildingError;
+	}(Error);
+	
+	var City = function () {
+	  function City() {
+	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	
+	    _objectDestructuringEmpty(_ref);
+	
+	    _classCallCheck(this, City);
 	
 	    this.id = _uuidJs2.default.create().toString();
 	    this.time = 0;
-	    this.name = name;
-	    this.resources = {};
-	    this.initialCapacity = initialCapacity;
-	    this.city = city;
-	    this.earnResources(resources);
+	    this.buildings = {};
+	    this.characters = {};
 	  }
 	
-	  _createClass(CityPlayer, [{
-	    key: 'updateTime',
-	    value: function updateTime(deltaSeconds) {
-	      this.time += deltaSeconds;
-	      var parents = {
-	        player: this
-	      };
+	  _createClass(City, [{
+	    key: 'planBuilding',
+	    value: function planBuilding() {
+	      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	          _ref2$building = _ref2.building,
+	          building = _ref2$building === undefined ? null : _ref2$building;
 	
+	      var b = _Utils.MutableObject.mutableCopy(building);
+	      this.buildings[b.id] = b;
+	
+	      return new _CityEvent2.default({ type: _CityEvent2.default.kBuildingPlannedEvent, object: b });
+	    }
+	  }, {
+	    key: 'addCharacter',
+	    value: function addCharacter() {
+	      var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	          _ref3$type = _ref3.type,
+	          type = _ref3$type === undefined ? null : _ref3$type,
+	          _ref3$character = _ref3.character,
+	          character = _ref3$character === undefined ? null : _ref3$character;
+	
+	      character.type = type;
+	      var c = _Utils.MutableObject.mutableCopy(character);
+	      this.characters[c.id] = c;
+	
+	      return new _CityEvent2.default({ type: _CityEvent2.default.kCharacterAddedEvent, object: c });
+	    }
+	  }, {
+	    key: '_updateBuildings',
+	    value: function _updateBuildings(deltaSeconds, parents) {
 	      var updated = [];
-	      while (deltaSeconds > 0) {
-	        var d = Math.min(deltaSeconds, CityPlayer.timeGranularity);
-	        updated = updated.concat(this.city.updateTime(d, parents));
-	        deltaSeconds -= d;
-	      }
+	      Object.values(this.buildings).map(function (building) {
+	        return building.updateTime(deltaSeconds, parents);
+	      }).forEach(function (_updated) {
+	        updated = updated.concat(_updated);
+	      });
 	      return updated;
 	    }
-	    /* Resources */
-	
 	  }, {
-	    key: 'earnResources',
-	    value: function earnResources(resources) {
-	      var player = this;
-	      var capacity = player.getCapacity();
-	
-	      resources.forEach(function (resource) {
-	        if (!player.resources[resource.type]) {
-	          player.resources[resource.type] = new _CityResource.CityResource(resource.type, 0);
-	        }
-	        var max = capacity[resource.type] || 0;
-	        player.resources[resource.type].amount = Math.min(max, resource.amount + (player.resources[resource.type].amount || 0));
-	      });
-	    }
-	  }, {
-	    key: 'canAfford',
-	    value: function canAfford(costs) {
-	      var _this = this;
-	
-	      var canAfford = true;
-	      _CityResource.CityResource.aggregateSameTypeResources(costs).forEach(function (cost) {
-	        var r = _this.getResourceAmountForType(cost.type);
-	        if (r < cost.amount) {
-	          canAfford = false;
-	        }
-	      });
-	      return canAfford;
-	    }
-	  }, {
-	    key: 'spendResources',
-	    value: function spendResources(costs) {
+	    key: '_updateCharacters',
+	    value: function _updateCharacters(deltaSeconds, parents) {
 	      var _this2 = this;
 	
-	      var canAfford = true;
-	      costs = _CityResource.CityResource.aggregateSameTypeResources(costs);
-	      costs.forEach(function (c) {
-	        if (_this2.getResourceAmountForType(c.type) < c.amount) {
-	          canAfford = false;
+	      var updated = [];
+	      /* Check if characters need to be created: */
+	      var player = parents.player;
+	      var charTypes = Object.keys(player.characterFactories);
+	      charTypes.forEach(function (type) {
+	        var expectedCharacterCount = player.resources[type] && player.resources[type].amount || 0;
+	        var actualCharacterCount = Object.values(player.city.characters).filter(function (c) {
+	          return c.type == type;
+	        }).length;
+	
+	        while (actualCharacterCount < expectedCharacterCount) {
+	          ++actualCharacterCount;
+	          _this2.addCharacter({ type: type, character: player.characterFactories[type]() });
 	        }
 	      });
-	      if (!canAfford) {
-	        throw new _CityResource.InsuficientResourcesError();
-	      }
-	      costs.forEach(function (c) {
-	        _this2.resources[c.type].amount -= c.amount;
-	      });
-	    }
-	  }, {
-	    key: 'getResourceAmountForType',
-	    value: function getResourceAmountForType(type) {
-	      return this.resources[type] && this.resources[type].amount || 0;
-	    }
-	  }, {
-	    key: 'getCapacity',
-	    value: function getCapacity() {
-	      var capacity = {
-	        additions: Object.assign({}, this.initialCapacity),
-	        totals: Object.assign({}, this.initialCapacity)
-	      };
 	
-	      Object.values(this.city.buildings).filter(function (b) {
-	        return b.isCompleted();
-	      }).forEach(function (b) {
-	        var effects = b.permanentEffects.filter(function (effect) {
-	          return effect instanceof CapacityGrantingEffect;
-	        });
-	        effects.forEach(function (effect) {
-	          return effect.combine(capacity);
-	        });
+	      Object.values(this.characters).map(function (character) {
+	        return character.updateTime(deltaSeconds, parents);
+	      }).forEach(function (_updated) {
+	        updated = updated.concat(_updated);
 	      });
-	      return capacity.totals;
+	      return updated;
 	    }
 	  }, {
-	    key: 'getAchievements',
-	    value: function getAchievements() {
-	      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	          _ref2$completedOnly = _ref2.completedOnly,
-	          completedOnly = _ref2$completedOnly === undefined ? true : _ref2$completedOnly;
+	    key: 'updateTime',
+	    value: function updateTime(deltaSeconds, parents) {
+	      parents = Object.assign(parents, { city: this });
+	      this.time += deltaSeconds;
 	
-	      var achievements = {};
-	      Object.values(this.city.buildings).forEach(function (b) {
-	        if (b.namespace && (!completedOnly || b.isCompleted())) {
-	          achievements[b.namespace] = 1 + (achievements[b.namespace] || 0);
-	        }
-	      });
-	      return achievements;
-	    }
-	  }, {
-	    key: 'fulfillsRequirements',
-	    value: function fulfillsRequirements(requirements) {
-	      var achievements = this.getAchievements();
-	      return requirements.every(function (req) {
-	        return (achievements[req] || 0) > 0;
-	      });
+	      var updated = [];
+	      updated = updated.concat(this._updateBuildings(deltaSeconds, parents));
+	      updated = updated.concat(this._updateCharacters(deltaSeconds, parents));
+	      return updated;
 	    }
 	  }]);
 	
-	  return CityPlayer;
+	  return City;
 	}();
 	
-	CityPlayer.timeGranularity = 0.25;
-	
-	var PlayerEarnResourceEffect = exports.PlayerEarnResourceEffect = function (_FrequencyEffect) {
-	  _inherits(PlayerEarnResourceEffect, _FrequencyEffect);
-	
-	  function PlayerEarnResourceEffect() {
-	    var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	        _ref3$resources = _ref3.resources,
-	        resources = _ref3$resources === undefined ? [] : _ref3$resources,
-	        _ref3$frequency = _ref3.frequency,
-	        frequency = _ref3$frequency === undefined ? 1 : _ref3$frequency;
-	
-	    _classCallCheck(this, PlayerEarnResourceEffect);
-	
-	    var _this3 = _possibleConstructorReturn(this, (PlayerEarnResourceEffect.__proto__ || Object.getPrototypeOf(PlayerEarnResourceEffect)).call(this, arguments[0]));
-	
-	    _this3.resources = resources;
-	    return _this3;
-	  }
-	
-	  _createClass(PlayerEarnResourceEffect, [{
-	    key: 'trigger',
-	    value: function trigger(parents) {
-	      var event = new _CityEvent2.default({ type: _CityEvent2.default.kEarnResourceEvent, object: this, data: this.resources });
-	      parents.player.earnResources(this.resources);
-	      return [event];
-	    }
-	  }, {
-	    key: 'getDescription',
-	    value: function getDescription() {
-	      return "Gives " + this.resources.map(function (r) {
-	        return r.toString();
-	      }).join(" + ") + " every " + this.frequency + " sec";
-	    }
-	  }]);
-	
-	  return PlayerEarnResourceEffect;
-	}(_Effect.FrequencyEffect);
-	
-	var ResourceEffect = exports.ResourceEffect = function () {
-	  function ResourceEffect() {
-	    var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	        _ref4$additions = _ref4.additions,
-	        additions = _ref4$additions === undefined ? 0 : _ref4$additions,
-	        _ref4$multipliers = _ref4.multipliers,
-	        multipliers = _ref4$multipliers === undefined ? 0 : _ref4$multipliers;
-	
-	    _classCallCheck(this, ResourceEffect);
-	
-	    this.additions = additions;
-	    this.multipliers = multipliers;
-	  }
-	
-	  _createClass(ResourceEffect, [{
-	    key: '_combine',
-	    value: function _combine(combined, local) {
-	      Object.entries(local).forEach(function (_ref5) {
-	        var _ref6 = _slicedToArray(_ref5, 2),
-	            key = _ref6[0],
-	            value = _ref6[1];
-	
-	        combined[key] = (combined[key] || 0) + value;
-	      });
-	      return combined;
-	    }
-	  }, {
-	    key: 'combine',
-	    value: function combine(combinedUnits) {
-	      combinedUnits.additions = this._combine(combinedUnits.additions || {}, this.additions);
-	      combinedUnits.multipliers = this._combine(combinedUnits.multipliers || {}, this.multipliers);
-	      combinedUnits.totals = Object.assign({}, combinedUnits.additions);
-	      Object.entries(combinedUnits.multipliers).forEach(function (_ref7) {
-	        var _ref8 = _slicedToArray(_ref7, 2),
-	            key = _ref8[0],
-	            value = _ref8[1];
-	
-	        if (combinedUnits.additions[key]) {
-	          combinedUnits.totals[key] *= Math.max(0, 1 + value);
-	        }
-	      });
-	      return combinedUnits;
-	    }
-	  }]);
-	
-	  return ResourceEffect;
-	}();
-	
-	var CapacityGrantingEffect = exports.CapacityGrantingEffect = function (_ResourceEffect) {
-	  _inherits(CapacityGrantingEffect, _ResourceEffect);
-	
-	  function CapacityGrantingEffect() {
-	    _classCallCheck(this, CapacityGrantingEffect);
-	
-	    return _possibleConstructorReturn(this, (CapacityGrantingEffect.__proto__ || Object.getPrototypeOf(CapacityGrantingEffect)).apply(this, arguments));
-	  }
-	
-	  return CapacityGrantingEffect;
-	}(ResourceEffect);
+	exports.default = City;
 
 /***/ }),
 /* 167 */
@@ -20766,103 +20646,6 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.OverlappingBuildingError = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _uuidJs = __webpack_require__(167);
-	
-	var _uuidJs2 = _interopRequireDefault(_uuidJs);
-	
-	var _Utils = __webpack_require__(168);
-	
-	var _CityResource = __webpack_require__(170);
-	
-	var _CityEvent = __webpack_require__(171);
-	
-	var _CityEvent2 = _interopRequireDefault(_CityEvent);
-	
-	var _Building = __webpack_require__(172);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _objectDestructuringEmpty(obj) { if (obj == null) throw new TypeError("Cannot destructure undefined"); }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var OverlappingBuildingError = exports.OverlappingBuildingError = function (_Error) {
-	  _inherits(OverlappingBuildingError, _Error);
-	
-	  function OverlappingBuildingError() {
-	    _classCallCheck(this, OverlappingBuildingError);
-	
-	    return _possibleConstructorReturn(this, (OverlappingBuildingError.__proto__ || Object.getPrototypeOf(OverlappingBuildingError)).apply(this, arguments));
-	  }
-	
-	  return OverlappingBuildingError;
-	}(Error);
-	
-	var City = function () {
-	  function City() {
-	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	
-	    _objectDestructuringEmpty(_ref);
-	
-	    _classCallCheck(this, City);
-	
-	    this.id = _uuidJs2.default.create().toString();
-	    this.time = 0;
-	    this.buildings = {};
-	  }
-	
-	  _createClass(City, [{
-	    key: 'planBuilding',
-	    value: function planBuilding() {
-	      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	          _ref2$building = _ref2.building,
-	          building = _ref2$building === undefined ? null : _ref2$building;
-	
-	      var b = _Utils.MutableObject.mutableCopy(building);
-	      this.buildings[b.id] = b;
-	
-	      return new _CityEvent2.default({
-	        type: _CityEvent2.default.kBuildingPlannedEvent,
-	        object: b
-	      });
-	    }
-	  }, {
-	    key: 'updateTime',
-	    value: function updateTime(deltaSeconds, parents) {
-	      parents = Object.assign(parents, { city: this });
-	      this.time += deltaSeconds;
-	      var updated = [];
-	      Object.values(this.buildings).map(function (building) {
-	        return building.updateTime(deltaSeconds, parents);
-	      }).forEach(function (_updated) {
-	        updated = updated.concat(_updated);
-	      });
-	      return updated;
-	    }
-	  }]);
-	
-	  return City;
-	}();
-	
-	exports.default = City;
-
-/***/ }),
-/* 170 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
 	exports.ResourceConsumingAction = exports.CityResource = exports.UnavailableActionError = exports.InsuficientResourcesError = exports.ResourceError = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -21031,7 +20814,7 @@
 	}();
 
 /***/ }),
-/* 171 */
+/* 170 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21048,9 +20831,9 @@
 	
 	var _Utils = __webpack_require__(168);
 	
-	var _CityResource = __webpack_require__(170);
+	var _CityResource = __webpack_require__(169);
 	
-	var _Building = __webpack_require__(172);
+	var _Building = __webpack_require__(171);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -21090,13 +20873,16 @@
 	
 	CityEvent.kEarnResourceEvent = 'EarnResource';
 	CityEvent.kSpendResourceEvent = 'SpendResource';
+	CityEvent.kStoreResourceEvent = 'StoreResource';
 	
 	CityEvent.kBuildingPlannedEvent = 'BuildingPlanned';
 	CityEvent.kBuildingCompletedEvent = 'BuildingCompleted';
 	CityEvent.kBuildingProgressEvent = 'BuildingProgress';
+	
+	CityEvent.kCharacterAddedEvent = 'CharacterAdded';
 
 /***/ }),
-/* 172 */
+/* 171 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21114,9 +20900,9 @@
 	
 	var _Utils = __webpack_require__(168);
 	
-	var _CityResource = __webpack_require__(170);
+	var _CityResource = __webpack_require__(169);
 	
-	var _CityEvent = __webpack_require__(171);
+	var _CityEvent = __webpack_require__(170);
 	
 	var _CityEvent2 = _interopRequireDefault(_CityEvent);
 	
@@ -21171,6 +20957,8 @@
 	    this.costFactor = costFactor;
 	    this.buildingTime = time;
 	
+	    this.storedResources = false;
+	
 	    this.effects = effects;
 	    this.permanentEffects = permanentEffects;
 	
@@ -21196,6 +20984,27 @@
 	      }
 	    }
 	  }, {
+	    key: 'storeResources',
+	    value: function storeResources(resources) {
+	      this.storedResources = _CityResource.CityResource.aggregateSameTypeResources(resources.concat(this.storedResources || []));
+	    }
+	  }, {
+	    key: 'getStoredResources',
+	    value: function getStoredResources() {
+	      return this.storedResources;
+	    }
+	  }, {
+	    key: 'collectResources',
+	    value: function collectResources(player) {
+	      if (!this.storedResources) {
+	        throw new InsuficientResourcesError();
+	      }
+	      var event = new _CityEvent2.default({ type: _CityEvent2.default.kEarnResourceEvent, object: this, data: this.storedResources });
+	      player.earnResources(this.storedResources);
+	      this.storedResources = false;
+	      return event;
+	    }
+	  }, {
 	    key: 'progress',
 	    value: function progress() {
 	      if (this.time >= this.buildingTime) {
@@ -21212,7 +21021,7 @@
 	    key: 'updateTime',
 	    value: function updateTime(deltaSeconds, parents) {
 	      _Utils.MutableObject.checkIsMutable(this);
-	      parents = Object.assign(parents, { project: this });
+	      parents = Object.assign(parents, { building: this });
 	      var updated = [];
 	
 	      /* This works for buildings with `buildingTime == 0` */
@@ -21275,7 +21084,7 @@
 	}(_CityResource.ResourceConsumingAction);
 
 /***/ }),
-/* 173 */
+/* 172 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21292,6 +21101,8 @@
 	var UtilsJS = __webpack_require__(168);
 	var MutableObject = UtilsJS.MutableObject;
 	
+	var START_CHECK_SENSITIVITY = 0.01;
+	
 	var FrequencyEffect = exports.FrequencyEffect = function () {
 	  function FrequencyEffect() {
 	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
@@ -21305,16 +21116,42 @@
 	
 	    this.cycleStart = 0;
 	    this.time = 0;
+	
+	    this.blocked = false;
 	  }
 	
 	  _createClass(FrequencyEffect, [{
+	    key: 'canBegin',
+	    value: function canBegin() {
+	      return true;
+	    }
+	  }, {
 	    key: 'updateTime',
 	    value: function updateTime(deltaSeconds, parents) {
-	      this.time += deltaSeconds;
 	      var updated = [];
-	      while (this.time >= this.cycleStart + this.frequency) {
-	        this.cycleStart += this.frequency;
-	        updated = updated.concat(this.trigger(parents));
+	
+	      while (deltaSeconds > 0) {
+	        /* On effect start, let's check if we should get blocked */
+	        if (Math.abs(this.cycleStart - this.time) < START_CHECK_SENSITIVITY) {
+	          if (!this.canBegin(parents)) {
+	            this.blocked = true;
+	            break;
+	          }
+	        }
+	        this.blocked = false;
+	        var nextStart = this.cycleStart + this.frequency;
+	        var canComplete = deltaSeconds >= nextStart - this.time;
+	        var partialDelta = void 0;
+	        if (canComplete) {
+	          partialDelta = nextStart - this.time;
+	          deltaSeconds -= partialDelta;
+	          this.time += partialDelta;
+	          this.cycleStart += this.frequency;
+	          updated = updated.concat(this.trigger(parents));
+	        } else {
+	          this.time += deltaSeconds;
+	          deltaSeconds = 0;
+	        }
 	      }
 	      return updated;
 	    }
@@ -21345,7 +21182,427 @@
 	}();
 
 /***/ }),
+/* 173 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.CapacityGrantingEffect = exports.ResourceEffect = exports.BuildingStoreResourceEffect = exports.PlayerEarnResourceEffect = exports.CityPlayer = undefined;
+	
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _uuidJs = __webpack_require__(167);
+	
+	var _uuidJs2 = _interopRequireDefault(_uuidJs);
+	
+	var _Utils = __webpack_require__(168);
+	
+	var _Utils2 = _interopRequireDefault(_Utils);
+	
+	var _City = __webpack_require__(166);
+	
+	var _City2 = _interopRequireDefault(_City);
+	
+	var _CityEvent = __webpack_require__(170);
+	
+	var _CityEvent2 = _interopRequireDefault(_CityEvent);
+	
+	var _Effect = __webpack_require__(172);
+	
+	var _CityResource = __webpack_require__(169);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var CityPlayer = exports.CityPlayer = function () {
+	  function CityPlayer() {
+	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref$name = _ref.name,
+	        name = _ref$name === undefined ? "PlayerName" : _ref$name,
+	        _ref$resources = _ref.resources,
+	        resources = _ref$resources === undefined ? [] : _ref$resources,
+	        _ref$initialCapacity = _ref.initialCapacity,
+	        initialCapacity = _ref$initialCapacity === undefined ? {} : _ref$initialCapacity,
+	        _ref$characterFactori = _ref.characterFactories,
+	        characterFactories = _ref$characterFactori === undefined ? {} : _ref$characterFactori,
+	        _ref$city = _ref.city,
+	        city = _ref$city === undefined ? new _City2.default() : _ref$city;
+	
+	    _classCallCheck(this, CityPlayer);
+	
+	    this.id = _uuidJs2.default.create().toString();
+	    this.time = 0;
+	    this.name = name;
+	    this.resources = {};
+	    this.initialCapacity = initialCapacity;
+	    this.characterFactories = characterFactories;
+	    this.city = city;
+	    this.earnResources(resources);
+	  }
+	
+	  _createClass(CityPlayer, [{
+	    key: 'updateTime',
+	    value: function updateTime(deltaSeconds) {
+	      this.time += deltaSeconds;
+	      var parents = {
+	        player: this
+	      };
+	
+	      var updated = [];
+	      while (deltaSeconds > 0) {
+	        var d = Math.min(deltaSeconds, CityPlayer.timeGranularity);
+	        updated = updated.concat(this.city.updateTime(d, parents));
+	        deltaSeconds -= d;
+	      }
+	      return updated;
+	    }
+	    /* Resources */
+	
+	  }, {
+	    key: 'canEarnAnyResources',
+	    value: function canEarnAnyResources(resources) {
+	      var _this = this;
+	
+	      var capacity = this.getCapacity();
+	      var canEarn = resources.map(function (r) {
+	        return capacity[r.type] && capacity[r.type] > (_this.resources[r.type] && _this.resources[r.type].amount || 0);
+	      }).some(function (can) {
+	        return can;
+	      });
+	      return canEarn;
+	    }
+	  }, {
+	    key: 'earnResources',
+	    value: function earnResources(resources) {
+	      var player = this;
+	      var capacity = player.getCapacity();
+	
+	      resources.forEach(function (resource) {
+	        if (!player.resources[resource.type]) {
+	          player.resources[resource.type] = new _CityResource.CityResource(resource.type, 0);
+	        }
+	        var max = capacity[resource.type] || 0;
+	        player.resources[resource.type].amount = Math.min(max, resource.amount + (player.resources[resource.type].amount || 0));
+	      });
+	    }
+	  }, {
+	    key: 'canAfford',
+	    value: function canAfford(costs) {
+	      var _this2 = this;
+	
+	      var canAfford = true;
+	      _CityResource.CityResource.aggregateSameTypeResources(costs).forEach(function (cost) {
+	        var r = _this2.getResourceAmountForType(cost.type);
+	        if (r < cost.amount) {
+	          canAfford = false;
+	        }
+	      });
+	      return canAfford;
+	    }
+	  }, {
+	    key: 'spendResources',
+	    value: function spendResources(costs) {
+	      var _this3 = this;
+	
+	      var canAfford = true;
+	      costs = _CityResource.CityResource.aggregateSameTypeResources(costs);
+	      costs.forEach(function (c) {
+	        if (_this3.getResourceAmountForType(c.type) < c.amount) {
+	          canAfford = false;
+	        }
+	      });
+	      if (!canAfford) {
+	        throw new _CityResource.InsuficientResourcesError();
+	      }
+	      costs.forEach(function (c) {
+	        _this3.resources[c.type].amount -= c.amount;
+	      });
+	    }
+	  }, {
+	    key: 'getResourceAmountForType',
+	    value: function getResourceAmountForType(type) {
+	      return this.resources[type] && this.resources[type].amount || 0;
+	    }
+	  }, {
+	    key: 'getCapacity',
+	    value: function getCapacity() {
+	      var capacity = {
+	        additions: Object.assign({}, this.initialCapacity),
+	        totals: Object.assign({}, this.initialCapacity)
+	      };
+	
+	      Object.values(this.city.buildings).filter(function (b) {
+	        return b.isCompleted();
+	      }).forEach(function (b) {
+	        var effects = b.permanentEffects.filter(function (effect) {
+	          return effect instanceof CapacityGrantingEffect;
+	        });
+	        effects.forEach(function (effect) {
+	          return effect.combine(capacity);
+	        });
+	      });
+	      return capacity.totals;
+	    }
+	  }, {
+	    key: 'getAchievements',
+	    value: function getAchievements() {
+	      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	          _ref2$completedOnly = _ref2.completedOnly,
+	          completedOnly = _ref2$completedOnly === undefined ? true : _ref2$completedOnly;
+	
+	      var achievements = {};
+	      Object.values(this.city.buildings).forEach(function (b) {
+	        if (b.namespace && (!completedOnly || b.isCompleted())) {
+	          achievements[b.namespace] = 1 + (achievements[b.namespace] || 0);
+	        }
+	      });
+	      return achievements;
+	    }
+	  }, {
+	    key: 'fulfillsRequirements',
+	    value: function fulfillsRequirements(requirements) {
+	      var achievements = this.getAchievements();
+	      return requirements.every(function (req) {
+	        return (achievements[req] || 0) > 0;
+	      });
+	    }
+	  }]);
+	
+	  return CityPlayer;
+	}();
+	
+	CityPlayer.timeGranularity = 0.25;
+	
+	var PlayerEarnResourceEffect = exports.PlayerEarnResourceEffect = function (_FrequencyEffect) {
+	  _inherits(PlayerEarnResourceEffect, _FrequencyEffect);
+	
+	  function PlayerEarnResourceEffect() {
+	    var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref3$resources = _ref3.resources,
+	        resources = _ref3$resources === undefined ? [] : _ref3$resources,
+	        _ref3$frequency = _ref3.frequency,
+	        frequency = _ref3$frequency === undefined ? 1 : _ref3$frequency;
+	
+	    _classCallCheck(this, PlayerEarnResourceEffect);
+	
+	    var _this4 = _possibleConstructorReturn(this, (PlayerEarnResourceEffect.__proto__ || Object.getPrototypeOf(PlayerEarnResourceEffect)).call(this, arguments[0]));
+	
+	    _this4.resources = resources;
+	    return _this4;
+	  }
+	
+	  _createClass(PlayerEarnResourceEffect, [{
+	    key: 'canBegin',
+	    value: function canBegin(parents) {
+	      return parents.player.canEarnAnyResources(this.resources);
+	    }
+	  }, {
+	    key: 'trigger',
+	    value: function trigger(parents) {
+	      var event = new _CityEvent2.default({ type: _CityEvent2.default.kEarnResourceEvent, object: this, data: this.resources });
+	      parents.player.earnResources(this.resources);
+	      return [event];
+	    }
+	  }, {
+	    key: 'getDescription',
+	    value: function getDescription() {
+	      return "Gives " + this.resources.map(function (r) {
+	        return r.toString();
+	      }).join(" + ") + " every " + this.frequency + " sec";
+	    }
+	  }]);
+	
+	  return PlayerEarnResourceEffect;
+	}(_Effect.FrequencyEffect);
+	
+	var BuildingStoreResourceEffect = exports.BuildingStoreResourceEffect = function (_FrequencyEffect2) {
+	  _inherits(BuildingStoreResourceEffect, _FrequencyEffect2);
+	
+	  function BuildingStoreResourceEffect() {
+	    var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref4$resources = _ref4.resources,
+	        resources = _ref4$resources === undefined ? [] : _ref4$resources,
+	        _ref4$frequency = _ref4.frequency,
+	        frequency = _ref4$frequency === undefined ? 1 : _ref4$frequency;
+	
+	    _classCallCheck(this, BuildingStoreResourceEffect);
+	
+	    var _this5 = _possibleConstructorReturn(this, (BuildingStoreResourceEffect.__proto__ || Object.getPrototypeOf(BuildingStoreResourceEffect)).call(this, arguments[0]));
+	
+	    _this5.resources = resources;
+	    return _this5;
+	  }
+	
+	  _createClass(BuildingStoreResourceEffect, [{
+	    key: 'canBegin',
+	    value: function canBegin(parents) {
+	      return parents.building.getStoredResources() === false;
+	    }
+	  }, {
+	    key: 'trigger',
+	    value: function trigger(parents) {
+	      var event = new _CityEvent2.default({ type: _CityEvent2.default.kStoreResourceEvent, object: this, data: this.resources });
+	      parents.building.storeResources(this.resources);
+	      return [event];
+	    }
+	  }, {
+	    key: 'getDescription',
+	    value: function getDescription() {
+	      return "Stores " + this.resources.map(function (r) {
+	        return r.toString();
+	      }).join(" + ") + " every " + this.frequency + " sec";
+	    }
+	  }]);
+	
+	  return BuildingStoreResourceEffect;
+	}(_Effect.FrequencyEffect);
+	
+	var ResourceEffect = exports.ResourceEffect = function () {
+	  function ResourceEffect() {
+	    var _ref5 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref5$additions = _ref5.additions,
+	        additions = _ref5$additions === undefined ? 0 : _ref5$additions,
+	        _ref5$multipliers = _ref5.multipliers,
+	        multipliers = _ref5$multipliers === undefined ? 0 : _ref5$multipliers;
+	
+	    _classCallCheck(this, ResourceEffect);
+	
+	    this.additions = additions;
+	    this.multipliers = multipliers;
+	  }
+	
+	  _createClass(ResourceEffect, [{
+	    key: '_combine',
+	    value: function _combine(combined, local) {
+	      Object.entries(local).forEach(function (_ref6) {
+	        var _ref7 = _slicedToArray(_ref6, 2),
+	            key = _ref7[0],
+	            value = _ref7[1];
+	
+	        combined[key] = (combined[key] || 0) + value;
+	      });
+	      return combined;
+	    }
+	  }, {
+	    key: 'combine',
+	    value: function combine(combinedUnits) {
+	      combinedUnits.additions = this._combine(combinedUnits.additions || {}, this.additions);
+	      combinedUnits.multipliers = this._combine(combinedUnits.multipliers || {}, this.multipliers);
+	      combinedUnits.totals = Object.assign({}, combinedUnits.additions);
+	      Object.entries(combinedUnits.multipliers).forEach(function (_ref8) {
+	        var _ref9 = _slicedToArray(_ref8, 2),
+	            key = _ref9[0],
+	            value = _ref9[1];
+	
+	        if (combinedUnits.additions[key]) {
+	          combinedUnits.totals[key] *= Math.max(0, 1 + value);
+	        }
+	      });
+	      return combinedUnits;
+	    }
+	  }]);
+	
+	  return ResourceEffect;
+	}();
+	
+	var CapacityGrantingEffect = exports.CapacityGrantingEffect = function (_ResourceEffect) {
+	  _inherits(CapacityGrantingEffect, _ResourceEffect);
+	
+	  function CapacityGrantingEffect() {
+	    _classCallCheck(this, CapacityGrantingEffect);
+	
+	    return _possibleConstructorReturn(this, (CapacityGrantingEffect.__proto__ || Object.getPrototypeOf(CapacityGrantingEffect)).apply(this, arguments));
+	  }
+	
+	  return CapacityGrantingEffect;
+	}(ResourceEffect);
+
+/***/ }),
 /* 174 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.CityCharacter = exports.ProjectAlreadyCompletedError = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _uuidJs = __webpack_require__(167);
+	
+	var _uuidJs2 = _interopRequireDefault(_uuidJs);
+	
+	var _Utils = __webpack_require__(168);
+	
+	var _CityResource = __webpack_require__(169);
+	
+	var _CityEvent = __webpack_require__(170);
+	
+	var _CityEvent2 = _interopRequireDefault(_CityEvent);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var ProjectAlreadyCompletedError = exports.ProjectAlreadyCompletedError = function (_Error) {
+	  _inherits(ProjectAlreadyCompletedError, _Error);
+	
+	  function ProjectAlreadyCompletedError() {
+	    _classCallCheck(this, ProjectAlreadyCompletedError);
+	
+	    return _possibleConstructorReturn(this, (ProjectAlreadyCompletedError.__proto__ || Object.getPrototypeOf(ProjectAlreadyCompletedError)).apply(this, arguments));
+	  }
+	
+	  return ProjectAlreadyCompletedError;
+	}(Error);
+	
+	var CityCharacter = exports.CityCharacter = function () {
+	  function CityCharacter() {
+	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref$name = _ref.name,
+	        name = _ref$name === undefined ? "Unnamed Character" : _ref$name;
+	
+	    _classCallCheck(this, CityCharacter);
+	
+	    this.id = _uuidJs2.default.create().toString();
+	    this.name = name;
+	    this.time = 0;
+	  }
+	
+	  _createClass(CityCharacter, [{
+	    key: 'toString',
+	    value: function toString() {
+	      return this.name + " (" + this.id + ") " + this.getStatus();
+	    }
+	  }, {
+	    key: 'updateTime',
+	    value: function updateTime(deltaSeconds, parents) {
+	      this.time += deltaSeconds;
+	      return [];
+	    }
+	  }]);
+
+	  return CityCharacter;
+	}();
+
+/***/ }),
+/* 175 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21356,15 +21613,28 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _Building = __webpack_require__(172);
+	var _Building = __webpack_require__(171);
 	
-	var _CityResource = __webpack_require__(170);
+	var _CityResource = __webpack_require__(169);
 	
-	var _CityPlayer = __webpack_require__(166);
+	var _CityPlayer = __webpack_require__(173);
+	
+	var _CityCharacter = __webpack_require__(174);
 	
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var MONKEY_GIVEN_NAMES = ['Heather', 'Iris', 'Juniper', 'Laurel', 'Blossom', 'Jasper', 'Forrest', 'Haven', 'Jay', 'Kodiak', 'Leaf', 'Rowan'];
+	
+	var MONKEY_SUR_NAMES = ['Affin', 'Apa', 'Apina', 'Gibbons', 'Macaque', 'Monyet', 'Saki', 'Tamarin', 'Simia', 'Langur'];
+	
+	var randomElement = function randomElement(list) {
+	  return list[Math.floor(Math.random() * list.length)];
+	};
+	var nameGenerator = function nameGenerator() {
+	  return randomElement(MONKEY_SUR_NAMES) + ', ' + randomElement(MONKEY_GIVEN_NAMES);
+	};
 	
 	var GameModule = function () {
 	  function GameModule() {
@@ -21383,6 +21653,15 @@
 	
 	      return _ref = {}, _defineProperty(_ref, GameModule.kResourceGold, 50), _defineProperty(_ref, GameModule.kResourceBanana, 50), _defineProperty(_ref, GameModule.kResourceWood, 100), _ref;
 	    }
+	  }, {
+	    key: 'getCharacterFactories',
+	    value: function getCharacterFactories() {
+	      return {
+	        monkey: function monkey() {
+	          return new _CityCharacter.CityCharacter({ name: nameGenerator() });
+	        }
+	      };
+	    }
 	  }], [{
 	    key: 'gold',
 	    value: function gold(amount) {
@@ -21397,6 +21676,11 @@
 	    key: 'banana',
 	    value: function banana(amount) {
 	      return new _CityResource.CityResource(GameModule.kResourceBanana, amount);
+	    }
+	  }, {
+	    key: 'monkey',
+	    value: function monkey(amount) {
+	      return new _CityResource.CityResource(GameModule.kResourceMonkey, amount);
 	    }
 	  }]);
 	
@@ -21416,6 +21700,10 @@
 	  namespace: "building.basic.banana_tree",
 	  time: 50,
 	  costs: [GameModule.wood(9999)],
+	  effects: [new _CityPlayer.BuildingStoreResourceEffect({
+	    resources: [GameModule.banana(1)],
+	    frequency: 5
+	  })],
 	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
 	    additions: _defineProperty({}, GameModule.kResourceMonkey, 1)
 	  })]
@@ -21428,6 +21716,10 @@
 	  costs: [GameModule.wood(50)],
 	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
 	    additions: _defineProperty({}, GameModule.kResourceMonkey, 1)
+	  })],
+	  effects: [new _CityPlayer.PlayerEarnResourceEffect({
+	    resources: [GameModule.monkey(1)],
+	    frequency: 60
 	  })]
 	});
 	
@@ -21437,7 +21729,7 @@
 	  time: 50,
 	  costs: [GameModule.banana(50)],
 	  costFactor: 2,
-	  effects: [new _CityPlayer.PlayerEarnResourceEffect({
+	  effects: [new _CityPlayer.BuildingStoreResourceEffect({
 	    resources: [GameModule.banana(5), GameModule.wood(1)],
 	    frequency: 5
 	  })]
@@ -21463,7 +21755,7 @@
 	GameModule.kDefaultBuildings = [GameModule.kBananaTree.id];
 
 /***/ }),
-/* 175 */
+/* 176 */
 /***/ (function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -21771,7 +22063,7 @@
 
 
 /***/ }),
-/* 176 */
+/* 177 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21835,7 +22127,7 @@
 	exports.default = SaveMenu;
 
 /***/ }),
-/* 177 */
+/* 178 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21844,7 +22136,7 @@
 	  value: true
 	});
 	var React = __webpack_require__(2);
-	var ResourceIcon = __webpack_require__(178).default;
+	var ResourceSummary = __webpack_require__(179).default;
 	
 	var ResourceDisplay = React.createClass({
 	  displayName: 'ResourceDisplay',
@@ -21864,7 +22156,7 @@
 	        'resources',
 	        { className: 'resources' },
 	        resources.map(function (resource) {
-	          return resource.amount && React.createElement(ResourceIcon, {
+	          return resource.amount && React.createElement(ResourceSummary, {
 	            key: resource.id,
 	            resource: resource,
 	            max: capacity[resource.type] });
@@ -21877,7 +22169,7 @@
 	exports.default = ResourceDisplay;
 
 /***/ }),
-/* 178 */
+/* 179 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21887,15 +22179,18 @@
 	});
 	var React = __webpack_require__(2);
 	
-	var ResourceIcon = React.createClass({
-	  displayName: 'ResourceIcon',
+	var ResourceIcon = exports.ResourceIcon = function ResourceIcon(type) {
+	  return React.createElement('div', { className: 'resource-icon ' + type.toLowerCase() });
+	};
+	
+	var ResourceSummaryComponent = React.createClass({
+	  displayName: 'ResourceSummaryComponent',
 	
 	  getInitialState: function getInitialState() {
 	    return {};
 	  },
 	  render: function render() {
 	    var id = 'resource-' + this.props.resource.id;
-	    var className = 'resource-icon ' + this.props.resource.type.toLowerCase();
 	    var amount = Math.floor(this.props.resource.amount);
 	    var title = this.props.resource.toString();
 	    var max = this.props.max;
@@ -21914,142 +22209,12 @@
 	        { className: 'max-amount' },
 	        max
 	      ),
-	      React.createElement('div', { className: className })
+	      ResourceIcon(this.props.resource.type)
 	    );
 	  }
 	});
 	
-	exports.default = ResourceIcon;
-
-/***/ }),
-/* 179 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	var React = __webpack_require__(2);
-	
-	var _spiralCache = {};
-	var spiral = function spiral(index) {
-	    /*
-	    6 7 8 9
-	    5 0 1 A
-	    4 3 2 B
-	    F E D C
-	    */
-	
-	    if (_spiralCache[index]) return _spiralCache[index];
-	
-	    var length = 1;
-	    var location = { x: 0, y: 0 };
-	    var direction = 0;
-	    for (var i = 0; i < index;) {
-	        for (var l = 0; l < length && i < index; ++l && ++i) {
-	            if (direction == 0) location.x++;else if (direction == 1) location.y++;else if (direction == 2) location.x--;else if (direction == 3) location.y--;
-	        }
-	        direction = (direction + 1) % 4;
-	        if (direction % 2 == 0) {
-	            length++;
-	        }
-	    }
-	
-	    return _spiralCache[index] = location;
-	};
-	
-	var kCellWidth = 120;
-	var kAssetWidth = 80;
-	var kCellSpacing = 30;
-	
-	var CityDisplay = React.createClass({
-	    displayName: 'CityDisplay',
-	
-	    render: function render() {
-	        var buildings = Object.values(this.props.player.city.buildings).map(function (b, index) {
-	            var _spiral = spiral(index),
-	                x = _spiral.x,
-	                y = _spiral.y;
-	
-	            return React.createElement(
-	                'div',
-	                { key: b.id, style: {
-	                        position: 'absolute',
-	                        left: (x + y - 0.5) * (kCellWidth + kCellSpacing) / 2,
-	                        top: (y - x - 0.5) * (kCellWidth / 2 + kCellSpacing / 2) / 2,
-	                        zIndex: 10 + y - x,
-	                        fontSize: '8px',
-	                        lineHeight: '12px',
-	                        align: 'center',
-	                        textAlign: 'center'
-	                    } },
-	                React.createElement('div', { key: b.id + "_cell", style: {
-	                        position: 'absolute',
-	                        backgroundColor: '#C83',
-	                        WebkitClipPath: 'polygon(0% 50%, 50% 100%, 100% 50%, 50% 0%)',
-	                        width: kCellWidth,
-	                        height: kCellWidth / 2,
-	                        zIndex: 0
-	                    } }),
-	                React.createElement(
-	                    'div',
-	                    { key: b.id + "_icon", style: {
-	                            opacity: b.progress(),
-	                            position: 'absolute',
-	                            top: (kAssetWidth - kCellWidth) / 2 - 10,
-	                            left: (kCellWidth - kAssetWidth) / 2,
-	                            whiteSpace: 'nowrap',
-	                            width: kAssetWidth,
-	                            height: kAssetWidth,
-	                            zIndex: 1,
-	                            backgroundImage: 'url(/images/' + b.namespace.replace(/\./g, '/') + '.png)',
-	                            backgroundRepeat: 'no-repeat',
-	                            backgroundPosition: 'center',
-	                            backgroundSize: 'contain'
-	                        } },
-	                    React.createElement(
-	                        'div',
-	                        { key: b.id + "_info", style: { position: 'absolute', bottom: 0, width: '100%' } },
-	                        React.createElement(
-	                            'div',
-	                            { key: b.id + "_name", style: { 'marginRight': 'auto', 'marginLeft': 'auto' } },
-	                            b.name
-	                        ),
-	                        React.createElement(
-	                            'div',
-	                            { key: b.id + "_status", style: { 'marginRight': 'auto', 'marginLeft': 'auto' } },
-	                            b.getStatus()
-	                        )
-	                    )
-	                )
-	            );
-	        });
-	        return React.createElement(
-	            'div',
-	            { style: {
-	                    position: 'absolute',
-	                    top: 0,
-	                    left: 0,
-	                    zIndex: 0,
-	                    width: '100%',
-	                    height: '100%',
-	                    backgroundColor: 'lightblue'
-	                } },
-	            React.createElement(
-	                'div',
-	                { style: {
-	                        position: 'relative',
-	                        top: '50%',
-	                        left: '50%'
-	                    } },
-	                buildings
-	            )
-	        );
-	    }
-	});
-	
-	exports.default = CityDisplay;
+	exports.default = ResourceSummaryComponent;
 
 /***/ }),
 /* 180 */
@@ -22057,12 +22222,258 @@
 
 	'use strict';
 	
-	var GameController = __webpack_require__(164).default;
-	var GameModule = __webpack_require__(174).default;
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	
-	var CityPlayerJS = __webpack_require__(166);
-	var BuildingJS = __webpack_require__(172);
-	var CityResourceJS = __webpack_require__(170);
+	var _react = __webpack_require__(2);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _ResourceIconComponent = __webpack_require__(179);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var CharacterDisplay = _react2.default.createClass({
+	  displayName: 'CharacterDisplay',
+	
+	  render: function render() {
+	    var capacity = this.props.player.getCapacity();
+	    var characters = Object.values(this.props.player.city.characters);
+	    return _react2.default.createElement(
+	      'div',
+	      { id: 'character-display', className: 'hud-window' },
+	      _react2.default.createElement(
+	        'span',
+	        null,
+	        'Characters'
+	      ),
+	      _react2.default.createElement(
+	        'characters',
+	        { className: 'characters' },
+	        characters.map(function (character) {
+	          return _react2.default.createElement(
+	            'div',
+	            null,
+	            (0, _ResourceIconComponent.ResourceIcon)('monkey'),
+	            character.name
+	          );
+	        })
+	      )
+	    );
+	  }
+	});
+	
+	exports.default = CharacterDisplay;
+
+/***/ }),
+/* 181 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _ResourceIconComponent = __webpack_require__(179);
+	
+	var React = __webpack_require__(2);
+	
+	
+	var _spiralCache = {};
+	var spiral = function spiral(index) {
+	  /*
+	    6 7 8 9
+	    5 0 1 A
+	    4 3 2 B
+	    F E D C
+	    */
+	
+	  if (_spiralCache[index]) return _spiralCache[index];
+	
+	  var length = 1;
+	  var location = {
+	    x: 0,
+	    y: 0
+	  };
+	  var direction = 0;
+	  for (var i = 0; i < index;) {
+	    for (var l = 0; l < length && i < index; ++l && ++i) {
+	      if (direction == 0) location.x++;else if (direction == 1) location.y++;else if (direction == 2) location.x--;else if (direction == 3) location.y--;
+	    }
+	    direction = (direction + 1) % 4;
+	    if (direction % 2 == 0) {
+	      length++;
+	    }
+	  }
+	
+	  return _spiralCache[index] = location;
+	};
+	
+	var kCellWidth = 120;
+	var kAssetWidth = 80;
+	var kCellSpacing = 30;
+	
+	var CityDisplay = React.createClass({
+	  displayName: 'CityDisplay',
+	
+	  render: function render() {
+	    var player = this.props.player;
+	    var collectFromBuilding = function collectFromBuilding(building) {
+	      return building.collectResources(player);
+	    };
+	    var buildings = Object.values(player.city.buildings).map(function (b, index) {
+	      var _spiral = spiral(index),
+	          x = _spiral.x,
+	          y = _spiral.y;
+	
+	      return React.createElement(
+	        'div',
+	        {
+	          key: b.id,
+	          style: {
+	            position: 'absolute',
+	            left: (x + y - 0.5) * (kCellWidth + kCellSpacing) / 2,
+	            top: (y - x - 0.5) * (kCellWidth / 2 + kCellSpacing / 2) / 2,
+	            zIndex: 10 + y - x,
+	            fontSize: '8px',
+	            lineHeight: '12px',
+	            align: 'center',
+	            textAlign: 'center'
+	          } },
+	        React.createElement('div', {
+	          key: b.id + "_cell",
+	          style: {
+	            position: 'absolute',
+	            backgroundColor: '#C83',
+	            WebkitClipPath: 'polygon(0% 50%, 50% 100%, 100% 50%, 50% 0%)',
+	            width: kCellWidth,
+	            height: kCellWidth / 2,
+	            zIndex: 0
+	          } }),
+	        React.createElement(
+	          'div',
+	          {
+	            key: b.id + "_icon",
+	            style: {
+	              opacity: b.progress(),
+	              position: 'absolute',
+	              top: (kAssetWidth - kCellWidth) / 2 - 10,
+	              left: (kCellWidth - kAssetWidth) / 2,
+	              whiteSpace: 'nowrap',
+	              width: kAssetWidth,
+	              height: kAssetWidth,
+	              zIndex: 1,
+	              backgroundImage: 'url(/images/' + b.namespace.replace(/\./g, '/') + '.png)',
+	              backgroundRepeat: 'no-repeat',
+	              backgroundPosition: 'center',
+	              backgroundSize: 'contain'
+	            } },
+	          React.createElement(
+	            'div',
+	            {
+	              key: b.id + "_info",
+	              style: {
+	                position: 'absolute',
+	                bottom: 0,
+	                width: '100%'
+	              } },
+	            React.createElement(
+	              'div',
+	              {
+	                key: b.id + "_name",
+	                style: {
+	                  'marginRight': 'auto',
+	                  'marginLeft': 'auto'
+	                } },
+	              b.name
+	            ),
+	            React.createElement(
+	              'div',
+	              {
+	                key: b.id + "_status",
+	                style: {
+	                  'marginRight': 'auto',
+	                  'marginLeft': 'auto'
+	                } },
+	              b.getStatus()
+	            )
+	          )
+	        ),
+	        b.getStoredResources() && React.createElement(
+	          'div',
+	          {
+	            key: b.id + "_collect",
+	            style: {
+	              position: 'absolute',
+	              top: 0,
+	              left: 0,
+	              width: kCellWidth,
+	              height: kCellWidth / 2,
+	              zIndex: 1
+	            } },
+	          React.createElement(
+	            'a',
+	            {
+	              href: '#',
+	              onClick: function onClick() {
+	                return collectFromBuilding(b);
+	              },
+	              style: {
+	                position: 'default'
+	              } },
+	            b.getStoredResources().map(function (r) {
+	              return React.createElement(
+	                'collect',
+	                null,
+	                (0, _ResourceIconComponent.ResourceIcon)(r.type)
+	              );
+	            })
+	          )
+	        )
+	      );
+	    });
+	    return React.createElement(
+	      'div',
+	      {
+	        style: {
+	          position: 'absolute',
+	          top: 0,
+	          left: 0,
+	          zIndex: 0,
+	          width: '100%',
+	          height: '100%',
+	          backgroundColor: 'lightblue'
+	        } },
+	      React.createElement(
+	        'div',
+	        {
+	          style: {
+	            position: 'relative',
+	            top: '50%',
+	            left: '50%'
+	          } },
+	        buildings
+	      )
+	    );
+	  }
+	});
+	
+	exports.default = CityDisplay;
+
+/***/ }),
+/* 182 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var GameController = __webpack_require__(164).default;
+	var GameModule = __webpack_require__(175).default;
+	
+	var CityPlayerJS = __webpack_require__(173);
+	var BuildingJS = __webpack_require__(171);
+	var CityResourceJS = __webpack_require__(169);
 	
 	var PlayerEarnResourceEffect = CityPlayerJS.PlayerEarnResourceEffect;
 	var CityPlayer = CityPlayerJS.CityPlayer;
@@ -22078,7 +22489,7 @@
 	module.exports = demoData;
 
 /***/ }),
-/* 181 */
+/* 183 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -22110,7 +22521,7 @@
 	module.exports = localStorageHandler;
 
 /***/ }),
-/* 182 */
+/* 184 */
 /***/ (function(module, exports) {
 
 	"use strict";
