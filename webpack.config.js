@@ -2,7 +2,7 @@
 module.exports = {
   context: __dirname + '/',
   entry: {
-    app: './entry.js',
+    app: ['babel-polyfill', './entry.js'],
   },
 
   output: {
