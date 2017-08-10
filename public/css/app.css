@@ -60,23 +60,49 @@ input:-moz-placeholder {
 
 .resources .resource {
   display: block; }
-  .resources .resource .resource-icon {
-    display: inline-block;
-    position: relative;
-    height: 12px;
-    width: 12px;
-    box-sizing: border-box;
-    vertical-align: middle; }
-    .resources .resource .resource-icon.wood {
-      background-color: brown; }
-    .resources .resource .resource-icon.stone {
-      background-color: grey; }
-    .resources .resource .resource-icon.gold {
-      background-color: gold; }
-    .resources .resource .resource-icon.food {
-      background-color: green; }
+  .resources .resource.wood {
+    color: brown; }
+  .resources .resource.stone {
+    background-color: grey; }
+  .resources .resource.gold {
+    background-color: gold; }
+  .resources .resource.banana {
+    background-color: yellow; }
   .resources .resource .resource-amount {
     display: inline-block;
     margin-right: 4px;
     font-size: 11px;
     vertical-align: middle; }
+
+.resource-icon {
+  display: inline-block;
+  position: relative;
+  height: 12px;
+  width: 12px;
+  box-sizing: border-box;
+  vertical-align: middle;
+  background-size: contain; }
+  .resource-icon.wood {
+    background-image: url(../images/resources/wood.png); }
+  .resource-icon.stone {
+    background-color: grey; }
+  .resource-icon.gold {
+    background-color: gold; }
+  .resource-icon.banana {
+    background-image: url(../images/resources/banana.png); }
+  .resource-icon.monkey {
+    background-image: url(../images/resources/monkey.png); }
+
+collect {
+  height: 32px;
+  width: 32px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  background: white;
+  border-radius: 32px;
+  overflow: hidden; }
+
+collect > .resource-icon {
+  height: 32px;
+  width: 32px; }
