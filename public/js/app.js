@@ -66,9 +66,9 @@
 	var MainWindow = __webpack_require__(160).default;
 	
 	// Default Data (user)
-	var Data = __webpack_require__(180);
+	var Data = __webpack_require__(210);
 	// LocalStorage Data
-	var localStorageHandler = __webpack_require__(181);
+	var localStorageHandler = __webpack_require__(211);
 	
 	/************************************/
 	/*********** 2. Configure ***********/
@@ -87,7 +87,7 @@
 	
 	// Set props from retrieved data
 	var GameController = __webpack_require__(164).default;
-	var CityEvent = __webpack_require__(171).CityEvent;
+	var CityEvent = __webpack_require__(170).CityEvent;
 	// var something = ExampleStore.getData();
 	
 	/************************************/
@@ -102,7 +102,7 @@
 	/************************************/
 	
 	// Require Mixpanel
-	var Mixpanel = __webpack_require__(182);
+	var Mixpanel = __webpack_require__(212);
 	mixpanel.track('City Instance Loaded');
 
 /***/ }),
@@ -19883,9 +19883,10 @@
 	var React = __webpack_require__(2);
 	
 	var BuildMenuComponent = __webpack_require__(163).default;
-	var SaveMenuComponent = __webpack_require__(176).default;
-	var ResourceDisplay = __webpack_require__(177).default;
-	var CityDisplayComponent = __webpack_require__(179).default;
+	var SaveMenuComponent = __webpack_require__(205).default;
+	var ResourceDisplay = __webpack_require__(206).default;
+	var CharacterDisplay = __webpack_require__(208).default;
+	var CityDisplayComponent = __webpack_require__(209).default;
 	
 	var Player = React.createClass({
 	  displayName: "Player",
@@ -19902,9 +19903,10 @@
 	            'background': 'white',
 	            'width': 400
 	          } },
-	        React.createElement(ResourceDisplay, { player: this.props.player, data: this.props.player }),
 	        React.createElement(BuildMenuComponent, { player: this.props.player }),
-	        React.createElement(SaveMenuComponent, { player: this.props.player })
+	        React.createElement(SaveMenuComponent, { player: this.props.player }),
+	        React.createElement(CharacterDisplay, { player: this.props.player, data: this.props.player }),
+	        React.createElement(ResourceDisplay, { player: this.props.player, data: this.props.player })
 	      ),
 	      React.createElement(CityDisplayComponent, { player: this.props.player })
 	    );
@@ -19925,7 +19927,7 @@
 	var React = __webpack_require__(2);
 	
 	var GameController = __webpack_require__(164).default;
-	var BuildingJS = __webpack_require__(172);
+	var BuildingJS = __webpack_require__(171);
 	var BuildingConstructionAction = BuildingJS.BuildingConstructionAction;
 	
 	var BuildMenu = React.createClass({
@@ -19942,6 +19944,15 @@
 	      if (!action.isAvailable(controller.player)) {
 	        return null;
 	      }
+	      var costs = action.costs(controller.player);
+	      var costsDescription = costs.length > 0 && "Cost:\n" + costs.map(function (c) {
+	        return "[" + c.toString() + "]";
+	      }).join(" + ");
+	      var effectsDescription = building.effects.length > 0 && building.effects.map(function (c) {
+	        return "- " + c.getDescription();
+	      }).join("\n");
+	      var title = costsDescription + (effectsDescription ? "\n⋯\nEffects:\n" + effectsDescription : '');
+	
 	      return React.createElement(
 	        'button',
 	        {
@@ -19949,9 +19960,7 @@
 	          disabled: !action.isAffordable(controller.player),
 	          className: 'build-entity',
 	          onClick: addBuilding,
-	          title: action.costs(controller.player).map(function (c) {
-	            return "[" + c.toString() + "]";
-	          }).join(" + ") },
+	          title: title },
 	        building.name
 	      );
 	    });
@@ -19994,11 +20003,11 @@
 	
 	var CitySerializer = __webpack_require__(165).default;
 	
-	var _require = __webpack_require__(166),
+	var _require = __webpack_require__(173),
 	    CityPlayer = _require.CityPlayer;
 	
-	var GameModule = __webpack_require__(174).default;
-	var EventEmitter = __webpack_require__(175);
+	var GameModule = __webpack_require__(203).default;
+	var EventEmitter = __webpack_require__(204);
 	
 	var GameController = function (_EventEmitter) {
 	  _inherits(GameController, _EventEmitter);
@@ -20022,7 +20031,8 @@
 	    key: 'startNewGame',
 	    value: function startNewGame() {
 	      this.player = new CityPlayer({
-	        initialCapacity: this.module.getPlayerInitialCapacity()
+	        initialCapacity: this.module.getPlayerInitialCapacity(),
+	        characterFactories: this.module.getCharacterFactories()
 	      });
 	    }
 	  }, {
@@ -20052,6 +20062,14 @@
 	      var event = this.player.city.planBuilding({
 	        building: b
 	      });
+	      this._emit(event);
+	      return event;
+	    }
+	  }, {
+	    key: 'collectFromBuilding',
+	    value: function collectFromBuilding(id) {
+	      var b = this.player.city.buildings[id];
+	      var event = b.collectResources(this.player);
 	      this._emit(event);
 	      return event;
 	    }
@@ -20088,12 +20106,17 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var CityPlayer = __webpack_require__(166).CityPlayer;
-	var City = __webpack_require__(169).default;
-	var CityResource = __webpack_require__(170).CityResource;
-	var Building = __webpack_require__(172).Building;
-	var PlayerEarnResourceEffect = __webpack_require__(166).PlayerEarnResourceEffect;
-	var CapacityGrantingEffect = __webpack_require__(166).CapacityGrantingEffect;
+	var City = __webpack_require__(166).default;
+	var CityResource = __webpack_require__(169).CityResource;
+	var Building = __webpack_require__(171).Building;
+	
+	var FrequencyEffect = __webpack_require__(172).FrequencyEffect;
+	var CityPlayer = __webpack_require__(173).CityPlayer;
+	var PlayerEarnResourceEffect = __webpack_require__(173).PlayerEarnResourceEffect;
+	var BuildingStoreResourceEffect = __webpack_require__(173).BuildingStoreResourceEffect;
+	var CapacityGrantingEffect = __webpack_require__(173).CapacityGrantingEffect;
+	
+	var CityCharacter = __webpack_require__(202).default;
 	
 	var CitySerializer = function () {
 	  function CitySerializer() {
@@ -20132,7 +20155,7 @@
 	            knownObjects[v.id] = o;
 	            return o;
 	          } catch (error) {
-	            throw new Error("Cannot deserialize class '" + v["class"] + "'");
+	            throw new Error("Cannot deserialize class '" + v["class"] + "': " + error);
 	          }
 	        }
 	        return v;
@@ -20154,11 +20177,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.CapacityGrantingEffect = exports.PlayerEarnResourceEffect = exports.CityPlayer = undefined;
-	
-	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-	
-	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+	exports.OverlappingBuildingError = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -20168,227 +20187,133 @@
 	
 	var _Utils = __webpack_require__(168);
 	
-	var _Utils2 = _interopRequireDefault(_Utils);
+	var _CityResource = __webpack_require__(169);
 	
-	var _City = __webpack_require__(169);
-	
-	var _City2 = _interopRequireDefault(_City);
-	
-	var _CityEvent = __webpack_require__(171);
+	var _CityEvent = __webpack_require__(170);
 	
 	var _CityEvent2 = _interopRequireDefault(_CityEvent);
 	
-	var _Effect = __webpack_require__(173);
-	
-	var _CityResource = __webpack_require__(170);
+	var _Building = __webpack_require__(171);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _objectDestructuringEmpty(obj) { if (obj == null) throw new TypeError("Cannot destructure undefined"); }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	var OverlappingBuildingError = exports.OverlappingBuildingError = function (_Error) {
+	  _inherits(OverlappingBuildingError, _Error);
 	
-	var CityPlayer = exports.CityPlayer = function () {
-	  function CityPlayer() {
-	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	        _ref$name = _ref.name,
-	        name = _ref$name === undefined ? "PlayerName" : _ref$name,
-	        _ref$resources = _ref.resources,
-	        resources = _ref$resources === undefined ? [] : _ref$resources,
-	        _ref$initialCapacity = _ref.initialCapacity,
-	        initialCapacity = _ref$initialCapacity === undefined ? {} : _ref$initialCapacity,
-	        _ref$city = _ref.city,
-	        city = _ref$city === undefined ? new _City2.default() : _ref$city;
+	  function OverlappingBuildingError() {
+	    _classCallCheck(this, OverlappingBuildingError);
 	
-	    _classCallCheck(this, CityPlayer);
+	    return _possibleConstructorReturn(this, (OverlappingBuildingError.__proto__ || Object.getPrototypeOf(OverlappingBuildingError)).apply(this, arguments));
+	  }
+	
+	  return OverlappingBuildingError;
+	}(Error);
+	
+	var City = function () {
+	  function City() {
+	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	
+	    _objectDestructuringEmpty(_ref);
+	
+	    _classCallCheck(this, City);
 	
 	    this.id = _uuidJs2.default.create().toString();
 	    this.time = 0;
-	    this.name = name;
-	    this.resources = {};
-	    this.initialCapacity = initialCapacity;
-	    this.city = city;
-	    this.earnResources(resources);
+	    this.buildings = {};
+	    this.characters = {};
 	  }
 	
-	  _createClass(CityPlayer, [{
-	    key: 'updateTime',
-	    value: function updateTime(deltaSeconds) {
-	      this.time += deltaSeconds;
-	      var parents = {
-	        player: this
-	      };
+	  _createClass(City, [{
+	    key: 'planBuilding',
+	    value: function planBuilding() {
+	      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	          _ref2$building = _ref2.building,
+	          building = _ref2$building === undefined ? null : _ref2$building;
 	
+	      var b = _Utils.MutableObject.mutableCopy(building);
+	      this.buildings[b.id] = b;
+	
+	      return new _CityEvent2.default({ type: _CityEvent2.default.kBuildingPlannedEvent, object: b });
+	    }
+	  }, {
+	    key: 'addCharacter',
+	    value: function addCharacter() {
+	      var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	          _ref3$type = _ref3.type,
+	          type = _ref3$type === undefined ? null : _ref3$type,
+	          _ref3$character = _ref3.character,
+	          character = _ref3$character === undefined ? null : _ref3$character;
+	
+	      character.type = type;
+	      var c = _Utils.MutableObject.mutableCopy(character);
+	      this.characters[c.id] = c;
+	
+	      return new _CityEvent2.default({ type: _CityEvent2.default.kCharacterAddedEvent, object: c });
+	    }
+	  }, {
+	    key: '_updateBuildings',
+	    value: function _updateBuildings(deltaSeconds, parents) {
 	      var updated = [];
-	      while (deltaSeconds > 0) {
-	        var d = Math.min(deltaSeconds, CityPlayer.timeGranularity);
-	        updated = updated.concat(this.city.updateTime(d, parents));
-	        deltaSeconds -= d;
-	      }
+	      Object.values(this.buildings).map(function (building) {
+	        return building.updateTime(deltaSeconds, parents);
+	      }).forEach(function (_updated) {
+	        updated = updated.concat(_updated);
+	      });
 	      return updated;
 	    }
-	    /* Resources */
-	
 	  }, {
-	    key: 'earnResources',
-	    value: function earnResources(resources) {
-	      var player = this;
-	      var capacity = player.getCapacity();
-	
-	      resources.forEach(function (resource) {
-	        if (!player.resources[resource.type]) {
-	          player.resources[resource.type] = new _CityResource.CityResource(resource.type, 0);
-	        }
-	        var max = capacity[resource.type] || 0;
-	        player.resources[resource.type].amount = Math.min(max, resource.amount + (player.resources[resource.type].amount || 0));
-	      });
-	    }
-	  }, {
-	    key: 'canAfford',
-	    value: function canAfford(costs) {
-	      var _this = this;
-	
-	      var canAfford = true;
-	      _CityResource.CityResource.aggregateSameTypeResources(costs).forEach(function (cost) {
-	        var r = _this.getResourceAmountForType(cost.type);
-	        if (r < cost.amount) {
-	          canAfford = false;
-	        }
-	      });
-	      return canAfford;
-	    }
-	  }, {
-	    key: 'spendResources',
-	    value: function spendResources(costs) {
+	    key: '_updateCharacters',
+	    value: function _updateCharacters(deltaSeconds, parents) {
 	      var _this2 = this;
 	
-	      var canAfford = true;
-	      costs = _CityResource.CityResource.aggregateSameTypeResources(costs);
-	      costs.forEach(function (c) {
-	        if (_this2.getResourceAmountForType(c.type) < c.amount) {
-	          canAfford = false;
+	      var updated = [];
+	      /* Check if characters need to be created: */
+	      var player = parents.player;
+	      var charTypes = Object.keys(player.characterFactories);
+	      charTypes.forEach(function (type) {
+	        var expectedCharacterCount = player.resources[type] && player.resources[type].amount || 0;
+	        var actualCharacterCount = Object.values(player.city.characters).filter(function (c) {
+	          return c.type == type;
+	        }).length;
+	
+	        while (actualCharacterCount < expectedCharacterCount) {
+	          ++actualCharacterCount;
+	          _this2.addCharacter({ type: type, character: player.characterFactories[type]() });
 	        }
 	      });
-	      if (!canAfford) {
-	        throw new _CityResource.InsuficientResourcesError();
-	      }
-	      costs.forEach(function (c) {
-	        _this2.resources[c.type].amount -= c.amount;
-	      });
-	    }
-	  }, {
-	    key: 'getResourceAmountForType',
-	    value: function getResourceAmountForType(type) {
-	      return this.resources[type] && this.resources[type].amount || 0;
-	    }
-	  }, {
-	    key: 'getCapacity',
-	    value: function getCapacity() {
-	      var capacity = Object.assign({}, this.initialCapacity);
 	
-	      Object.values(this.city.buildings).filter(function (b) {
-	        return b.isCompleted();
-	      }).forEach(function (b) {
-	        var effects = b.permanentEffects.filter(function (effect) {
-	          return effect instanceof CapacityGrantingEffect;
-	        });
-	        effects.forEach(function (effect) {
-	          return effect.modifyCapacity(capacity);
-	        });
+	      Object.values(this.characters).map(function (character) {
+	        return character.updateTime(deltaSeconds, parents);
+	      }).forEach(function (_updated) {
+	        updated = updated.concat(_updated);
 	      });
-	
-	      return capacity;
+	      return updated;
 	    }
 	  }, {
-	    key: 'getAchievements',
-	    value: function getAchievements() {
-	      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	          _ref2$completedOnly = _ref2.completedOnly,
-	          completedOnly = _ref2$completedOnly === undefined ? true : _ref2$completedOnly;
+	    key: 'updateTime',
+	    value: function updateTime(deltaSeconds, parents) {
+	      parents = Object.assign(parents, { city: this });
+	      this.time += deltaSeconds;
 	
-	      var achievements = {};
-	      Object.values(this.city.buildings).forEach(function (b) {
-	        if (b.namespace && (!completedOnly || b.isCompleted())) {
-	          achievements[b.namespace] = 1 + (achievements[b.namespace] || 0);
-	        }
-	      });
-	      return achievements;
-	    }
-	  }, {
-	    key: 'fulfillsRequirements',
-	    value: function fulfillsRequirements(requirements) {
-	      var achievements = this.getAchievements();
-	      return requirements.every(function (req) {
-	        return (achievements[req] || 0) > 0;
-	      });
+	      var updated = [];
+	      updated = updated.concat(this._updateBuildings(deltaSeconds, parents));
+	      updated = updated.concat(this._updateCharacters(deltaSeconds, parents));
+	      return updated;
 	    }
 	  }]);
 	
-	  return CityPlayer;
+	  return City;
 	}();
 	
-	CityPlayer.timeGranularity = 0.25;
-	
-	var PlayerEarnResourceEffect = exports.PlayerEarnResourceEffect = function (_FrequencyEffect) {
-	  _inherits(PlayerEarnResourceEffect, _FrequencyEffect);
-	
-	  function PlayerEarnResourceEffect() {
-	    var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	        _ref3$resources = _ref3.resources,
-	        resources = _ref3$resources === undefined ? [] : _ref3$resources,
-	        _ref3$frequency = _ref3.frequency,
-	        frequency = _ref3$frequency === undefined ? 1 : _ref3$frequency;
-	
-	    _classCallCheck(this, PlayerEarnResourceEffect);
-	
-	    var _this3 = _possibleConstructorReturn(this, (PlayerEarnResourceEffect.__proto__ || Object.getPrototypeOf(PlayerEarnResourceEffect)).call(this, arguments[0]));
-	
-	    _this3.resources = resources;
-	    return _this3;
-	  }
-	
-	  _createClass(PlayerEarnResourceEffect, [{
-	    key: 'trigger',
-	    value: function trigger(parents) {
-	      var event = new _CityEvent2.default({ type: _CityEvent2.default.kEarnResourceEvent, object: this, data: this.resources });
-	      parents.player.earnResources(this.resources);
-	      return [event];
-	    }
-	  }, {
-	    key: 'toString',
-	    value: function toString() {
-	      return _get(PlayerEarnResourceEffect.prototype.__proto__ || Object.getPrototypeOf(PlayerEarnResourceEffect.prototype), 'toString', this).call(this) + " [" + this.resources + " " + (this.time - this.cycleStart) + "/" + this.frequency + " @ " + this.time + "]";
-	    }
-	  }]);
-	
-	  return PlayerEarnResourceEffect;
-	}(_Effect.FrequencyEffect);
-	
-	var CapacityGrantingEffect = exports.CapacityGrantingEffect = function () {
-	  function CapacityGrantingEffect(addCapacity) {
-	    _classCallCheck(this, CapacityGrantingEffect);
-	
-	    this.addCapacity = addCapacity;
-	  }
-	
-	  _createClass(CapacityGrantingEffect, [{
-	    key: 'modifyCapacity',
-	    value: function modifyCapacity(capacity) {
-	      Object.entries(this.addCapacity).forEach(function (_ref4) {
-	        var _ref5 = _slicedToArray(_ref4, 2),
-	            key = _ref5[0],
-	            value = _ref5[1];
-	
-	        capacity[key] = (capacity[key] || 0) + value;
-	      });
-	      return capacity;
-	    }
-	  }]);
-
-	  return CapacityGrantingEffect;
-	}();
+	exports.default = City;
 
 /***/ }),
 /* 167 */
@@ -20721,103 +20646,6 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.OverlappingBuildingError = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _uuidJs = __webpack_require__(167);
-	
-	var _uuidJs2 = _interopRequireDefault(_uuidJs);
-	
-	var _Utils = __webpack_require__(168);
-	
-	var _CityResource = __webpack_require__(170);
-	
-	var _CityEvent = __webpack_require__(171);
-	
-	var _CityEvent2 = _interopRequireDefault(_CityEvent);
-	
-	var _Building = __webpack_require__(172);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _objectDestructuringEmpty(obj) { if (obj == null) throw new TypeError("Cannot destructure undefined"); }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var OverlappingBuildingError = exports.OverlappingBuildingError = function (_Error) {
-	  _inherits(OverlappingBuildingError, _Error);
-	
-	  function OverlappingBuildingError() {
-	    _classCallCheck(this, OverlappingBuildingError);
-	
-	    return _possibleConstructorReturn(this, (OverlappingBuildingError.__proto__ || Object.getPrototypeOf(OverlappingBuildingError)).apply(this, arguments));
-	  }
-	
-	  return OverlappingBuildingError;
-	}(Error);
-	
-	var City = function () {
-	  function City() {
-	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	
-	    _objectDestructuringEmpty(_ref);
-	
-	    _classCallCheck(this, City);
-	
-	    this.id = _uuidJs2.default.create().toString();
-	    this.time = 0;
-	    this.buildings = {};
-	  }
-	
-	  _createClass(City, [{
-	    key: 'planBuilding',
-	    value: function planBuilding() {
-	      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	          _ref2$building = _ref2.building,
-	          building = _ref2$building === undefined ? null : _ref2$building;
-	
-	      var b = _Utils.MutableObject.mutableCopy(building);
-	      this.buildings[b.id] = b;
-	
-	      return new _CityEvent2.default({
-	        type: _CityEvent2.default.kBuildingPlannedEvent,
-	        object: b
-	      });
-	    }
-	  }, {
-	    key: 'updateTime',
-	    value: function updateTime(deltaSeconds, parents) {
-	      parents = Object.assign(parents, { city: this });
-	      this.time += deltaSeconds;
-	      var updated = [];
-	      Object.values(this.buildings).map(function (building) {
-	        return building.updateTime(deltaSeconds, parents);
-	      }).forEach(function (_updated) {
-	        updated = updated.concat(_updated);
-	      });
-	      return updated;
-	    }
-	  }]);
-	
-	  return City;
-	}();
-	
-	exports.default = City;
-
-/***/ }),
-/* 170 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
 	exports.ResourceConsumingAction = exports.CityResource = exports.UnavailableActionError = exports.InsuficientResourcesError = exports.ResourceError = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -20828,15 +20656,23 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	var ResourceError = exports.ResourceError = function (_Error) {
+	  _inherits(ResourceError, _Error);
 	
-	var ResourceError = exports.ResourceError = function ResourceError() {
-	  _classCallCheck(this, ResourceError);
-	};
+	  function ResourceError() {
+	    _classCallCheck(this, ResourceError);
+	
+	    return _possibleConstructorReturn(this, (ResourceError.__proto__ || Object.getPrototypeOf(ResourceError)).apply(this, arguments));
+	  }
+	
+	  return ResourceError;
+	}(Error);
 	
 	var InsuficientResourcesError = exports.InsuficientResourcesError = function (_ResourceError) {
 	  _inherits(InsuficientResourcesError, _ResourceError);
@@ -20874,7 +20710,7 @@
 	  _createClass(CityResource, [{
 	    key: 'toString',
 	    value: function toString() {
-	      return this.type + ': ' + Math.ceil(this.amount);
+	      return this.type + ' x ' + Math.ceil(this.amount);
 	    }
 	  }, {
 	    key: 'resourceWithMultiplier',
@@ -20986,7 +20822,7 @@
 	}();
 
 /***/ }),
-/* 171 */
+/* 170 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21003,9 +20839,9 @@
 	
 	var _Utils = __webpack_require__(168);
 	
-	var _CityResource = __webpack_require__(170);
+	var _CityResource = __webpack_require__(169);
 	
-	var _Building = __webpack_require__(172);
+	var _Building = __webpack_require__(171);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -21045,13 +20881,16 @@
 	
 	CityEvent.kEarnResourceEvent = 'EarnResource';
 	CityEvent.kSpendResourceEvent = 'SpendResource';
+	CityEvent.kStoreResourceEvent = 'StoreResource';
 	
 	CityEvent.kBuildingPlannedEvent = 'BuildingPlanned';
 	CityEvent.kBuildingCompletedEvent = 'BuildingCompleted';
 	CityEvent.kBuildingProgressEvent = 'BuildingProgress';
+	
+	CityEvent.kCharacterAddedEvent = 'CharacterAdded';
 
 /***/ }),
-/* 172 */
+/* 171 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21069,9 +20908,9 @@
 	
 	var _Utils = __webpack_require__(168);
 	
-	var _CityResource = __webpack_require__(170);
+	var _CityResource = __webpack_require__(169);
 	
-	var _CityEvent = __webpack_require__(171);
+	var _CityEvent = __webpack_require__(170);
 	
 	var _CityEvent2 = _interopRequireDefault(_CityEvent);
 	
@@ -21126,6 +20965,8 @@
 	    this.costFactor = costFactor;
 	    this.buildingTime = time;
 	
+	    this.storedResources = false;
+	
 	    this.effects = effects;
 	    this.permanentEffects = permanentEffects;
 	
@@ -21151,6 +20992,35 @@
 	      }
 	    }
 	  }, {
+	    key: 'storeResources',
+	    value: function storeResources(resources) {
+	      this.storedResources = _CityResource.CityResource.aggregateSameTypeResources(resources.concat(this.storedResources || []));
+	    }
+	  }, {
+	    key: 'getStoredResources',
+	    value: function getStoredResources() {
+	      return this.storedResources;
+	    }
+	  }, {
+	    key: 'canCollectResources',
+	    value: function canCollectResources(player) {
+	      return player.canEarnAnyResources(this.storedResources);
+	    }
+	  }, {
+	    key: 'collectResources',
+	    value: function collectResources(player) {
+	      if (!this.storedResources) {
+	        throw new _CityResource.InsuficientResourcesError();
+	      }
+	      if (!this.canCollectResources(player)) {
+	        throw new _CityResource.UnavailableActionError();
+	      }
+	      var event = new _CityEvent2.default({ type: _CityEvent2.default.kEarnResourceEvent, object: this, data: this.storedResources });
+	      player.earnResources(this.storedResources);
+	      this.storedResources = false;
+	      return event;
+	    }
+	  }, {
 	    key: 'progress',
 	    value: function progress() {
 	      if (this.time >= this.buildingTime) {
@@ -21167,7 +21037,7 @@
 	    key: 'updateTime',
 	    value: function updateTime(deltaSeconds, parents) {
 	      _Utils.MutableObject.checkIsMutable(this);
-	      parents = Object.assign(parents, { project: this });
+	      parents = Object.assign(parents, { building: this });
 	      var updated = [];
 	
 	      /* This works for buildings with `buildingTime == 0` */
@@ -21230,7 +21100,7 @@
 	}(_CityResource.ResourceConsumingAction);
 
 /***/ }),
-/* 173 */
+/* 172 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21247,6 +21117,8 @@
 	var UtilsJS = __webpack_require__(168);
 	var MutableObject = UtilsJS.MutableObject;
 	
+	var START_CHECK_SENSITIVITY = 0.01;
+	
 	var FrequencyEffect = exports.FrequencyEffect = function () {
 	  function FrequencyEffect() {
 	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
@@ -21260,16 +21132,42 @@
 	
 	    this.cycleStart = 0;
 	    this.time = 0;
+	
+	    this.blocked = false;
 	  }
 	
 	  _createClass(FrequencyEffect, [{
+	    key: 'canBegin',
+	    value: function canBegin() {
+	      return true;
+	    }
+	  }, {
 	    key: 'updateTime',
 	    value: function updateTime(deltaSeconds, parents) {
-	      this.time += deltaSeconds;
 	      var updated = [];
-	      while (this.time >= this.cycleStart + this.frequency) {
-	        this.cycleStart += this.frequency;
-	        updated = updated.concat(this.trigger(parents));
+	
+	      while (deltaSeconds > 0) {
+	        /* On effect start, let's check if we should get blocked */
+	        if (Math.abs(this.cycleStart - this.time) < START_CHECK_SENSITIVITY) {
+	          if (!this.canBegin(parents)) {
+	            this.blocked = true;
+	            break;
+	          }
+	        }
+	        this.blocked = false;
+	        var nextStart = this.cycleStart + this.frequency;
+	        var canComplete = deltaSeconds >= nextStart - this.time;
+	        var partialDelta = void 0;
+	        if (canComplete) {
+	          partialDelta = nextStart - this.time;
+	          deltaSeconds -= partialDelta;
+	          this.time += partialDelta;
+	          this.cycleStart += this.frequency;
+	          updated = updated.concat(this.trigger(parents));
+	        } else {
+	          this.time += deltaSeconds;
+	          deltaSeconds = 0;
+	        }
 	      }
 	      return updated;
 	    }
@@ -21289,13 +21187,1950 @@
 	    value: function toString() {
 	      return this.constructor.name + " (" + this.id + ") " + this.getStatus();
 	    }
+	  }, {
+	    key: 'getDescription',
+	    value: function getDescription() {
+	      return this.toString();
+	    }
 	  }]);
 
 	  return FrequencyEffect;
 	}();
 
 /***/ }),
+/* 173 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.CapacityGrantingEffect = exports.ResourceEffect = exports.BuildingStoreResourceEffect = exports.PlayerEarnResourceEffect = exports.CityPlayer = undefined;
+	
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _object = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"object.values\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	
+	var _object2 = _interopRequireDefault(_object);
+	
+	var _object3 = __webpack_require__(174);
+	
+	var _object4 = _interopRequireDefault(_object3);
+	
+	var _uuidJs = __webpack_require__(167);
+	
+	var _uuidJs2 = _interopRequireDefault(_uuidJs);
+	
+	var _Utils = __webpack_require__(168);
+	
+	var _Utils2 = _interopRequireDefault(_Utils);
+	
+	var _City = __webpack_require__(166);
+	
+	var _City2 = _interopRequireDefault(_City);
+	
+	var _CityEvent = __webpack_require__(170);
+	
+	var _CityEvent2 = _interopRequireDefault(_CityEvent);
+	
+	var _Effect = __webpack_require__(172);
+	
+	var _CityResource = __webpack_require__(169);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	if (!Object.values) {
+	  _object2.default.shim();
+	  _object4.default.shim();
+	}
+	
+	var CityPlayer = exports.CityPlayer = function () {
+	  function CityPlayer() {
+	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref$name = _ref.name,
+	        name = _ref$name === undefined ? "PlayerName" : _ref$name,
+	        _ref$resources = _ref.resources,
+	        resources = _ref$resources === undefined ? [] : _ref$resources,
+	        _ref$initialCapacity = _ref.initialCapacity,
+	        initialCapacity = _ref$initialCapacity === undefined ? {} : _ref$initialCapacity,
+	        _ref$characterFactori = _ref.characterFactories,
+	        characterFactories = _ref$characterFactori === undefined ? {} : _ref$characterFactori,
+	        _ref$city = _ref.city,
+	        city = _ref$city === undefined ? new _City2.default() : _ref$city;
+	
+	    _classCallCheck(this, CityPlayer);
+	
+	    this.id = _uuidJs2.default.create().toString();
+	    this.time = 0;
+	    this.name = name;
+	    this.resources = {};
+	    this.initialCapacity = initialCapacity;
+	    this.characterFactories = characterFactories;
+	    this.city = city;
+	    this.earnResources(resources);
+	  }
+	
+	  _createClass(CityPlayer, [{
+	    key: 'updateTime',
+	    value: function updateTime(deltaSeconds) {
+	      this.time += deltaSeconds;
+	      var parents = {
+	        player: this
+	      };
+	
+	      var updated = [];
+	      while (deltaSeconds > 0) {
+	        var d = Math.min(deltaSeconds, CityPlayer.timeGranularity);
+	        updated = updated.concat(this.city.updateTime(d, parents));
+	        deltaSeconds -= d;
+	      }
+	      return updated;
+	    }
+	    /* Resources */
+	
+	  }, {
+	    key: 'canEarnAnyResources',
+	    value: function canEarnAnyResources(resources) {
+	      var _this = this;
+	
+	      var capacity = this.getCapacity();
+	      var canEarn = resources.map(function (r) {
+	        return capacity[r.type] && capacity[r.type] > (_this.resources[r.type] && _this.resources[r.type].amount || 0);
+	      }).some(function (can) {
+	        return can;
+	      });
+	      return canEarn;
+	    }
+	  }, {
+	    key: 'earnResources',
+	    value: function earnResources(resources) {
+	      var player = this;
+	      var capacity = player.getCapacity();
+	
+	      resources.forEach(function (resource) {
+	        if (!player.resources[resource.type]) {
+	          player.resources[resource.type] = new _CityResource.CityResource(resource.type, 0);
+	        }
+	        var max = capacity[resource.type] || 0;
+	        player.resources[resource.type].amount = Math.min(max, resource.amount + (player.resources[resource.type].amount || 0));
+	      });
+	    }
+	  }, {
+	    key: 'canAfford',
+	    value: function canAfford(costs) {
+	      var _this2 = this;
+	
+	      var canAfford = true;
+	      _CityResource.CityResource.aggregateSameTypeResources(costs).forEach(function (cost) {
+	        var r = _this2.getResourceAmountForType(cost.type);
+	        if (r < cost.amount) {
+	          canAfford = false;
+	        }
+	      });
+	      return canAfford;
+	    }
+	  }, {
+	    key: 'spendResources',
+	    value: function spendResources(costs) {
+	      var _this3 = this;
+	
+	      var canAfford = true;
+	      costs = _CityResource.CityResource.aggregateSameTypeResources(costs);
+	      costs.forEach(function (c) {
+	        if (_this3.getResourceAmountForType(c.type) < c.amount) {
+	          canAfford = false;
+	        }
+	      });
+	      if (!canAfford) {
+	        throw new _CityResource.InsuficientResourcesError();
+	      }
+	      costs.forEach(function (c) {
+	        _this3.resources[c.type].amount -= c.amount;
+	      });
+	    }
+	  }, {
+	    key: 'getResourceAmountForType',
+	    value: function getResourceAmountForType(type) {
+	      return this.resources[type] && this.resources[type].amount || 0;
+	    }
+	  }, {
+	    key: 'getCapacity',
+	    value: function getCapacity() {
+	      var capacity = {
+	        additions: Object.assign({}, this.initialCapacity),
+	        totals: Object.assign({}, this.initialCapacity)
+	      };
+	
+	      Object.values(this.city.buildings).filter(function (b) {
+	        return b.isCompleted();
+	      }).forEach(function (b) {
+	        var effects = b.permanentEffects.filter(function (effect) {
+	          return effect instanceof CapacityGrantingEffect;
+	        });
+	        effects.forEach(function (effect) {
+	          return effect.combine(capacity);
+	        });
+	      });
+	      return capacity.totals;
+	    }
+	  }, {
+	    key: 'getAchievements',
+	    value: function getAchievements() {
+	      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	          _ref2$completedOnly = _ref2.completedOnly,
+	          completedOnly = _ref2$completedOnly === undefined ? true : _ref2$completedOnly;
+	
+	      var achievements = {};
+	      Object.values(this.city.buildings).forEach(function (b) {
+	        if (b.namespace && (!completedOnly || b.isCompleted())) {
+	          achievements[b.namespace] = 1 + (achievements[b.namespace] || 0);
+	        }
+	      });
+	      return achievements;
+	    }
+	  }, {
+	    key: 'fulfillsRequirements',
+	    value: function fulfillsRequirements(requirements) {
+	      var achievements = this.getAchievements();
+	      return requirements.every(function (req) {
+	        return (achievements[req] || 0) > 0;
+	      });
+	    }
+	  }]);
+	
+	  return CityPlayer;
+	}();
+	
+	CityPlayer.timeGranularity = 0.25;
+	
+	var PlayerEarnResourceEffect = exports.PlayerEarnResourceEffect = function (_FrequencyEffect) {
+	  _inherits(PlayerEarnResourceEffect, _FrequencyEffect);
+	
+	  function PlayerEarnResourceEffect() {
+	    var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref3$resources = _ref3.resources,
+	        resources = _ref3$resources === undefined ? [] : _ref3$resources,
+	        _ref3$frequency = _ref3.frequency,
+	        frequency = _ref3$frequency === undefined ? 1 : _ref3$frequency;
+	
+	    _classCallCheck(this, PlayerEarnResourceEffect);
+	
+	    var _this4 = _possibleConstructorReturn(this, (PlayerEarnResourceEffect.__proto__ || Object.getPrototypeOf(PlayerEarnResourceEffect)).call(this, arguments[0]));
+	
+	    _this4.resources = resources;
+	    return _this4;
+	  }
+	
+	  _createClass(PlayerEarnResourceEffect, [{
+	    key: 'canBegin',
+	    value: function canBegin(parents) {
+	      return parents.player.canEarnAnyResources(this.resources);
+	    }
+	  }, {
+	    key: 'trigger',
+	    value: function trigger(parents) {
+	      var event = new _CityEvent2.default({ type: _CityEvent2.default.kEarnResourceEvent, object: this, data: this.resources });
+	      parents.player.earnResources(this.resources);
+	      return [event];
+	    }
+	  }, {
+	    key: 'getDescription',
+	    value: function getDescription() {
+	      return "Gives " + this.resources.map(function (r) {
+	        return r.toString();
+	      }).join(" + ") + " every " + this.frequency + " sec";
+	    }
+	  }]);
+	
+	  return PlayerEarnResourceEffect;
+	}(_Effect.FrequencyEffect);
+	
+	var BuildingStoreResourceEffect = exports.BuildingStoreResourceEffect = function (_FrequencyEffect2) {
+	  _inherits(BuildingStoreResourceEffect, _FrequencyEffect2);
+	
+	  function BuildingStoreResourceEffect() {
+	    var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref4$resources = _ref4.resources,
+	        resources = _ref4$resources === undefined ? [] : _ref4$resources,
+	        _ref4$frequency = _ref4.frequency,
+	        frequency = _ref4$frequency === undefined ? 1 : _ref4$frequency;
+	
+	    _classCallCheck(this, BuildingStoreResourceEffect);
+	
+	    var _this5 = _possibleConstructorReturn(this, (BuildingStoreResourceEffect.__proto__ || Object.getPrototypeOf(BuildingStoreResourceEffect)).call(this, arguments[0]));
+	
+	    _this5.resources = resources;
+	    return _this5;
+	  }
+	
+	  _createClass(BuildingStoreResourceEffect, [{
+	    key: 'canBegin',
+	    value: function canBegin(parents) {
+	      return parents.building.getStoredResources() === false;
+	    }
+	  }, {
+	    key: 'trigger',
+	    value: function trigger(parents) {
+	      var event = new _CityEvent2.default({ type: _CityEvent2.default.kStoreResourceEvent, object: this, data: this.resources });
+	      parents.building.storeResources(this.resources);
+	      return [event];
+	    }
+	  }, {
+	    key: 'getDescription',
+	    value: function getDescription() {
+	      return "Stores " + this.resources.map(function (r) {
+	        return r.toString();
+	      }).join(" + ") + " every " + this.frequency + " sec";
+	    }
+	  }]);
+	
+	  return BuildingStoreResourceEffect;
+	}(_Effect.FrequencyEffect);
+	
+	var ResourceEffect = exports.ResourceEffect = function () {
+	  function ResourceEffect() {
+	    var _ref5 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref5$additions = _ref5.additions,
+	        additions = _ref5$additions === undefined ? 0 : _ref5$additions,
+	        _ref5$multipliers = _ref5.multipliers,
+	        multipliers = _ref5$multipliers === undefined ? 0 : _ref5$multipliers;
+	
+	    _classCallCheck(this, ResourceEffect);
+	
+	    this.additions = additions;
+	    this.multipliers = multipliers;
+	  }
+	
+	  _createClass(ResourceEffect, [{
+	    key: '_combine',
+	    value: function _combine(combined, local) {
+	      Object.entries(local).forEach(function (_ref6) {
+	        var _ref7 = _slicedToArray(_ref6, 2),
+	            key = _ref7[0],
+	            value = _ref7[1];
+	
+	        combined[key] = (combined[key] || 0) + value;
+	      });
+	      return combined;
+	    }
+	  }, {
+	    key: 'combine',
+	    value: function combine(combinedUnits) {
+	      combinedUnits.additions = this._combine(combinedUnits.additions || {}, this.additions);
+	      combinedUnits.multipliers = this._combine(combinedUnits.multipliers || {}, this.multipliers);
+	      combinedUnits.totals = Object.assign({}, combinedUnits.additions);
+	      Object.entries(combinedUnits.multipliers).forEach(function (_ref8) {
+	        var _ref9 = _slicedToArray(_ref8, 2),
+	            key = _ref9[0],
+	            value = _ref9[1];
+	
+	        if (combinedUnits.additions[key]) {
+	          combinedUnits.totals[key] *= Math.max(0, 1 + value);
+	        }
+	      });
+	      return combinedUnits;
+	    }
+	  }]);
+	
+	  return ResourceEffect;
+	}();
+	
+	var CapacityGrantingEffect = exports.CapacityGrantingEffect = function (_ResourceEffect) {
+	  _inherits(CapacityGrantingEffect, _ResourceEffect);
+	
+	  function CapacityGrantingEffect() {
+	    _classCallCheck(this, CapacityGrantingEffect);
+	
+	    return _possibleConstructorReturn(this, (CapacityGrantingEffect.__proto__ || Object.getPrototypeOf(CapacityGrantingEffect)).apply(this, arguments));
+	  }
+	
+	  return CapacityGrantingEffect;
+	}(ResourceEffect);
+
+/***/ }),
 /* 174 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var define = __webpack_require__(175);
+	
+	var implementation = __webpack_require__(179);
+	var getPolyfill = __webpack_require__(200);
+	var shim = __webpack_require__(201);
+	
+	var polyfill = getPolyfill();
+	
+	define(polyfill, {
+		getPolyfill: getPolyfill,
+		implementation: implementation,
+		shim: shim
+	});
+	
+	module.exports = polyfill;
+
+
+/***/ }),
+/* 175 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var keys = __webpack_require__(176);
+	var foreach = __webpack_require__(178);
+	var hasSymbols = typeof Symbol === 'function' && typeof Symbol() === 'symbol';
+	
+	var toStr = Object.prototype.toString;
+	
+	var isFunction = function (fn) {
+		return typeof fn === 'function' && toStr.call(fn) === '[object Function]';
+	};
+	
+	var arePropertyDescriptorsSupported = function () {
+		var obj = {};
+		try {
+			Object.defineProperty(obj, 'x', { enumerable: false, value: obj });
+	        /* eslint-disable no-unused-vars, no-restricted-syntax */
+	        for (var _ in obj) { return false; }
+	        /* eslint-enable no-unused-vars, no-restricted-syntax */
+			return obj.x === obj;
+		} catch (e) { /* this is IE 8. */
+			return false;
+		}
+	};
+	var supportsDescriptors = Object.defineProperty && arePropertyDescriptorsSupported();
+	
+	var defineProperty = function (object, name, value, predicate) {
+		if (name in object && (!isFunction(predicate) || !predicate())) {
+			return;
+		}
+		if (supportsDescriptors) {
+			Object.defineProperty(object, name, {
+				configurable: true,
+				enumerable: false,
+				value: value,
+				writable: true
+			});
+		} else {
+			object[name] = value;
+		}
+	};
+	
+	var defineProperties = function (object, map) {
+		var predicates = arguments.length > 2 ? arguments[2] : {};
+		var props = keys(map);
+		if (hasSymbols) {
+			props = props.concat(Object.getOwnPropertySymbols(map));
+		}
+		foreach(props, function (name) {
+			defineProperty(object, name, map[name], predicates[name]);
+		});
+	};
+	
+	defineProperties.supportsDescriptors = !!supportsDescriptors;
+	
+	module.exports = defineProperties;
+
+
+/***/ }),
+/* 176 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	// modified from https://github.com/es-shims/es5-shim
+	var has = Object.prototype.hasOwnProperty;
+	var toStr = Object.prototype.toString;
+	var slice = Array.prototype.slice;
+	var isArgs = __webpack_require__(177);
+	var isEnumerable = Object.prototype.propertyIsEnumerable;
+	var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
+	var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
+	var dontEnums = [
+		'toString',
+		'toLocaleString',
+		'valueOf',
+		'hasOwnProperty',
+		'isPrototypeOf',
+		'propertyIsEnumerable',
+		'constructor'
+	];
+	var equalsConstructorPrototype = function (o) {
+		var ctor = o.constructor;
+		return ctor && ctor.prototype === o;
+	};
+	var excludedKeys = {
+		$console: true,
+		$external: true,
+		$frame: true,
+		$frameElement: true,
+		$frames: true,
+		$innerHeight: true,
+		$innerWidth: true,
+		$outerHeight: true,
+		$outerWidth: true,
+		$pageXOffset: true,
+		$pageYOffset: true,
+		$parent: true,
+		$scrollLeft: true,
+		$scrollTop: true,
+		$scrollX: true,
+		$scrollY: true,
+		$self: true,
+		$webkitIndexedDB: true,
+		$webkitStorageInfo: true,
+		$window: true
+	};
+	var hasAutomationEqualityBug = (function () {
+		/* global window */
+		if (typeof window === 'undefined') { return false; }
+		for (var k in window) {
+			try {
+				if (!excludedKeys['$' + k] && has.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
+					try {
+						equalsConstructorPrototype(window[k]);
+					} catch (e) {
+						return true;
+					}
+				}
+			} catch (e) {
+				return true;
+			}
+		}
+		return false;
+	}());
+	var equalsConstructorPrototypeIfNotBuggy = function (o) {
+		/* global window */
+		if (typeof window === 'undefined' || !hasAutomationEqualityBug) {
+			return equalsConstructorPrototype(o);
+		}
+		try {
+			return equalsConstructorPrototype(o);
+		} catch (e) {
+			return false;
+		}
+	};
+	
+	var keysShim = function keys(object) {
+		var isObject = object !== null && typeof object === 'object';
+		var isFunction = toStr.call(object) === '[object Function]';
+		var isArguments = isArgs(object);
+		var isString = isObject && toStr.call(object) === '[object String]';
+		var theKeys = [];
+	
+		if (!isObject && !isFunction && !isArguments) {
+			throw new TypeError('Object.keys called on a non-object');
+		}
+	
+		var skipProto = hasProtoEnumBug && isFunction;
+		if (isString && object.length > 0 && !has.call(object, 0)) {
+			for (var i = 0; i < object.length; ++i) {
+				theKeys.push(String(i));
+			}
+		}
+	
+		if (isArguments && object.length > 0) {
+			for (var j = 0; j < object.length; ++j) {
+				theKeys.push(String(j));
+			}
+		} else {
+			for (var name in object) {
+				if (!(skipProto && name === 'prototype') && has.call(object, name)) {
+					theKeys.push(String(name));
+				}
+			}
+		}
+	
+		if (hasDontEnumBug) {
+			var skipConstructor = equalsConstructorPrototypeIfNotBuggy(object);
+	
+			for (var k = 0; k < dontEnums.length; ++k) {
+				if (!(skipConstructor && dontEnums[k] === 'constructor') && has.call(object, dontEnums[k])) {
+					theKeys.push(dontEnums[k]);
+				}
+			}
+		}
+		return theKeys;
+	};
+	
+	keysShim.shim = function shimObjectKeys() {
+		if (Object.keys) {
+			var keysWorksWithArguments = (function () {
+				// Safari 5.0 bug
+				return (Object.keys(arguments) || '').length === 2;
+			}(1, 2));
+			if (!keysWorksWithArguments) {
+				var originalKeys = Object.keys;
+				Object.keys = function keys(object) {
+					if (isArgs(object)) {
+						return originalKeys(slice.call(object));
+					} else {
+						return originalKeys(object);
+					}
+				};
+			}
+		} else {
+			Object.keys = keysShim;
+		}
+		return Object.keys || keysShim;
+	};
+	
+	module.exports = keysShim;
+
+
+/***/ }),
+/* 177 */
+/***/ (function(module, exports) {
+
+	'use strict';
+	
+	var toStr = Object.prototype.toString;
+	
+	module.exports = function isArguments(value) {
+		var str = toStr.call(value);
+		var isArgs = str === '[object Arguments]';
+		if (!isArgs) {
+			isArgs = str !== '[object Array]' &&
+				value !== null &&
+				typeof value === 'object' &&
+				typeof value.length === 'number' &&
+				value.length >= 0 &&
+				toStr.call(value.callee) === '[object Function]';
+		}
+		return isArgs;
+	};
+
+
+/***/ }),
+/* 178 */
+/***/ (function(module, exports) {
+
+	
+	var hasOwn = Object.prototype.hasOwnProperty;
+	var toString = Object.prototype.toString;
+	
+	module.exports = function forEach (obj, fn, ctx) {
+	    if (toString.call(fn) !== '[object Function]') {
+	        throw new TypeError('iterator must be a function');
+	    }
+	    var l = obj.length;
+	    if (l === +l) {
+	        for (var i = 0; i < l; i++) {
+	            fn.call(ctx, obj[i], i, obj);
+	        }
+	    } else {
+	        for (var k in obj) {
+	            if (hasOwn.call(obj, k)) {
+	                fn.call(ctx, obj[k], k, obj);
+	            }
+	        }
+	    }
+	};
+	
+
+
+/***/ }),
+/* 179 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var ES = __webpack_require__(180);
+	var has = __webpack_require__(183);
+	var bind = __webpack_require__(184);
+	var isEnumerable = bind.call(Function.call, Object.prototype.propertyIsEnumerable);
+	
+	module.exports = function entries(O) {
+		var obj = ES.RequireObjectCoercible(O);
+		var entrys = [];
+		for (var key in obj) {
+			if (has(obj, key) && isEnumerable(obj, key)) {
+				entrys.push([key, obj[key]]);
+			}
+		}
+		return entrys;
+	};
+
+
+/***/ }),
+/* 180 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	module.exports = __webpack_require__(181);
+
+
+/***/ }),
+/* 181 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var ES2015 = __webpack_require__(182);
+	var assign = __webpack_require__(188);
+	
+	var ES2016 = assign(assign({}, ES2015), {
+		// https://github.com/tc39/ecma262/pull/60
+		SameValueNonNumber: function SameValueNonNumber(x, y) {
+			if (typeof x === 'number' || typeof x !== typeof y) {
+				throw new TypeError('SameValueNonNumber requires two non-number values of the same type.');
+			}
+			return this.SameValue(x, y);
+		}
+	});
+	
+	module.exports = ES2016;
+
+
+/***/ }),
+/* 182 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var has = __webpack_require__(183);
+	
+	var toStr = Object.prototype.toString;
+	var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
+	var symbolToStr = hasSymbols ? Symbol.prototype.toString : toStr;
+	
+	var $isNaN = __webpack_require__(186);
+	var $isFinite = __webpack_require__(187);
+	var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || Math.pow(2, 53) - 1;
+	
+	var assign = __webpack_require__(188);
+	var sign = __webpack_require__(189);
+	var mod = __webpack_require__(190);
+	var isPrimitive = __webpack_require__(191);
+	var toPrimitive = __webpack_require__(192);
+	var parseInteger = parseInt;
+	var bind = __webpack_require__(184);
+	var arraySlice = bind.call(Function.call, Array.prototype.slice);
+	var strSlice = bind.call(Function.call, String.prototype.slice);
+	var isBinary = bind.call(Function.call, RegExp.prototype.test, /^0b[01]+$/i);
+	var isOctal = bind.call(Function.call, RegExp.prototype.test, /^0o[0-7]+$/i);
+	var regexExec = bind.call(Function.call, RegExp.prototype.exec);
+	var nonWS = ['\u0085', '\u200b', '\ufffe'].join('');
+	var nonWSregex = new RegExp('[' + nonWS + ']', 'g');
+	var hasNonWS = bind.call(Function.call, RegExp.prototype.test, nonWSregex);
+	var invalidHexLiteral = /^[-+]0x[0-9a-f]+$/i;
+	var isInvalidHexLiteral = bind.call(Function.call, RegExp.prototype.test, invalidHexLiteral);
+	
+	// whitespace from: http://es5.github.io/#x15.5.4.20
+	// implementation from https://github.com/es-shims/es5-shim/blob/v3.4.0/es5-shim.js#L1304-L1324
+	var ws = [
+		'\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u2003',
+		'\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028',
+		'\u2029\uFEFF'
+	].join('');
+	var trimRegex = new RegExp('(^[' + ws + ']+)|([' + ws + ']+$)', 'g');
+	var replace = bind.call(Function.call, String.prototype.replace);
+	var trim = function (value) {
+		return replace(value, trimRegex, '');
+	};
+	
+	var ES5 = __webpack_require__(197);
+	
+	var hasRegExpMatcher = __webpack_require__(199);
+	
+	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-abstract-operations
+	var ES6 = assign(assign({}, ES5), {
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-call-f-v-args
+		Call: function Call(F, V) {
+			var args = arguments.length > 2 ? arguments[2] : [];
+			if (!this.IsCallable(F)) {
+				throw new TypeError(F + ' is not a function');
+			}
+			return F.apply(V, args);
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toprimitive
+		ToPrimitive: toPrimitive,
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toboolean
+		// ToBoolean: ES5.ToBoolean,
+	
+		// http://www.ecma-international.org/ecma-262/6.0/#sec-tonumber
+		ToNumber: function ToNumber(argument) {
+			var value = isPrimitive(argument) ? argument : toPrimitive(argument, 'number');
+			if (typeof value === 'symbol') {
+				throw new TypeError('Cannot convert a Symbol value to a number');
+			}
+			if (typeof value === 'string') {
+				if (isBinary(value)) {
+					return this.ToNumber(parseInteger(strSlice(value, 2), 2));
+				} else if (isOctal(value)) {
+					return this.ToNumber(parseInteger(strSlice(value, 2), 8));
+				} else if (hasNonWS(value) || isInvalidHexLiteral(value)) {
+					return NaN;
+				} else {
+					var trimmed = trim(value);
+					if (trimmed !== value) {
+						return this.ToNumber(trimmed);
+					}
+				}
+			}
+			return Number(value);
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tointeger
+		// ToInteger: ES5.ToNumber,
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toint32
+		// ToInt32: ES5.ToInt32,
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-touint32
+		// ToUint32: ES5.ToUint32,
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toint16
+		ToInt16: function ToInt16(argument) {
+			var int16bit = this.ToUint16(argument);
+			return int16bit >= 0x8000 ? int16bit - 0x10000 : int16bit;
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-touint16
+		// ToUint16: ES5.ToUint16,
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toint8
+		ToInt8: function ToInt8(argument) {
+			var int8bit = this.ToUint8(argument);
+			return int8bit >= 0x80 ? int8bit - 0x100 : int8bit;
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-touint8
+		ToUint8: function ToUint8(argument) {
+			var number = this.ToNumber(argument);
+			if ($isNaN(number) || number === 0 || !$isFinite(number)) { return 0; }
+			var posInt = sign(number) * Math.floor(Math.abs(number));
+			return mod(posInt, 0x100);
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-touint8clamp
+		ToUint8Clamp: function ToUint8Clamp(argument) {
+			var number = this.ToNumber(argument);
+			if ($isNaN(number) || number <= 0) { return 0; }
+			if (number >= 0xFF) { return 0xFF; }
+			var f = Math.floor(argument);
+			if (f + 0.5 < number) { return f + 1; }
+			if (number < f + 0.5) { return f; }
+			if (f % 2 !== 0) { return f + 1; }
+			return f;
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tostring
+		ToString: function ToString(argument) {
+			if (typeof argument === 'symbol') {
+				throw new TypeError('Cannot convert a Symbol value to a string');
+			}
+			return String(argument);
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-toobject
+		ToObject: function ToObject(value) {
+			this.RequireObjectCoercible(value);
+			return Object(value);
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-topropertykey
+		ToPropertyKey: function ToPropertyKey(argument) {
+			var key = this.ToPrimitive(argument, String);
+			return typeof key === 'symbol' ? symbolToStr.call(key) : this.ToString(key);
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
+		ToLength: function ToLength(argument) {
+			var len = this.ToInteger(argument);
+			if (len <= 0) { return 0; } // includes converting -0 to +0
+			if (len > MAX_SAFE_INTEGER) { return MAX_SAFE_INTEGER; }
+			return len;
+		},
+	
+		// http://www.ecma-international.org/ecma-262/6.0/#sec-canonicalnumericindexstring
+		CanonicalNumericIndexString: function CanonicalNumericIndexString(argument) {
+			if (toStr.call(argument) !== '[object String]') {
+				throw new TypeError('must be a string');
+			}
+			if (argument === '-0') { return -0; }
+			var n = this.ToNumber(argument);
+			if (this.SameValue(this.ToString(n), argument)) { return n; }
+			return void 0;
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-requireobjectcoercible
+		RequireObjectCoercible: ES5.CheckObjectCoercible,
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-isarray
+		IsArray: Array.isArray || function IsArray(argument) {
+			return toStr.call(argument) === '[object Array]';
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-iscallable
+		// IsCallable: ES5.IsCallable,
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-isconstructor
+		IsConstructor: function IsConstructor(argument) {
+			return typeof argument === 'function' && !!argument.prototype; // unfortunately there's no way to truly check this without try/catch `new argument`
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-isextensible-o
+		IsExtensible: function IsExtensible(obj) {
+			if (!Object.preventExtensions) { return true; }
+			if (isPrimitive(obj)) {
+				return false;
+			}
+			return Object.isExtensible(obj);
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-isinteger
+		IsInteger: function IsInteger(argument) {
+			if (typeof argument !== 'number' || $isNaN(argument) || !$isFinite(argument)) {
+				return false;
+			}
+			var abs = Math.abs(argument);
+			return Math.floor(abs) === abs;
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-ispropertykey
+		IsPropertyKey: function IsPropertyKey(argument) {
+			return typeof argument === 'string' || typeof argument === 'symbol';
+		},
+	
+		// http://www.ecma-international.org/ecma-262/6.0/#sec-isregexp
+		IsRegExp: function IsRegExp(argument) {
+			if (!argument || typeof argument !== 'object') {
+				return false;
+			}
+			if (hasSymbols) {
+				var isRegExp = argument[Symbol.match];
+				if (typeof isRegExp !== 'undefined') {
+					return ES5.ToBoolean(isRegExp);
+				}
+			}
+			return hasRegExpMatcher(argument);
+		},
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevalue
+		// SameValue: ES5.SameValue,
+	
+		// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevaluezero
+		SameValueZero: function SameValueZero(x, y) {
+			return (x === y) || ($isNaN(x) && $isNaN(y));
+		},
+	
+		/**
+		 * 7.3.2 GetV (V, P)
+		 * 1. Assert: IsPropertyKey(P) is true.
+		 * 2. Let O be ToObject(V).
+		 * 3. ReturnIfAbrupt(O).
+		 * 4. Return O.[[Get]](P, V).
+		 */
+		GetV: function GetV(V, P) {
+			// 7.3.2.1
+			if (!this.IsPropertyKey(P)) {
+				throw new TypeError('Assertion failed: IsPropertyKey(P) is not true');
+			}
+	
+			// 7.3.2.2-3
+			var O = this.ToObject(V);
+	
+			// 7.3.2.4
+			return O[P];
+		},
+	
+		/**
+		 * 7.3.9 - http://www.ecma-international.org/ecma-262/6.0/#sec-getmethod
+		 * 1. Assert: IsPropertyKey(P) is true.
+		 * 2. Let func be GetV(O, P).
+		 * 3. ReturnIfAbrupt(func).
+		 * 4. If func is either undefined or null, return undefined.
+		 * 5. If IsCallable(func) is false, throw a TypeError exception.
+		 * 6. Return func.
+		 */
+		GetMethod: function GetMethod(O, P) {
+			// 7.3.9.1
+			if (!this.IsPropertyKey(P)) {
+				throw new TypeError('Assertion failed: IsPropertyKey(P) is not true');
+			}
+	
+			// 7.3.9.2
+			var func = this.GetV(O, P);
+	
+			// 7.3.9.4
+			if (func == null) {
+				return undefined;
+			}
+	
+			// 7.3.9.5
+			if (!this.IsCallable(func)) {
+				throw new TypeError(P + 'is not a function');
+			}
+	
+			// 7.3.9.6
+			return func;
+		},
+	
+		/**
+		 * 7.3.1 Get (O, P) - http://www.ecma-international.org/ecma-262/6.0/#sec-get-o-p
+		 * 1. Assert: Type(O) is Object.
+		 * 2. Assert: IsPropertyKey(P) is true.
+		 * 3. Return O.[[Get]](P, O).
+		 */
+		Get: function Get(O, P) {
+			// 7.3.1.1
+			if (this.Type(O) !== 'Object') {
+				throw new TypeError('Assertion failed: Type(O) is not Object');
+			}
+			// 7.3.1.2
+			if (!this.IsPropertyKey(P)) {
+				throw new TypeError('Assertion failed: IsPropertyKey(P) is not true');
+			}
+			// 7.3.1.3
+			return O[P];
+		},
+	
+		Type: function Type(x) {
+			if (typeof x === 'symbol') {
+				return 'Symbol';
+			}
+			return ES5.Type(x);
+		},
+	
+		// http://www.ecma-international.org/ecma-262/6.0/#sec-speciesconstructor
+		SpeciesConstructor: function SpeciesConstructor(O, defaultConstructor) {
+			if (this.Type(O) !== 'Object') {
+				throw new TypeError('Assertion failed: Type(O) is not Object');
+			}
+			var C = O.constructor;
+			if (typeof C === 'undefined') {
+				return defaultConstructor;
+			}
+			if (this.Type(C) !== 'Object') {
+				throw new TypeError('O.constructor is not an Object');
+			}
+			var S = hasSymbols && Symbol.species ? C[Symbol.species] : undefined;
+			if (S == null) {
+				return defaultConstructor;
+			}
+			if (this.IsConstructor(S)) {
+				return S;
+			}
+			throw new TypeError('no constructor found');
+		},
+	
+		// http://ecma-international.org/ecma-262/6.0/#sec-completepropertydescriptor
+		CompletePropertyDescriptor: function CompletePropertyDescriptor(Desc) {
+			if (!this.IsPropertyDescriptor(Desc)) {
+				throw new TypeError('Desc must be a Property Descriptor');
+			}
+	
+			if (this.IsGenericDescriptor(Desc) || this.IsDataDescriptor(Desc)) {
+				if (!has(Desc, '[[Value]]')) {
+					Desc['[[Value]]'] = void 0;
+				}
+				if (!has(Desc, '[[Writable]]')) {
+					Desc['[[Writable]]'] = false;
+				}
+			} else {
+				if (!has(Desc, '[[Get]]')) {
+					Desc['[[Get]]'] = void 0;
+				}
+				if (!has(Desc, '[[Set]]')) {
+					Desc['[[Set]]'] = void 0;
+				}
+			}
+			if (!has(Desc, '[[Enumerable]]')) {
+				Desc['[[Enumerable]]'] = false;
+			}
+			if (!has(Desc, '[[Configurable]]')) {
+				Desc['[[Configurable]]'] = false;
+			}
+			return Desc;
+		},
+	
+		// http://ecma-international.org/ecma-262/6.0/#sec-set-o-p-v-throw
+		Set: function Set(O, P, V, Throw) {
+			if (this.Type(O) !== 'Object') {
+				throw new TypeError('O must be an Object');
+			}
+			if (!this.IsPropertyKey(P)) {
+				throw new TypeError('P must be a Property Key');
+			}
+			if (this.Type(Throw) !== 'Boolean') {
+				throw new TypeError('Throw must be a Boolean');
+			}
+			if (Throw) {
+				O[P] = V;
+				return true;
+			} else {
+				try {
+					O[P] = V;
+				} catch (e) {
+					return false;
+				}
+			}
+		},
+	
+		// http://ecma-international.org/ecma-262/6.0/#sec-hasownproperty
+		HasOwnProperty: function HasOwnProperty(O, P) {
+			if (this.Type(O) !== 'Object') {
+				throw new TypeError('O must be an Object');
+			}
+			if (!this.IsPropertyKey(P)) {
+				throw new TypeError('P must be a Property Key');
+			}
+			return has(O, P);
+		},
+	
+		// http://ecma-international.org/ecma-262/6.0/#sec-hasproperty
+		HasProperty: function HasProperty(O, P) {
+			if (this.Type(O) !== 'Object') {
+				throw new TypeError('O must be an Object');
+			}
+			if (!this.IsPropertyKey(P)) {
+				throw new TypeError('P must be a Property Key');
+			}
+			return P in O;
+		},
+	
+		// http://ecma-international.org/ecma-262/6.0/#sec-isconcatspreadable
+		IsConcatSpreadable: function IsConcatSpreadable(O) {
+			if (this.Type(O) !== 'Object') {
+				return false;
+			}
+			if (hasSymbols && typeof Symbol.isConcatSpreadable === 'symbol') {
+				var spreadable = this.Get(O, Symbol.isConcatSpreadable);
+				if (typeof spreadable !== 'undefined') {
+					return this.ToBoolean(spreadable);
+				}
+			}
+			return this.IsArray(O);
+		},
+	
+		// http://ecma-international.org/ecma-262/6.0/#sec-invoke
+		Invoke: function Invoke(O, P) {
+			if (!this.IsPropertyKey(P)) {
+				throw new TypeError('P must be a Property Key');
+			}
+			var argumentsList = arraySlice(arguments, 2);
+			var func = this.GetV(O, P);
+			return this.Call(func, O, argumentsList);
+		},
+	
+		// http://ecma-international.org/ecma-262/6.0/#sec-createiterresultobject
+		CreateIterResultObject: function CreateIterResultObject(value, done) {
+			if (this.Type(done) !== 'Boolean') {
+				throw new TypeError('Assertion failed: Type(done) is not Boolean');
+			}
+			return {
+				value: value,
+				done: done
+			};
+		},
+	
+		// http://ecma-international.org/ecma-262/6.0/#sec-regexpexec
+		RegExpExec: function RegExpExec(R, S) {
+			if (this.Type(R) !== 'Object') {
+				throw new TypeError('R must be an Object');
+			}
+			if (this.Type(S) !== 'String') {
+				throw new TypeError('S must be a String');
+			}
+			var exec = this.Get(R, 'exec');
+			if (this.IsCallable(exec)) {
+				var result = this.Call(exec, R, [S]);
+				if (result === null || this.Type(result) === 'Object') {
+					return result;
+				}
+				throw new TypeError('"exec" method must return `null` or an Object');
+			}
+			return regexExec(R, S);
+		}
+	});
+	
+	delete ES6.CheckObjectCoercible; // renamed in ES6 to RequireObjectCoercible
+	
+	module.exports = ES6;
+
+
+/***/ }),
+/* 183 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var bind = __webpack_require__(184);
+	
+	module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
+
+
+/***/ }),
+/* 184 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var implementation = __webpack_require__(185);
+	
+	module.exports = Function.prototype.bind || implementation;
+
+
+/***/ }),
+/* 185 */
+/***/ (function(module, exports) {
+
+	var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
+	var slice = Array.prototype.slice;
+	var toStr = Object.prototype.toString;
+	var funcType = '[object Function]';
+	
+	module.exports = function bind(that) {
+	    var target = this;
+	    if (typeof target !== 'function' || toStr.call(target) !== funcType) {
+	        throw new TypeError(ERROR_MESSAGE + target);
+	    }
+	    var args = slice.call(arguments, 1);
+	
+	    var bound;
+	    var binder = function () {
+	        if (this instanceof bound) {
+	            var result = target.apply(
+	                this,
+	                args.concat(slice.call(arguments))
+	            );
+	            if (Object(result) === result) {
+	                return result;
+	            }
+	            return this;
+	        } else {
+	            return target.apply(
+	                that,
+	                args.concat(slice.call(arguments))
+	            );
+	        }
+	    };
+	
+	    var boundLength = Math.max(0, target.length - args.length);
+	    var boundArgs = [];
+	    for (var i = 0; i < boundLength; i++) {
+	        boundArgs.push('$' + i);
+	    }
+	
+	    bound = Function('binder', 'return function (' + boundArgs.join(',') + '){ return binder.apply(this,arguments); }')(binder);
+	
+	    if (target.prototype) {
+	        var Empty = function Empty() {};
+	        Empty.prototype = target.prototype;
+	        bound.prototype = new Empty();
+	        Empty.prototype = null;
+	    }
+	
+	    return bound;
+	};
+
+
+/***/ }),
+/* 186 */
+/***/ (function(module, exports) {
+
+	module.exports = Number.isNaN || function isNaN(a) {
+		return a !== a;
+	};
+
+
+/***/ }),
+/* 187 */
+/***/ (function(module, exports) {
+
+	var $isNaN = Number.isNaN || function (a) { return a !== a; };
+	
+	module.exports = Number.isFinite || function (x) { return typeof x === 'number' && !$isNaN(x) && x !== Infinity && x !== -Infinity; };
+
+
+/***/ }),
+/* 188 */
+/***/ (function(module, exports) {
+
+	var has = Object.prototype.hasOwnProperty;
+	module.exports = function assign(target, source) {
+		if (Object.assign) {
+			return Object.assign(target, source);
+		}
+		for (var key in source) {
+			if (has.call(source, key)) {
+				target[key] = source[key];
+			}
+		}
+		return target;
+	};
+
+
+/***/ }),
+/* 189 */
+/***/ (function(module, exports) {
+
+	module.exports = function sign(number) {
+		return number >= 0 ? 1 : -1;
+	};
+
+
+/***/ }),
+/* 190 */
+/***/ (function(module, exports) {
+
+	module.exports = function mod(number, modulo) {
+		var remain = number % modulo;
+		return Math.floor(remain >= 0 ? remain : remain + modulo);
+	};
+
+
+/***/ }),
+/* 191 */
+/***/ (function(module, exports) {
+
+	module.exports = function isPrimitive(value) {
+		return value === null || (typeof value !== 'function' && typeof value !== 'object');
+	};
+
+
+/***/ }),
+/* 192 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
+	
+	var isPrimitive = __webpack_require__(193);
+	var isCallable = __webpack_require__(194);
+	var isDate = __webpack_require__(195);
+	var isSymbol = __webpack_require__(196);
+	
+	var ordinaryToPrimitive = function OrdinaryToPrimitive(O, hint) {
+		if (typeof O === 'undefined' || O === null) {
+			throw new TypeError('Cannot call method on ' + O);
+		}
+		if (typeof hint !== 'string' || (hint !== 'number' && hint !== 'string')) {
+			throw new TypeError('hint must be "string" or "number"');
+		}
+		var methodNames = hint === 'string' ? ['toString', 'valueOf'] : ['valueOf', 'toString'];
+		var method, result, i;
+		for (i = 0; i < methodNames.length; ++i) {
+			method = O[methodNames[i]];
+			if (isCallable(method)) {
+				result = method.call(O);
+				if (isPrimitive(result)) {
+					return result;
+				}
+			}
+		}
+		throw new TypeError('No default value');
+	};
+	
+	var GetMethod = function GetMethod(O, P) {
+		var func = O[P];
+		if (func !== null && typeof func !== 'undefined') {
+			if (!isCallable(func)) {
+				throw new TypeError(func + ' returned for property ' + P + ' of object ' + O + ' is not a function');
+			}
+			return func;
+		}
+	};
+	
+	// http://www.ecma-international.org/ecma-262/6.0/#sec-toprimitive
+	module.exports = function ToPrimitive(input, PreferredType) {
+		if (isPrimitive(input)) {
+			return input;
+		}
+		var hint = 'default';
+		if (arguments.length > 1) {
+			if (PreferredType === String) {
+				hint = 'string';
+			} else if (PreferredType === Number) {
+				hint = 'number';
+			}
+		}
+	
+		var exoticToPrim;
+		if (hasSymbols) {
+			if (Symbol.toPrimitive) {
+				exoticToPrim = GetMethod(input, Symbol.toPrimitive);
+			} else if (isSymbol(input)) {
+				exoticToPrim = Symbol.prototype.valueOf;
+			}
+		}
+		if (typeof exoticToPrim !== 'undefined') {
+			var result = exoticToPrim.call(input, hint);
+			if (isPrimitive(result)) {
+				return result;
+			}
+			throw new TypeError('unable to convert exotic object to primitive');
+		}
+		if (hint === 'default' && (isDate(input) || isSymbol(input))) {
+			hint = 'string';
+		}
+		return ordinaryToPrimitive(input, hint === 'default' ? 'number' : hint);
+	};
+
+
+/***/ }),
+/* 193 */
+/***/ (function(module, exports) {
+
+	module.exports = function isPrimitive(value) {
+		return value === null || (typeof value !== 'function' && typeof value !== 'object');
+	};
+
+
+/***/ }),
+/* 194 */
+/***/ (function(module, exports) {
+
+	'use strict';
+	
+	var fnToStr = Function.prototype.toString;
+	
+	var constructorRegex = /^\s*class /;
+	var isES6ClassFn = function isES6ClassFn(value) {
+		try {
+			var fnStr = fnToStr.call(value);
+			var singleStripped = fnStr.replace(/\/\/.*\n/g, '');
+			var multiStripped = singleStripped.replace(/\/\*[.\s\S]*\*\//g, '');
+			var spaceStripped = multiStripped.replace(/\n/mg, ' ').replace(/ {2}/g, ' ');
+			return constructorRegex.test(spaceStripped);
+		} catch (e) {
+			return false; // not a function
+		}
+	};
+	
+	var tryFunctionObject = function tryFunctionObject(value) {
+		try {
+			if (isES6ClassFn(value)) { return false; }
+			fnToStr.call(value);
+			return true;
+		} catch (e) {
+			return false;
+		}
+	};
+	var toStr = Object.prototype.toString;
+	var fnClass = '[object Function]';
+	var genClass = '[object GeneratorFunction]';
+	var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
+	
+	module.exports = function isCallable(value) {
+		if (!value) { return false; }
+		if (typeof value !== 'function' && typeof value !== 'object') { return false; }
+		if (hasToStringTag) { return tryFunctionObject(value); }
+		if (isES6ClassFn(value)) { return false; }
+		var strClass = toStr.call(value);
+		return strClass === fnClass || strClass === genClass;
+	};
+
+
+/***/ }),
+/* 195 */
+/***/ (function(module, exports) {
+
+	'use strict';
+	
+	var getDay = Date.prototype.getDay;
+	var tryDateObject = function tryDateObject(value) {
+		try {
+			getDay.call(value);
+			return true;
+		} catch (e) {
+			return false;
+		}
+	};
+	
+	var toStr = Object.prototype.toString;
+	var dateClass = '[object Date]';
+	var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
+	
+	module.exports = function isDateObject(value) {
+		if (typeof value !== 'object' || value === null) { return false; }
+		return hasToStringTag ? tryDateObject(value) : toStr.call(value) === dateClass;
+	};
+
+
+/***/ }),
+/* 196 */
+/***/ (function(module, exports) {
+
+	'use strict';
+	
+	var toStr = Object.prototype.toString;
+	var hasSymbols = typeof Symbol === 'function' && typeof Symbol() === 'symbol';
+	
+	if (hasSymbols) {
+		var symToStr = Symbol.prototype.toString;
+		var symStringRegex = /^Symbol\(.*\)$/;
+		var isSymbolObject = function isSymbolObject(value) {
+			if (typeof value.valueOf() !== 'symbol') { return false; }
+			return symStringRegex.test(symToStr.call(value));
+		};
+		module.exports = function isSymbol(value) {
+			if (typeof value === 'symbol') { return true; }
+			if (toStr.call(value) !== '[object Symbol]') { return false; }
+			try {
+				return isSymbolObject(value);
+			} catch (e) {
+				return false;
+			}
+		};
+	} else {
+		module.exports = function isSymbol(value) {
+			// this environment does not support Symbols.
+			return false;
+		};
+	}
+
+
+/***/ }),
+/* 197 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var $isNaN = __webpack_require__(186);
+	var $isFinite = __webpack_require__(187);
+	
+	var sign = __webpack_require__(189);
+	var mod = __webpack_require__(190);
+	
+	var IsCallable = __webpack_require__(194);
+	var toPrimitive = __webpack_require__(198);
+	
+	var has = __webpack_require__(183);
+	
+	// https://es5.github.io/#x9
+	var ES5 = {
+		ToPrimitive: toPrimitive,
+	
+		ToBoolean: function ToBoolean(value) {
+			return !!value;
+		},
+		ToNumber: function ToNumber(value) {
+			return Number(value);
+		},
+		ToInteger: function ToInteger(value) {
+			var number = this.ToNumber(value);
+			if ($isNaN(number)) { return 0; }
+			if (number === 0 || !$isFinite(number)) { return number; }
+			return sign(number) * Math.floor(Math.abs(number));
+		},
+		ToInt32: function ToInt32(x) {
+			return this.ToNumber(x) >> 0;
+		},
+		ToUint32: function ToUint32(x) {
+			return this.ToNumber(x) >>> 0;
+		},
+		ToUint16: function ToUint16(value) {
+			var number = this.ToNumber(value);
+			if ($isNaN(number) || number === 0 || !$isFinite(number)) { return 0; }
+			var posInt = sign(number) * Math.floor(Math.abs(number));
+			return mod(posInt, 0x10000);
+		},
+		ToString: function ToString(value) {
+			return String(value);
+		},
+		ToObject: function ToObject(value) {
+			this.CheckObjectCoercible(value);
+			return Object(value);
+		},
+		CheckObjectCoercible: function CheckObjectCoercible(value, optMessage) {
+			/* jshint eqnull:true */
+			if (value == null) {
+				throw new TypeError(optMessage || 'Cannot call method on ' + value);
+			}
+			return value;
+		},
+		IsCallable: IsCallable,
+		SameValue: function SameValue(x, y) {
+			if (x === y) { // 0 === -0, but they are not identical.
+				if (x === 0) { return 1 / x === 1 / y; }
+				return true;
+			}
+			return $isNaN(x) && $isNaN(y);
+		},
+	
+		// http://www.ecma-international.org/ecma-262/5.1/#sec-8
+		Type: function Type(x) {
+			if (x === null) {
+				return 'Null';
+			}
+			if (typeof x === 'undefined') {
+				return 'Undefined';
+			}
+			if (typeof x === 'function' || typeof x === 'object') {
+				return 'Object';
+			}
+			if (typeof x === 'number') {
+				return 'Number';
+			}
+			if (typeof x === 'boolean') {
+				return 'Boolean';
+			}
+			if (typeof x === 'string') {
+				return 'String';
+			}
+		},
+	
+		// http://ecma-international.org/ecma-262/6.0/#sec-property-descriptor-specification-type
+		IsPropertyDescriptor: function IsPropertyDescriptor(Desc) {
+			if (this.Type(Desc) !== 'Object') {
+				return false;
+			}
+			var allowed = {
+				'[[Configurable]]': true,
+				'[[Enumerable]]': true,
+				'[[Get]]': true,
+				'[[Set]]': true,
+				'[[Value]]': true,
+				'[[Writable]]': true
+			};
+			// jscs:disable
+			for (var key in Desc) { // eslint-disable-line
+				if (has(Desc, key) && !allowed[key]) {
+					return false;
+				}
+			}
+			// jscs:enable
+			var isData = has(Desc, '[[Value]]');
+			var IsAccessor = has(Desc, '[[Get]]') || has(Desc, '[[Set]]');
+			if (isData && IsAccessor) {
+				throw new TypeError('Property Descriptors may not be both accessor and data descriptors');
+			}
+			return true;
+		},
+	
+		// http://ecma-international.org/ecma-262/5.1/#sec-8.10.1
+		IsAccessorDescriptor: function IsAccessorDescriptor(Desc) {
+			if (typeof Desc === 'undefined') {
+				return false;
+			}
+	
+			if (!this.IsPropertyDescriptor(Desc)) {
+				throw new TypeError('Desc must be a Property Descriptor');
+			}
+	
+			if (!has(Desc, '[[Get]]') && !has(Desc, '[[Set]]')) {
+				return false;
+			}
+	
+			return true;
+		},
+	
+		// http://ecma-international.org/ecma-262/5.1/#sec-8.10.2
+		IsDataDescriptor: function IsDataDescriptor(Desc) {
+			if (typeof Desc === 'undefined') {
+				return false;
+			}
+	
+			if (!this.IsPropertyDescriptor(Desc)) {
+				throw new TypeError('Desc must be a Property Descriptor');
+			}
+	
+			if (!has(Desc, '[[Value]]') && !has(Desc, '[[Writable]]')) {
+				return false;
+			}
+	
+			return true;
+		},
+	
+		// http://ecma-international.org/ecma-262/5.1/#sec-8.10.3
+		IsGenericDescriptor: function IsGenericDescriptor(Desc) {
+			if (typeof Desc === 'undefined') {
+				return false;
+			}
+	
+			if (!this.IsPropertyDescriptor(Desc)) {
+				throw new TypeError('Desc must be a Property Descriptor');
+			}
+	
+			if (!this.IsAccessorDescriptor(Desc) && !this.IsDataDescriptor(Desc)) {
+				return true;
+			}
+	
+			return false;
+		},
+	
+		// http://ecma-international.org/ecma-262/5.1/#sec-8.10.4
+		FromPropertyDescriptor: function FromPropertyDescriptor(Desc) {
+			if (typeof Desc === 'undefined') {
+				return Desc;
+			}
+	
+			if (!this.IsPropertyDescriptor(Desc)) {
+				throw new TypeError('Desc must be a Property Descriptor');
+			}
+	
+			if (this.IsDataDescriptor(Desc)) {
+				return {
+					value: Desc['[[Value]]'],
+					writable: !!Desc['[[Writable]]'],
+					enumerable: !!Desc['[[Enumerable]]'],
+					configurable: !!Desc['[[Configurable]]']
+				};
+			} else if (this.IsAccessorDescriptor(Desc)) {
+				return {
+					get: Desc['[[Get]]'],
+					set: Desc['[[Set]]'],
+					enumerable: !!Desc['[[Enumerable]]'],
+					configurable: !!Desc['[[Configurable]]']
+				};
+			} else {
+				throw new TypeError('FromPropertyDescriptor must be called with a fully populated Property Descriptor');
+			}
+		},
+	
+		// http://ecma-international.org/ecma-262/5.1/#sec-8.10.5
+		ToPropertyDescriptor: function ToPropertyDescriptor(Obj) {
+			if (this.Type(Obj) !== 'Object') {
+				throw new TypeError('ToPropertyDescriptor requires an object');
+			}
+	
+			var desc = {};
+			if (has(Obj, 'enumerable')) {
+				desc['[[Enumerable]]'] = this.ToBoolean(Obj.enumerable);
+			}
+			if (has(Obj, 'configurable')) {
+				desc['[[Configurable]]'] = this.ToBoolean(Obj.configurable);
+			}
+			if (has(Obj, 'value')) {
+				desc['[[Value]]'] = Obj.value;
+			}
+			if (has(Obj, 'writable')) {
+				desc['[[Writable]]'] = this.ToBoolean(Obj.writable);
+			}
+			if (has(Obj, 'get')) {
+				var getter = Obj.get;
+				if (typeof getter !== 'undefined' && !this.IsCallable(getter)) {
+					throw new TypeError('getter must be a function');
+				}
+				desc['[[Get]]'] = getter;
+			}
+			if (has(Obj, 'set')) {
+				var setter = Obj.set;
+				if (typeof setter !== 'undefined' && !this.IsCallable(setter)) {
+					throw new TypeError('setter must be a function');
+				}
+				desc['[[Set]]'] = setter;
+			}
+	
+			if ((has(desc, '[[Get]]') || has(desc, '[[Set]]')) && (has(desc, '[[Value]]') || has(desc, '[[Writable]]'))) {
+				throw new TypeError('Invalid property descriptor. Cannot both specify accessors and a value or writable attribute');
+			}
+			return desc;
+		}
+	};
+	
+	module.exports = ES5;
+
+
+/***/ }),
+/* 198 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var toStr = Object.prototype.toString;
+	
+	var isPrimitive = __webpack_require__(193);
+	
+	var isCallable = __webpack_require__(194);
+	
+	// https://es5.github.io/#x8.12
+	var ES5internalSlots = {
+		'[[DefaultValue]]': function (O, hint) {
+			var actualHint = hint || (toStr.call(O) === '[object Date]' ? String : Number);
+	
+			if (actualHint === String || actualHint === Number) {
+				var methods = actualHint === String ? ['toString', 'valueOf'] : ['valueOf', 'toString'];
+				var value, i;
+				for (i = 0; i < methods.length; ++i) {
+					if (isCallable(O[methods[i]])) {
+						value = O[methods[i]]();
+						if (isPrimitive(value)) {
+							return value;
+						}
+					}
+				}
+				throw new TypeError('No default value');
+			}
+			throw new TypeError('invalid [[DefaultValue]] hint supplied');
+		}
+	};
+	
+	// https://es5.github.io/#x9
+	module.exports = function ToPrimitive(input, PreferredType) {
+		if (isPrimitive(input)) {
+			return input;
+		}
+		return ES5internalSlots['[[DefaultValue]]'](input, PreferredType);
+	};
+
+
+/***/ }),
+/* 199 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var has = __webpack_require__(183);
+	var regexExec = RegExp.prototype.exec;
+	var gOPD = Object.getOwnPropertyDescriptor;
+	
+	var tryRegexExecCall = function tryRegexExec(value) {
+		try {
+			var lastIndex = value.lastIndex;
+			value.lastIndex = 0;
+	
+			regexExec.call(value);
+			return true;
+		} catch (e) {
+			return false;
+		} finally {
+			value.lastIndex = lastIndex;
+		}
+	};
+	var toStr = Object.prototype.toString;
+	var regexClass = '[object RegExp]';
+	var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
+	
+	module.exports = function isRegex(value) {
+		if (!value || typeof value !== 'object') {
+			return false;
+		}
+		if (!hasToStringTag) {
+			return toStr.call(value) === regexClass;
+		}
+	
+		var descriptor = gOPD(value, 'lastIndex');
+		var hasLastIndexDataProperty = descriptor && has(descriptor, 'value');
+		if (!hasLastIndexDataProperty) {
+			return false;
+		}
+	
+		return tryRegexExecCall(value);
+	};
+
+
+/***/ }),
+/* 200 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var implementation = __webpack_require__(179);
+	
+	module.exports = function getPolyfill() {
+		return typeof Object.entries === 'function' ? Object.entries : implementation;
+	};
+
+
+/***/ }),
+/* 201 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var getPolyfill = __webpack_require__(200);
+	var define = __webpack_require__(175);
+	
+	module.exports = function shimEntries() {
+		var polyfill = getPolyfill();
+		define(Object, { entries: polyfill }, {
+			entries: function testEntries() {
+				return Object.entries !== polyfill;
+			}
+		});
+		return polyfill;
+	};
+
+
+/***/ }),
+/* 202 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.CityCharacter = exports.ProjectAlreadyCompletedError = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _uuidJs = __webpack_require__(167);
+	
+	var _uuidJs2 = _interopRequireDefault(_uuidJs);
+	
+	var _Utils = __webpack_require__(168);
+	
+	var _CityResource = __webpack_require__(169);
+	
+	var _CityEvent = __webpack_require__(170);
+	
+	var _CityEvent2 = _interopRequireDefault(_CityEvent);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var ProjectAlreadyCompletedError = exports.ProjectAlreadyCompletedError = function (_Error) {
+	  _inherits(ProjectAlreadyCompletedError, _Error);
+	
+	  function ProjectAlreadyCompletedError() {
+	    _classCallCheck(this, ProjectAlreadyCompletedError);
+	
+	    return _possibleConstructorReturn(this, (ProjectAlreadyCompletedError.__proto__ || Object.getPrototypeOf(ProjectAlreadyCompletedError)).apply(this, arguments));
+	  }
+	
+	  return ProjectAlreadyCompletedError;
+	}(Error);
+	
+	var CityCharacter = exports.CityCharacter = function () {
+	  function CityCharacter() {
+	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref$name = _ref.name,
+	        name = _ref$name === undefined ? "Unnamed Character" : _ref$name;
+	
+	    _classCallCheck(this, CityCharacter);
+	
+	    this.id = _uuidJs2.default.create().toString();
+	    this.name = name;
+	    this.time = 0;
+	  }
+	
+	  _createClass(CityCharacter, [{
+	    key: 'toString',
+	    value: function toString() {
+	      return this.name + " (" + this.id + ") " + this.getStatus();
+	    }
+	  }, {
+	    key: 'updateTime',
+	    value: function updateTime(deltaSeconds, parents) {
+	      this.time += deltaSeconds;
+	      return [];
+	    }
+	  }]);
+
+	  return CityCharacter;
+	}();
+
+/***/ }),
+/* 203 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21306,15 +23141,38 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _Building = __webpack_require__(172);
+	var _object = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"object.values\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 	
-	var _CityResource = __webpack_require__(170);
+	var _object2 = _interopRequireDefault(_object);
 	
-	var _CityPlayer = __webpack_require__(166);
+	var _Building = __webpack_require__(171);
+	
+	var _CityResource = __webpack_require__(169);
+	
+	var _CityPlayer = __webpack_require__(173);
+	
+	var _CityCharacter = __webpack_require__(202);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	if (!Object.values) {
+	  _object2.default.shim();
+	}
+	
+	var MONKEY_GIVEN_NAMES = ['Heather', 'Iris', 'Juniper', 'Laurel', 'Blossom', 'Jasper', 'Forrest', 'Haven', 'Jay', 'Kodiak', 'Leaf', 'Rowan'];
+	
+	var MONKEY_SUR_NAMES = ['Affin', 'Apa', 'Apina', 'Gibbons', 'Macaque', 'Monyet', 'Saki', 'Tamarin', 'Simia', 'Langur'];
+	
+	var randomElement = function randomElement(list) {
+	  return list[Math.floor(Math.random() * list.length)];
+	};
+	var nameGenerator = function nameGenerator() {
+	  return randomElement(MONKEY_SUR_NAMES) + ', ' + randomElement(MONKEY_GIVEN_NAMES);
+	};
 	
 	var GameModule = function () {
 	  function GameModule() {
@@ -21331,7 +23189,16 @@
 	    value: function getPlayerInitialCapacity() {
 	      var _ref;
 	
-	      return _ref = {}, _defineProperty(_ref, GameModule.kResourceGold, 50), _defineProperty(_ref, GameModule.kResourceFood, 5), _defineProperty(_ref, GameModule.kResourceWood, 100), _ref;
+	      return _ref = {}, _defineProperty(_ref, GameModule.kResourceGold, 50), _defineProperty(_ref, GameModule.kResourceBanana, 50), _defineProperty(_ref, GameModule.kResourceWood, 100), _ref;
+	    }
+	  }, {
+	    key: 'getCharacterFactories',
+	    value: function getCharacterFactories() {
+	      return {
+	        monkey: function monkey() {
+	          return new _CityCharacter.CityCharacter({ name: nameGenerator() });
+	        }
+	      };
 	    }
 	  }], [{
 	    key: 'gold',
@@ -21344,9 +23211,14 @@
 	      return new _CityResource.CityResource(GameModule.kResourceWood, amount);
 	    }
 	  }, {
-	    key: 'food',
-	    value: function food(amount) {
-	      return new _CityResource.CityResource(GameModule.kResourceFood, amount);
+	    key: 'banana',
+	    value: function banana(amount) {
+	      return new _CityResource.CityResource(GameModule.kResourceBanana, amount);
+	    }
+	  }, {
+	    key: 'monkey',
+	    value: function monkey(amount) {
+	      return new _CityResource.CityResource(GameModule.kResourceMonkey, amount);
 	    }
 	  }]);
 	
@@ -21357,57 +23229,59 @@
 	
 	
 	GameModule.kResourceGold = 'gold';
-	GameModule.kResourceFood = 'food';
+	GameModule.kResourceBanana = 'banana';
+	GameModule.kResourceMonkey = 'monkey';
 	GameModule.kResourceWood = 'wood';
 	
-	GameModule.kCityHall = new _Building.Building({
-	  name: "City Hall",
-	  namespace: "building.basic.city_hall",
+	GameModule.kBananaTree = new _Building.Building({
+	  name: "Central Banana Tree",
+	  namespace: "building.basic.banana_tree",
 	  time: 50,
-	  costs: [GameModule.gold(9999)]
-	});
-	
-	GameModule.kGoldMine = new _Building.Building({
-	  name: "Gold Mine",
-	  namespace: "building.basic.gold_mine",
-	  time: 50,
-	  costs: [GameModule.gold(100)],
-	  effects: [new _CityPlayer.PlayerEarnResourceEffect({
-	    resources: [GameModule.gold(1)],
-	    frequency: 10
-	  })]
-	});
-	
-	GameModule.kFarm = new _Building.Building({
-	  name: "Farm",
-	  namespace: "building.basic.farm",
-	  time: 30,
-	  costs: [GameModule.gold(10), GameModule.wood(10)],
-	  effects: [new _CityPlayer.PlayerEarnResourceEffect({
-	    resources: [GameModule.food(1)],
-	    frequency: 50
-	  })]
-	});
-	
-	GameModule.kGranary = new _Building.Building({
-	  name: "Granary",
-	  namespace: "building.basic.granary",
-	  time: 30,
-	  costs: [GameModule.gold(10), GameModule.wood(10)],
-	  requirements: ["building.basic.farm"],
-	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect(_defineProperty({}, GameModule.kResourceFood, 50))]
-	});
-	
-	GameModule.kLumberMill = new _Building.Building({
-	  name: "Lumber Mill",
-	  namespace: "building.basic.lumber_mill",
-	  time: 25,
-	  costs: [GameModule.wood(30)],
-	  effects: [new _CityPlayer.PlayerEarnResourceEffect({
-	    resources: [GameModule.wood(1)],
-	    frequency: 3
+	  costs: [GameModule.wood(9999)],
+	  effects: [new _CityPlayer.BuildingStoreResourceEffect({
+	    resources: [GameModule.banana(1)],
+	    frequency: 5
 	  })],
-	  permanentEffects: []
+	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
+	    additions: _defineProperty({}, GameModule.kResourceMonkey, 1)
+	  })]
+	});
+	
+	GameModule.kCave = new _Building.Building({
+	  name: "Cave",
+	  namespace: "building.basic.cave",
+	  time: 50,
+	  costs: [GameModule.wood(50)],
+	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
+	    additions: _defineProperty({}, GameModule.kResourceMonkey, 1)
+	  })],
+	  effects: [new _CityPlayer.PlayerEarnResourceEffect({
+	    resources: [GameModule.monkey(1)],
+	    frequency: 60
+	  })]
+	});
+	
+	GameModule.kBananaField = new _Building.Building({
+	  name: "Banana Field",
+	  namespace: "building.basic.banana_field",
+	  time: 50,
+	  costs: [GameModule.banana(50)],
+	  costFactor: 2,
+	  effects: [new _CityPlayer.BuildingStoreResourceEffect({
+	    resources: [GameModule.banana(5), GameModule.wood(1)],
+	    frequency: 5
+	  })]
+	});
+	
+	GameModule.kBananaCrate = new _Building.Building({
+	  name: "Banana Crate",
+	  namespace: "building.basic.banana_crate",
+	  time: 30,
+	  costs: [GameModule.wood(10)],
+	  requirements: ["building.basic.banana_field"],
+	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
+	    additions: _defineProperty({}, GameModule.kResourceBanana, 100)
+	  })]
 	});
 	
 	GameModule.kAvailableBuildings = {};
@@ -21416,10 +23290,10 @@
 	    GameModule.kAvailableBuildings[value.id] = value;
 	  }
 	});
-	GameModule.kDefaultBuildings = [GameModule.kCityHall.id];
+	GameModule.kDefaultBuildings = [GameModule.kBananaTree.id];
 
 /***/ }),
-/* 175 */
+/* 204 */
 /***/ (function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -21727,7 +23601,7 @@
 
 
 /***/ }),
-/* 176 */
+/* 205 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21791,7 +23665,7 @@
 	exports.default = SaveMenu;
 
 /***/ }),
-/* 177 */
+/* 206 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21800,7 +23674,7 @@
 	  value: true
 	});
 	var React = __webpack_require__(2);
-	var ResourceIcon = __webpack_require__(178).default;
+	var ResourceSummary = __webpack_require__(207).default;
 	
 	var ResourceDisplay = React.createClass({
 	  displayName: 'ResourceDisplay',
@@ -21820,7 +23694,7 @@
 	        'resources',
 	        { className: 'resources' },
 	        resources.map(function (resource) {
-	          return resource.amount && React.createElement(ResourceIcon, {
+	          return resource.amount && React.createElement(ResourceSummary, {
 	            key: resource.id,
 	            resource: resource,
 	            max: capacity[resource.type] });
@@ -21833,7 +23707,7 @@
 	exports.default = ResourceDisplay;
 
 /***/ }),
-/* 178 */
+/* 207 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21843,15 +23717,18 @@
 	});
 	var React = __webpack_require__(2);
 	
-	var ResourceIcon = React.createClass({
-	  displayName: 'ResourceIcon',
+	var ResourceIcon = exports.ResourceIcon = function ResourceIcon(type) {
+	  return React.createElement('div', { className: 'resource-icon ' + type.toLowerCase() });
+	};
+	
+	var ResourceSummaryComponent = React.createClass({
+	  displayName: 'ResourceSummaryComponent',
 	
 	  getInitialState: function getInitialState() {
 	    return {};
 	  },
 	  render: function render() {
 	    var id = 'resource-' + this.props.resource.id;
-	    var className = 'resource-icon ' + this.props.resource.type.toLowerCase();
 	    var amount = Math.floor(this.props.resource.amount);
 	    var title = this.props.resource.toString();
 	    var max = this.props.max;
@@ -21870,49 +23747,106 @@
 	        { className: 'max-amount' },
 	        max
 	      ),
-	      React.createElement('div', { className: className })
+	      ResourceIcon(this.props.resource.type)
 	    );
 	  }
 	});
 	
-	exports.default = ResourceIcon;
+	exports.default = ResourceSummaryComponent;
 
 /***/ }),
-/* 179 */
+/* 208 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
+	
+	var _react = __webpack_require__(2);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _ResourceIconComponent = __webpack_require__(207);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var CharacterDisplay = _react2.default.createClass({
+	  displayName: 'CharacterDisplay',
+	
+	  render: function render() {
+	    var capacity = this.props.player.getCapacity();
+	    var characters = Object.values(this.props.player.city.characters);
+	    return _react2.default.createElement(
+	      'div',
+	      { id: 'character-display', className: 'hud-window' },
+	      _react2.default.createElement(
+	        'span',
+	        null,
+	        'Characters'
+	      ),
+	      _react2.default.createElement(
+	        'characters',
+	        { className: 'characters' },
+	        characters.map(function (character) {
+	          return _react2.default.createElement(
+	            'div',
+	            null,
+	            (0, _ResourceIconComponent.ResourceIcon)('monkey'),
+	            character.name
+	          );
+	        })
+	      )
+	    );
+	  }
+	});
+	
+	exports.default = CharacterDisplay;
+
+/***/ }),
+/* 209 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _ResourceIconComponent = __webpack_require__(207);
+	
 	var React = __webpack_require__(2);
+	
 	
 	var _spiralCache = {};
 	var spiral = function spiral(index) {
-	    /*
+	  /*
 	    6 7 8 9
 	    5 0 1 A
 	    4 3 2 B
 	    F E D C
 	    */
 	
-	    if (_spiralCache[index]) return _spiralCache[index];
+	  if (_spiralCache[index]) return _spiralCache[index];
 	
-	    var length = 1;
-	    var location = { x: 0, y: 0 };
-	    var direction = 0;
-	    for (var i = 0; i < index;) {
-	        for (var l = 0; l < length && i < index; ++l && ++i) {
-	            if (direction == 0) location.x++;else if (direction == 1) location.y++;else if (direction == 2) location.x--;else if (direction == 3) location.y--;
-	        }
-	        direction = (direction + 1) % 4;
-	        if (direction % 2 == 0) {
-	            length++;
-	        }
+	  var length = 1;
+	  var location = {
+	    x: 0,
+	    y: 0
+	  };
+	  var direction = 0;
+	  for (var i = 0; i < index;) {
+	    for (var l = 0; l < length && i < index; ++l && ++i) {
+	      if (direction == 0) location.x++;else if (direction == 1) location.y++;else if (direction == 2) location.x--;else if (direction == 3) location.y--;
 	    }
+	    direction = (direction + 1) % 4;
+	    if (direction % 2 == 0) {
+	      length++;
+	    }
+	  }
 	
-	    return _spiralCache[index] = location;
+	  return _spiralCache[index] = location;
 	};
 	
 	var kCellWidth = 120;
@@ -21920,105 +23854,165 @@
 	var kCellSpacing = 30;
 	
 	var CityDisplay = React.createClass({
-	    displayName: 'CityDisplay',
+	  displayName: 'CityDisplay',
 	
-	    render: function render() {
-	        var buildings = Object.values(this.props.player.city.buildings).map(function (b, index) {
-	            var _spiral = spiral(index),
-	                x = _spiral.x,
-	                y = _spiral.y;
+	  render: function render() {
+	    var player = this.props.player;
+	    var collectFromBuilding = function collectFromBuilding(building) {
+	      return building.collectResources(player);
+	    };
+	    var buildings = Object.values(player.city.buildings).map(function (b, index) {
+	      var _spiral = spiral(index),
+	          x = _spiral.x,
+	          y = _spiral.y;
 	
-	            return React.createElement(
-	                'div',
-	                { key: b.id, style: {
-	                        position: 'absolute',
-	                        left: (x + y - 0.5) * (kCellWidth + kCellSpacing) / 2,
-	                        top: (y - x - 0.5) * (kCellWidth / 2 + kCellSpacing / 2) / 2,
-	                        zIndex: 10 + y - x,
-	                        fontSize: '8px',
-	                        lineHeight: '12px',
-	                        align: 'center',
-	                        textAlign: 'center'
-	                    } },
-	                React.createElement('div', { key: b.id + "_cell", style: {
-	                        position: 'absolute',
-	                        backgroundColor: '#C83',
-	                        WebkitClipPath: 'polygon(0% 50%, 50% 100%, 100% 50%, 50% 0%)',
-	                        width: kCellWidth,
-	                        height: kCellWidth / 2,
-	                        zIndex: 0
-	                    } }),
-	                React.createElement(
-	                    'div',
-	                    { key: b.id + "_icon", style: {
-	                            opacity: b.progress(),
-	                            position: 'absolute',
-	                            top: (kAssetWidth - kCellWidth) / 2 - 10,
-	                            left: (kCellWidth - kAssetWidth) / 2,
-	                            whiteSpace: 'nowrap',
-	                            width: kAssetWidth,
-	                            height: kAssetWidth,
-	                            zIndex: 1,
-	                            backgroundImage: 'url(/images/' + b.namespace + '.png)',
-	                            backgroundRepeat: 'no-repeat',
-	                            backgroundPosition: 'center',
-	                            backgroundSize: 'contain'
-	                        } },
-	                    React.createElement(
-	                        'div',
-	                        { key: b.id + "_info", style: { position: 'absolute', bottom: 0, width: '100%' } },
-	                        React.createElement(
-	                            'div',
-	                            { key: b.id + "_name", style: { 'marginRight': 'auto', 'marginLeft': 'auto' } },
-	                            b.name
-	                        ),
-	                        React.createElement(
-	                            'div',
-	                            { key: b.id + "_status", style: { 'marginRight': 'auto', 'marginLeft': 'auto' } },
-	                            b.getStatus()
-	                        )
-	                    )
-	                )
-	            );
-	        });
-	        return React.createElement(
+	      return React.createElement(
+	        'div',
+	        {
+	          key: b.id,
+	          style: {
+	            position: 'absolute',
+	            left: (x + y - 0.5) * (kCellWidth + kCellSpacing) / 2,
+	            top: (y - x - 0.5) * (kCellWidth / 2 + kCellSpacing / 2) / 2,
+	            zIndex: 10 + y - x,
+	            fontSize: '8px',
+	            lineHeight: '12px',
+	            align: 'center',
+	            textAlign: 'center'
+	          } },
+	        React.createElement('div', {
+	          key: b.id + "_cell",
+	          style: {
+	            position: 'absolute',
+	            backgroundColor: '#C83',
+	            WebkitClipPath: 'polygon(0% 50%, 50% 100%, 100% 50%, 50% 0%)',
+	            width: kCellWidth,
+	            height: kCellWidth / 2,
+	            zIndex: 0
+	          } }),
+	        React.createElement(
+	          'div',
+	          {
+	            key: b.id + "_icon",
+	            style: {
+	              opacity: b.progress(),
+	              position: 'absolute',
+	              top: (kAssetWidth - kCellWidth) / 2 - 10,
+	              left: (kCellWidth - kAssetWidth) / 2,
+	              whiteSpace: 'nowrap',
+	              width: kAssetWidth,
+	              height: kAssetWidth,
+	              zIndex: 1,
+	              backgroundImage: 'url(/images/' + b.namespace.replace(/\./g, '/') + '.png)',
+	              backgroundRepeat: 'no-repeat',
+	              backgroundPosition: 'center',
+	              backgroundSize: 'contain'
+	            } },
+	          React.createElement(
 	            'div',
-	            { style: {
-	                    position: 'absolute',
-	                    top: 0,
-	                    left: 0,
-	                    zIndex: 0,
-	                    width: '100%',
-	                    height: '100%',
-	                    backgroundColor: 'lightblue'
-	                } },
+	            {
+	              key: b.id + "_info",
+	              style: {
+	                position: 'absolute',
+	                bottom: 0,
+	                width: '100%'
+	              } },
 	            React.createElement(
-	                'div',
-	                { style: {
-	                        position: 'relative',
-	                        top: '50%',
-	                        left: '50%'
-	                    } },
-	                buildings
+	              'div',
+	              {
+	                key: b.id + "_name",
+	                style: {
+	                  'marginRight': 'auto',
+	                  'marginLeft': 'auto'
+	                } },
+	              b.name
+	            ),
+	            React.createElement(
+	              'div',
+	              {
+	                key: b.id + "_status",
+	                style: {
+	                  'marginRight': 'auto',
+	                  'marginLeft': 'auto'
+	                } },
+	              b.getStatus()
 	            )
-	        );
-	    }
+	          )
+	        ),
+	        b.getStoredResources() && React.createElement(
+	          'div',
+	          {
+	            key: b.id + "_collect",
+	            style: {
+	              position: 'absolute',
+	              top: 0,
+	              left: 0,
+	              width: kCellWidth,
+	              height: kCellWidth / 2,
+	              zIndex: 1
+	            } },
+	          React.createElement(
+	            'a',
+	            {
+	              href: '#',
+	              onClick: function onClick() {
+	                return b.canCollectResources(player) ? collectFromBuilding(b) : null;
+	              },
+	              style: {
+	                position: 'default',
+	                opacity: b.canCollectResources(player) ? 1 : 0.3
+	              } },
+	            b.getStoredResources().map(function (r) {
+	              return React.createElement(
+	                'collect',
+	                null,
+	                (0, _ResourceIconComponent.ResourceIcon)(r.type)
+	              );
+	            })
+	          )
+	        )
+	      );
+	    });
+	    return React.createElement(
+	      'div',
+	      {
+	        style: {
+	          position: 'absolute',
+	          top: 0,
+	          left: 0,
+	          zIndex: 0,
+	          width: '100%',
+	          height: '100%',
+	          backgroundColor: 'lightblue'
+	        } },
+	      React.createElement(
+	        'div',
+	        {
+	          style: {
+	            position: 'relative',
+	            top: '50%',
+	            left: '50%'
+	          } },
+	        buildings
+	      )
+	    );
+	  }
 	});
 	
 	exports.default = CityDisplay;
 
 /***/ }),
-/* 180 */
+/* 210 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	var GameController = __webpack_require__(164).default;
-	var GameModule = __webpack_require__(174).default;
+	var GameModule = __webpack_require__(203).default;
 	
-	var CityPlayerJS = __webpack_require__(166);
-	var BuildingJS = __webpack_require__(172);
-	var CityResourceJS = __webpack_require__(170);
+	var CityPlayerJS = __webpack_require__(173);
+	var BuildingJS = __webpack_require__(171);
+	var CityResourceJS = __webpack_require__(169);
 	
 	var PlayerEarnResourceEffect = CityPlayerJS.PlayerEarnResourceEffect;
 	var CityPlayer = CityPlayerJS.CityPlayer;
@@ -22027,15 +24021,14 @@
 	
 	var controller = GameController.instance;
 	
-	controller.installCompletedBuilding(GameModule.kCityHall.id);
-	controller.installCompletedBuilding(GameModule.kGoldMine.id);
-	controller.installCompletedBuilding(GameModule.kLumberMill.id);
+	controller.installCompletedBuilding(GameModule.kBananaTree.id);
+	controller.planBuilding(GameModule.kBananaField.id);
 	
 	var demoData = controller.player;
 	module.exports = demoData;
 
 /***/ }),
-/* 181 */
+/* 211 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -22067,7 +24060,7 @@
 	module.exports = localStorageHandler;
 
 /***/ }),
-/* 182 */
+/* 212 */
 /***/ (function(module, exports) {
 
 	"use strict";

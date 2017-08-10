@@ -4,11 +4,8 @@ const MutableObject = require("../lib/city/utils/Utils.js").MutableObject;
 
 const City = require('../lib/city/City.js').default;
 
-const CityResource = require('../lib/city/CityResource.js').CityResource;
-
-const BuildingJS = require('../lib/city/Building.js');
-const Building = BuildingJS.Building;
-
+import {CityResource, UnavailableActionError} from '../lib/city/CityResource.js';
+import {Building} from '../lib/city/Building.js';
 import {CityPlayer, PlayerEarnResourceEffect, BuildingStoreResourceEffect} from '../lib/city/CityPlayer.js';
 
 const kGold = 'gold';
@@ -88,7 +85,7 @@ describe('Buildings Effects', () => {
     assert.include(plannedBuilding.effects[0].toString(), 'Producing');
   });
 
-  it('pause granting when limit is met', () => {
+  it('pause granting when capacity is full', () => {
     let mult = 10;
     let player = new CityPlayer({
       initialCapacity: {
@@ -111,7 +108,7 @@ describe('Buildings Effects', () => {
     assert.equal(effect.blocked, true);
   });
 
-  it('pause storing while', () => {
+  it('pause production while storage is full', () => {
     let mult = 10;
     let player = new CityPlayer({
       initialCapacity: {
@@ -139,5 +136,28 @@ describe('Buildings Effects', () => {
 
     /* Still blocked – Player cannot earn more */
     assert.equal(effect.blocked, false);
+  });
+
+  it('cannot be collected if capacity is full', () => {
+    let mult = 10;
+    let player = new CityPlayer({
+      initialCapacity: {
+        [kGold]: amount
+      }
+    });
+    player
+      .city
+      .planBuilding({building: storingBuilding});
+    const plannedBuilding = Object.values(player.city.buildings)[0];
+
+    /* It can collect */
+    player.updateTime(time + 1);
+    assert.equal(true, plannedBuilding.canCollectResources(player));
+    plannedBuilding.collectResources(player);
+
+    /* It should not be able to collect */
+    player.updateTime(time + 1);
+    assert.equal(false, plannedBuilding.canCollectResources(player));
+    assert.throw(() => plannedBuilding.collectResources(player), Error);
   });
 });
