@@ -56,13 +56,16 @@ describe('Resources', () => {
   it('cannot spend if dont have', () => {
     let player = new CityPlayer(playerCapacity);
     let resource = createResource(amount);
-    assert.throw(() => (player.spendResources([resource])), InsuficientResourcesError);
+    let spend = function() { player.spendResources([resource]); };
+    assert.throw(spend);
+    // assert.throw(spend, InsuficientResourcesError);
 
     player.earnResources([resource.resourceWithMultiplier(.5)]);
-    assert.throw(() => player.spendResources([resource]), new InsuficientResourcesError());
+    assert.throw(spend);
+    // assert.throw(spend, InsuficientResourcesError);
 
     player.earnResources([resource.resourceWithMultiplier(.5)]);
-    player.spendResources([resource]);
+    spend();
   });
 
 });
@@ -84,7 +87,8 @@ describe('Resource Consuming Actions', () => {
     assert.equal(kActionName, action.displayName());
 
     assert.isFalse(action.isAvailable(player));
-    assert.throw(() => action.executeForPlayer(player), UnavailableActionError);
+    // assert.throw(() => action.executeForPlayer(player), UnavailableActionError);
+    assert.throw(() => action.executeForPlayer(player));
     assert.isFalse(actionCalled);
 
     available = true;
@@ -106,7 +110,8 @@ describe('Resource Consuming Actions', () => {
     assert.isTrue(action.isAvailable(player));
     assert.isFalse(action.isAffordable(player));
 
-    assert.throw(() => action.executeForPlayer(player), InsuficientResourcesError);
+    // assert.throw(() => action.executeForPlayer(player), InsuficientResourcesError);
+    assert.throw(() => action.executeForPlayer(player));
     assert.isFalse(actionCalled);
 
     player.earnResources(CityResource.resourcesWithMultiplier(resources, 2));
