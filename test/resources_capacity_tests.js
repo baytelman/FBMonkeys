@@ -1,5 +1,5 @@
 import {assert} from 'chai'
-import {CityResource, ResourceConsumingAction, InsuficientResourcesError, UnavailableActionError} from '../lib/city/CityResource';
+import {CityResource} from '../lib/city/CityResource';
 import {Building} from '../lib/city/Building';
 import {CityPlayer, CapacityGrantingEffect} from '../lib/city/CityPlayer';
 

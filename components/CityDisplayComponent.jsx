@@ -125,14 +125,15 @@ var CityDisplay = React.createClass({
             }}>
               <a
                 href="#"
-                onClick={() => collectFromBuilding(b)}
+                onClick={() => b.canCollectResources(player) ? collectFromBuilding(b) : null }
                 style={{
                   position: 'default',
-              }}>
-                
+              }}>                
                 {b
                   .getStoredResources()
-                  .map(r => <collect>{ResourceIcon(r.type)}</collect>)
+                  .map(r => <collect style={{
+                    opacity: b.canCollectResources(player) ? 1 : 0.75,
+                  }}>{ResourceIcon(r.type)}</collect>)
                 }
               </a>
             </div>
