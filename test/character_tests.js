@@ -66,18 +66,18 @@ describe('Player\'s Characters', () => {
     char1.tasks = [task1, task2];
     player.updateTime(1);
 
-    assert.equal(char1.activeTask, task1);
+    assert.equal(char1.activeTask.originalId, task1.id);
     player.updateTime(time);
 
     assert.isTrue(player.canAfford([gold(amount)]));
     assert.isFalse(player.canAfford([gold(2 * amount)]));
 
-    assert.equal(char1.activeTask, task1);
+    assert.equal(char1.activeTask.originalId, task1.id);
     player.updateTime(time);
 
     assert.isTrue(player.canAfford([gold(2 * amount)]));
     assert.isFalse(player.canAfford([wood(amount)]));
-    assert.equal(char1.activeTask, task2);
+    assert.equal(char1.activeTask.originalId, task2.id);
     player.updateTime(time);
     assert.isTrue(player.canAfford([wood(amount)]));
     assert.isFalse(player.canAfford([gold(3 * amount)]));
@@ -119,7 +119,7 @@ describe('Player\'s Characters', () => {
     /* Building finished production, picking up */
     player.updateTime(time);
     assert.isNotFalse(plannedBuilding.getStoredResources());
-    assert.equal(char1.activeTask, collectTask);
+    assert.equal(char1.activeTask.originalId, collectTask.id);
 
     /* Finished picking up */
     player.updateTime(time);
