@@ -2,11 +2,11 @@ const assert = require('chai').assert;
 
 const BuildingJS = require('../lib/city/Building.js');
 const Building = BuildingJS.Building;
+const BuildingStoreResourceEffect = BuildingJS.BuildingStoreResourceEffect;
 const CitySerializer = require("../lib/city/CitySerializer.js").default;
 
 const CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
 const PlayerEarnResourceEffect = require('../lib/city/CityPlayer.js').PlayerEarnResourceEffect;
-const BuildingStoreResourceEffect = require('../lib/city/CityPlayer.js').BuildingStoreResourceEffect;
 
 const CityResource = require('../lib/city/CityResource.js').CityResource;
 const City = require('../lib/city/City.js').default;

@@ -5,8 +5,8 @@ const MutableObject = require("../lib/city/utils/Utils.js").MutableObject;
 const City = require('../lib/city/City.js').default;
 
 import {CityResource, UnavailableActionError} from '../lib/city/CityResource.js';
-import {Building} from '../lib/city/Building.js';
-import {CityPlayer, PlayerEarnResourceEffect, BuildingStoreResourceEffect} from '../lib/city/CityPlayer.js';
+import {Building, BuildingStoreResourceEffect} from '../lib/city/Building.js';
+import {CityPlayer, PlayerEarnResourceEffect} from '../lib/city/CityPlayer.js';
 
 const kGold = 'gold';
 const gold = (amount) => new CityResource(kGold, amount);
