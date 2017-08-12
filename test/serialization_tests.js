@@ -5,12 +5,14 @@ import CitySerializer from "../lib/city/CitySerializer.js";
 
 import {CityPlayer} from '../lib/city/CityPlayer.js';
 import {PlayerEarnResourceEffect} from '../lib/city/CityPlayer.js';
-
 import {CityResource} from '../lib/city/CityResource.js';
+import {CityCharacter} from '../lib/city/CityCharacter.js';
 import City from '../lib/city/City.js';
 
 const kGold = 'gold';
 const gold = (amount) => new CityResource(kGold, amount);
+const kCharacter = 'character';
+const character = (amount) => new CityResource(kCharacter, amount);
 
 describe('Serialization', () => {
   let time = 10;
@@ -26,17 +28,25 @@ describe('Serialization', () => {
       time: totalTime,
       effects: [
         new PlayerEarnResourceEffect({resources: resources, frequency: time}),
-        new PlayerEarnResourceEffect({resources: resources, frequency: time}),
         new BuildingStoreResourceEffect({resources: resources, frequency: time})
       ]
     });
 
-    let player = new CityPlayer();
+    let player = new CityPlayer({
+      characterFactories: {
+        kCharacter: new CityCharacter({
+          name: 'Character',
+          tasks: [new CollectBuildingResourcesEffect({frequency: time})]
+        })
+      }
+    });
     player
       .city
       .planBuilding({building: building});
+    player.earnResources([character(1)]);
 
     let updates = player.updateTime(time);
+
     let b = Object.values(player.city.buildings)[0];
     assert.closeTo(b.progress(), 0.1, 0.01);
 
