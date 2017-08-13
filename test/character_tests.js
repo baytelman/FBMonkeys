@@ -127,4 +127,47 @@ describe('Player\'s Characters', () => {
     assert.isFalse(plannedBuilding.getStoredResources());
     assert.isTrue(player.canAfford(resources));
   });
+
+  it('only one character collects from the same building', () => {
+    let player = new CityPlayer({
+      initialCapacity: {
+        [kCharacter]: 3,
+        [kGold]: 1000
+      },
+      characterFactories: {
+        [kCharacter]: () => new CityCharacter({name: charName})
+      }
+    });
+    let resource = gold(amount);
+    let resources = [resource];
+
+    let storingBuilding = new Building({
+      effects: [new BuildingStoreResourceEffect({resources: resources, frequency: time})]
+    });
+    player
+      .city
+      .planBuilding({building: storingBuilding});
+    const plannedBuilding = Object.values(player.city.buildings)[0];
+
+    player.earnResources([character(2)]);
+    player.updateTime(1);
+    const char1 = Object.values(player.city.characters)[0];
+    const char2 = Object.values(player.city.characters)[1];
+
+    const collectTask = new CollectBuildingResourcesEffect({frequency: time});
+    char1.tasks = [collectTask];
+    char2.tasks = [collectTask];
+    player.updateTime(1);
+
+    /* Nothing to pickup */
+    assert.isNull(char1.activeTask);
+    assert.isNull(char2.activeTask);
+    assert.isFalse(plannedBuilding.getStoredResources());
+
+    /* Building finished production, picking up */
+    player.updateTime(time);
+    assert.isNotFalse(plannedBuilding.getStoredResources());
+    assert.equal(char1.activeTask.originalId, collectTask.id);
+    assert.isNull(char2.activeTask);
+  });
 });

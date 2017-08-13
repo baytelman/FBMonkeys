@@ -3,6 +3,7 @@ const assert = require('chai').assert
 const MutableObject = require("../lib/city/utils/Utils.js").MutableObject;
 
 const City = require('../lib/city/City.js').default;
+import CityEvent from '../lib/city/CityEvent';
 
 import {CityResource, UnavailableActionError} from '../lib/city/CityResource.js';
 import {Building, BuildingStoreResourceEffect} from '../lib/city/Building.js';
@@ -158,6 +159,6 @@ describe('Buildings Effects', () => {
     /* It should not be able to collect */
     player.updateTime(time + 1);
     assert.equal(false, plannedBuilding.canCollectResources(player));
-    assert.throw(() => plannedBuilding.collectResources(player), Error);
+    assert.equal(plannedBuilding.collectResources(player).type, CityEvent.kActionAbortedEvent);
   });
 });
