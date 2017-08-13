@@ -1,99 +1,110 @@
-const assert = require('chai').assert;
+import {assert} from 'chai';
 
-const BuildingJS = require('../lib/city/Building.js');
-const Building = BuildingJS.Building;
-const CitySerializer = require("../lib/city/CitySerializer.js").default;
+import {Building, BuildingStoreResourceEffect, CollectBuildingResourcesEffect} from '../lib/city/Building.js';
+import CitySerializer from "../lib/city/CitySerializer.js";
 
-const CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
-const PlayerEarnResourceEffect = require('../lib/city/CityPlayer.js').PlayerEarnResourceEffect;
-const BuildingStoreResourceEffect = require('../lib/city/CityPlayer.js').BuildingStoreResourceEffect;
-
-const CityResource = require('../lib/city/CityResource.js').CityResource;
-const City = require('../lib/city/City.js').default;
+import {CityPlayer} from '../lib/city/CityPlayer.js';
+import {PlayerEarnResourceEffect} from '../lib/city/CityPlayer.js';
+import {CityResource} from '../lib/city/CityResource.js';
+import {CityCharacter} from '../lib/city/CityCharacter.js';
+import City from '../lib/city/City.js';
 
 const kGold = 'gold';
 const gold = (amount) => new CityResource(kGold, amount);
+const kCharacter = 'character';
+const character = (amount) => new CityResource(kCharacter, amount);
 
 describe('Serialization', () => {
-	let time = 10;
-	let totalTime = 100;
-	
-	const amount = 100;
-	let resource = gold(amount);
-	let resources = [resource];
-	
-	it('Deserialized player continues building', () => {
-		let construction = 10;
-		let building = new Building({
-			time: totalTime,
-			effects: [
-				new PlayerEarnResourceEffect({resources: resources, frequency: time}),
-				new BuildingStoreResourceEffect({resources: resources, frequency: time})
-			]
-		});
-		
-		let player = new CityPlayer();
-		player.city.planBuilding({
-			building: building
-		});
-		
-		let updates = player.updateTime(time);
-		let b = Object.values(player.city.buildings)[0];
-		assert.closeTo(b.progress(), 0.1, 0.01);
-		
-		let json = CitySerializer.serialize(player);
-		assert.include(json, player.id);
-		player = CitySerializer.deserialize(json);
-		
-		updates = player.updateTime(time);
-		assert.isTrue(updates.length > 0);
-		b = Object.values(player.city.buildings)[0];
-		assert.closeTo(b.progress(), 0.2, 0.01);
-	});
-	
-	it('Can deserialize recursive references', () => {
-		let b = {
-			id: 'b',
-			name: 'nameB',
-		};
-		let c = {
-			id: 'c',
-			name: 'nameC',
-		};
-		let a = {
-			id: 'a',
-			name: 'nameA',
-			children: [b, c],
-			favoriteChild: b,
-		};
-		b.myself = b;
-		b.mom = a;
-		c.friend = a;
-		
-		let json = CitySerializer.serialize(a);
-		let deserializedA = CitySerializer.deserialize(json);
-		
-		assert.equal('nameA', a.children[0].myself.mom.name);
-		assert.equal('nameA', a.children[1].friend.name);
-		
-		var countA = (json.match(/nameA/g) || []).length;
-		var countB = (json.match(/nameB/g) || []).length;
-		var countC = (json.match(/nameC/g) || []).length;
-		
-		assert.equal(1, countA);
-		assert.equal(1, countB);
-		assert.equal(1, countC);
-	});
-	
-	it('Cannot deserialize unknown class', () => {
-		class UnknownClass {
-			constructor() {
-				this.name = 'unknownClass';
-				this.id = 123;
-			}
-		}
-		
-		let json = CitySerializer.serialize(new UnknownClass());
-		assert.throw(()=>CitySerializer.deserialize(json), Error);
-	});
+  let time = 10;
+  let totalTime = 100;
+
+  const amount = 100;
+  let resource = gold(amount);
+  let resources = [resource];
+
+  it('Deserialized player continues building', () => {
+    let construction = 10;
+    let building = new Building({
+      time: totalTime,
+      effects: [
+        new PlayerEarnResourceEffect({resources: resources, frequency: time}),
+        new BuildingStoreResourceEffect({resources: resources, frequency: time})
+      ]
+    });
+
+    let player = new CityPlayer({
+      characterFactories: {
+        kCharacter: new CityCharacter({
+          name: 'Character',
+          tasks: [new CollectBuildingResourcesEffect({frequency: time})]
+        })
+      }
+    });
+    player
+      .city
+      .planBuilding({building: building});
+    player.earnResources([character(1)]);
+
+    let updates = player.updateTime(time);
+
+    let b = Object.values(player.city.buildings)[0];
+    assert.closeTo(b.progress(), 0.1, 0.01);
+
+    let json = CitySerializer.serialize(player);
+    assert.include(json, player.id);
+    player = CitySerializer.deserialize(json);
+
+    updates = player.updateTime(time);
+    assert.isTrue(updates.length > 0);
+    b = Object.values(player.city.buildings)[0];
+    assert.closeTo(b.progress(), 0.2, 0.01);
+  });
+
+  it('Can deserialize recursive references', () => {
+    let b = {
+      id: 'b',
+      name: 'nameB'
+    };
+    let c = {
+      id: 'c',
+      name: 'nameC'
+    };
+    let a = {
+      id: 'a',
+      name: 'nameA',
+      children: [
+        b, c
+      ],
+      favoriteChild: b
+    };
+    b.myself = b;
+    b.mom = a;
+    c.friend = a;
+
+    let json = CitySerializer.serialize(a);
+    let deserializedA = CitySerializer.deserialize(json);
+
+    assert.equal('nameA', a.children[0].myself.mom.name);
+    assert.equal('nameA', a.children[1].friend.name);
+
+    var countA = (json.match(/nameA/g) || []).length;
+    var countB = (json.match(/nameB/g) || []).length;
+    var countC = (json.match(/nameC/g) || []).length;
+
+    assert.equal(1, countA);
+    assert.equal(1, countB);
+    assert.equal(1, countC);
+  });
+
+  it('Cannot deserialize unknown class', () => {
+    class UnknownClass {
+      constructor() {
+        this.name = 'unknownClass';
+        this.id = 123;
+      }
+    }
+
+    let json = CitySerializer.serialize(new UnknownClass());
+    assert.throw(() => CitySerializer.deserialize(json), Error);
+  });
 });
