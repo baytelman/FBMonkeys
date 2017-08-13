@@ -16,6 +16,7 @@ var CharacterDisplay = React.createClass({
             <div>
               {ResourceIcon('monkey')}
               {character.name}
+              {character.activeTask ? " will " + character.activeTask.getDescription() : null }
             </div>
           ))
 }
