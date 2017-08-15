@@ -15,7 +15,7 @@ var ResourceDisplay = React.createClass({
           {resources.map((resource) => (resource.amount && <ResourceSummary
             key={resource.id}
             resource={resource}
-            max={capacity[resource.type]}/>))}
+            max={capacity[resource.namespace]}/>))}
         </resources>
       </div>
     );

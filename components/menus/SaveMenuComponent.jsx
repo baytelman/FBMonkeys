@@ -12,7 +12,7 @@ var SaveMenu = React.createClass({
   },
   load: function() {
     let json = window.localStorage.getItem(STORAGE_KEY);
-		let player = CitySerializer.deserialize(json);
+    let player = CitySerializer.deserialize(json);
     GameController.instance.loadPlayer(player);
   },
   speedUp: function() {
