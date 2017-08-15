@@ -3,12 +3,36 @@ import {CityResource} from '../lib/city/CityResource';
 import {Building, BuildingConstructionAction} from '../lib/city/Building';
 import {CityPlayer} from '../lib/city/CityPlayer';
 
-const gold = (amount) => new CityResource('gold', amount);
+const kGold = 'gold';
+const gold = (amount) => new CityResource(kGold, amount);
 
 describe('Buildings Dependencies', () => {
   let resource = gold(100);
 
-  it('can become available', () => {
+  it('can be resources', () => {
+    let resources = [resource];
+    let time = 10;
+    let building = new Building({
+      requirements: [[kGold, 5]]
+    });
+    let player = new CityPlayer({
+      initialCapacity: {
+        [kGold]: 100
+      }
+    });
+
+    let action = new BuildingConstructionAction({building: building});
+    player.updateTime(1);
+    assert.isFalse(action.isAvailable(player));
+
+    player.earnResources([gold(1)]);
+    assert.isFalse(action.isAvailable(player));
+
+    player.earnResources([gold(5)]);
+    assert.isTrue(action.isAvailable(player));
+  });
+
+  it('can be buildings', () => {
     let resources = [resource];
     let time = 10;
     let building1 = new Building();
