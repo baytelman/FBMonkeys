@@ -10,7 +10,7 @@ describe('Game Controller', () => {
     let controller = new GameController();
     controller.startNewGame();
     let fieldEvent = controller.planBuilding(GameModule.kBananaField.id);
-    let caveEvents = controller.installCompletedBuilding(GameModule.kCave.id);
+    let caveEvents = controller.installCompletedBuilding(GameModule.kCabin.id);
     
     let field = controller.player.city.buildings[fieldEvent.object.id];
     let cave = controller.player.city.buildings[caveEvents[0].object.id];
