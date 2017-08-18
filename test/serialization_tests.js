@@ -27,17 +27,19 @@ describe('Serialization', () => {
     let building = new Building({
       time: totalTime,
       effects: [
-        new PlayerEarnResourceEffect({resources: resources, frequency: time}),
-        new BuildingStoreResourceEffect({resources: resources, frequency: time})
+        new PlayerEarnResourceEffect({resources: resources, period: time}),
+        new BuildingStoreResourceEffect({resources: resources, period: time})
       ]
     });
 
     let player = new CityPlayer({
       characterFactories: {
-        kCharacter: new CityCharacter({
-          name: 'Character',
-          tasks: [new CollectBuildingResourcesEffect({frequency: time})]
-        })
+        [kCharacter]: {
+          factory: () => new CityCharacter({
+            name: 'Character',
+            tasks: [new CollectBuildingResourcesEffect({period: time})]
+          })
+        }
       }
     });
     player

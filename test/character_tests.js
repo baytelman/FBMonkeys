@@ -6,7 +6,8 @@ import City from '../lib/city/City.js';
 import {CityResource} from '../lib/city/CityResource.js';
 import {Building, CollectBuildingResourcesEffect, BuildingStoreResourceEffect} from '../lib/city/Building.js';
 import {CityPlayer, PlayerEarnResourceEffect } from '../lib/city/CityPlayer.js';
-import {CityCharacter} from '../lib/city/CityCharacter.js';
+import {CityCharacter, CharacterConsumeResourceOrGetsRemovedEffect } from '../lib/city/CityCharacter.js';
+import CityEvent from '../lib/city/CityEvent.js'
 
 const kCharacter = 'character';
 const character = (amount) => new CityResource(kCharacter, amount);
@@ -29,7 +30,9 @@ describe('Player\'s Characters', () => {
       [kWood]: amount * 10
     },
     characterFactories: {
-      [kCharacter]: () => new CityCharacter({name: charName})
+      [kCharacter]: {
+        factory: () => new CityCharacter({name: charName})
+      }
     }
   });
 
@@ -47,6 +50,46 @@ describe('Player\'s Characters', () => {
     assert.equal(charName, char2.name);
   });
 
+  it('Have requirements', () => {
+    const kCharGold = 'goldChar';
+    const kCharWood = 'woodChar';
+
+    let player = new CityPlayer({
+      initialCapacity: {
+        [kCharGold]: 3,
+        [kCharWood]: 3,
+        [kGold]: amount * 10,
+        [kWood]: amount * 10
+      },
+      characterFactories: {
+        [kCharGold]: {
+          requirements: [
+            [kGold, amount]
+          ],
+          factory: () => new CityCharacter({name: kCharGold})
+        },
+        [kCharWood]: {
+          requirements: [
+            [kWood, amount]
+          ],
+          factory: () => new CityCharacter({name: kCharWood})
+        }
+      }
+    })
+
+    /* Character earned the right to 3 characters of each type */
+    player.earnResources([new CityResource(kCharGold, 3)]);
+    player.earnResources([new CityResource(kCharWood, 3)]);
+    /* Only gold characters suffice their requirement */
+    let number = 2;
+    player.earnResources([new CityResource(kGold, amount * number)]);
+    player.updateTime(1);
+
+    let characters = Object.values(player.city.characters);
+    assert.equal(number, characters.length);
+    assert.isTrue(characters.every(c => c.name == kCharGold));
+  });
+
   it('Can be assigned tasks, rotate as completed', () => {
     const player = newPlayer();
     player.earnResources([character(2)]);
@@ -56,11 +99,11 @@ describe('Player\'s Characters', () => {
 
     const task1 = new PlayerEarnResourceEffect({
       resources: [gold(amount)],
-      frequency: time
+      period: time
     });
     const task2 = new PlayerEarnResourceEffect({
       resources: [wood(amount)],
-      frequency: time
+      period: time
     });
 
     char1.tasks = [task1, task2];
@@ -77,6 +120,7 @@ describe('Player\'s Characters', () => {
 
     assert.isTrue(player.canAfford([gold(2 * amount)]));
     assert.isFalse(player.canAfford([wood(amount)]));
+    assert.isNotNull(char1.activeTask);
     assert.equal(char1.activeTask.originalId, task2.id);
     player.updateTime(time);
     assert.isTrue(player.canAfford([wood(amount)]));
@@ -90,14 +134,16 @@ describe('Player\'s Characters', () => {
         [kGold]: 1000
       },
       characterFactories: {
-        [kCharacter]: () => new CityCharacter({name: charName})
+        [kCharacter]: {
+          factory: () => new CityCharacter({name: charName})
+        }
       }
     });
     let resource = gold(amount);
     let resources = [resource];
 
     let storingBuilding = new Building({
-      effects: [new BuildingStoreResourceEffect({resources: resources, frequency: time})]
+      effects: [new BuildingStoreResourceEffect({resources: resources, period: time})]
     });
     player
       .city
@@ -108,7 +154,7 @@ describe('Player\'s Characters', () => {
     player.updateTime(1);
     const char1 = Object.values(player.city.characters)[0];
 
-    const collectTask = new CollectBuildingResourcesEffect({frequency: time});
+    const collectTask = new CollectBuildingResourcesEffect({period: time});
     char1.tasks = [collectTask];
     player.updateTime(1);
 
@@ -135,14 +181,16 @@ describe('Player\'s Characters', () => {
         [kGold]: 1000
       },
       characterFactories: {
-        [kCharacter]: () => new CityCharacter({name: charName})
+        [kCharacter]: {
+          factory: () => new CityCharacter({name: charName})
+        }
       }
     });
     let resource = gold(amount);
     let resources = [resource];
 
     let storingBuilding = new Building({
-      effects: [new BuildingStoreResourceEffect({resources: resources, frequency: time})]
+      effects: [new BuildingStoreResourceEffect({resources: resources, period: time})]
     });
     player
       .city
@@ -154,7 +202,7 @@ describe('Player\'s Characters', () => {
     const char1 = Object.values(player.city.characters)[0];
     const char2 = Object.values(player.city.characters)[1];
 
-    const collectTask = new CollectBuildingResourcesEffect({frequency: time});
+    const collectTask = new CollectBuildingResourcesEffect({period: time});
     char1.tasks = [collectTask];
     char2.tasks = [collectTask];
     player.updateTime(1);
@@ -170,4 +218,83 @@ describe('Player\'s Characters', () => {
     assert.equal(char1.activeTask.originalId, collectTask.id);
     assert.isNull(char2.activeTask);
   });
+
+  it('Can consume resources', () => {
+    const initialAmount = 5;
+    const amountNeeded = 1;
+    const period = 3;
+    const characters = 2;
+
+    const player = new CityPlayer({
+      initialCapacity: {
+        [kCharacter]: characters,
+        [kGold]: initialAmount
+      },
+      characterFactories: {
+        [kCharacter]: {
+          factory: () => new CityCharacter({
+            name: charName,
+            effects: [new CharacterConsumeResourceOrGetsRemovedEffect({
+                resources: [gold(amountNeeded)],
+                period: period
+              })]
+          })
+        }
+      }
+    });
+
+    player.earnResources([gold(initialAmount), character(characters)]);
+    player.updateTime(1);
+    assert.equal(characters, Object.values(player.city.characters).length);
+
+    let events1 = player.updateTime(period);
+    assert.equal(characters, events1.length);
+    assert.isTrue(events1.every(e => e.type == CityEvent.kSpendResourceEvent));
+
+    assert.equal(player.getResourceAmountForType(kGold), initialAmount - characters * amountNeeded);
+  });
+
+  it('Can die', () => {
+    const amountNeeded = 1;
+    const period = 3;
+    const times = 5;
+
+    const player = new CityPlayer({
+      initialCapacity: {
+        [kCharacter]: 1,
+        [kGold]: amountNeeded * times
+      },
+      characterFactories: {
+        [kCharacter]: {
+          requirements: [
+            [kGold, amountNeeded]
+          ],
+          factory: () => new CityCharacter({
+            name: charName,
+            effects: [new CharacterConsumeResourceOrGetsRemovedEffect({
+                resources: [gold(amountNeeded)],
+                period: period
+              })]
+          })
+        }
+      }
+    });
+
+    player.earnResources([
+      gold(amountNeeded * times),
+      character(1)
+    ]);
+    player.updateTime(1);
+
+    let events1 = player.updateTime(period * times);
+    assert.equal(times, events1.length);
+    assert.isTrue(events1.every(e => e.type == CityEvent.kSpendResourceEvent));
+    assert.equal(player.getResourceAmountForType(kGold), 0);
+
+    let events2 = player.updateTime(period);
+    assert.equal(1, events2.length);
+    assert.equal(events2[0].type, CityEvent.kCharacterRemovedEvent);
+    assert.equal(0, Object.values(player.city.characters).length);
+  });
+
 });
