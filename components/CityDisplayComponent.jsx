@@ -133,7 +133,7 @@ var CityDisplay = React.createClass({
                   .getStoredResources()
                   .map(r => <collect style={{
                     opacity: b.canCollectResources(player) ? 1 : 0.75,
-                  }}>{ResourceIcon(r.type)}</collect>)
+                  }}>{ResourceIcon(r.namespace)}</collect>)
                 }
               </a>
             </div>

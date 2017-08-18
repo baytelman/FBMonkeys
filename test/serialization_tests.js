@@ -27,17 +27,21 @@ describe('Serialization', () => {
     let building = new Building({
       time: totalTime,
       effects: [
-        new PlayerEarnResourceEffect({resources: resources, frequency: time}),
-        new BuildingStoreResourceEffect({resources: resources, frequency: time})
+        new PlayerEarnResourceEffect({resources: resources, period: time}),
+        new BuildingStoreResourceEffect({resources: resources, period: time})
       ]
     });
 
     let player = new CityPlayer({
+      seasonPeriod: 1,
+      seasonAffectedResource: kGold,
       characterFactories: {
-        kCharacter: new CityCharacter({
-          name: 'Character',
-          tasks: [new CollectBuildingResourcesEffect({frequency: time})]
-        })
+        [kCharacter]: {
+          factory: () => new CityCharacter({
+            name: 'Character',
+            tasks: [new CollectBuildingResourcesEffect({period: time})]
+          })
+        }
       }
     });
     player
@@ -58,6 +62,8 @@ describe('Serialization', () => {
     assert.isTrue(updates.length > 0);
     b = Object.values(player.city.buildings)[0];
     assert.closeTo(b.progress(), 0.2, 0.01);
+
+    updates = player.updateTime(time);
   });
 
   it('Can deserialize recursive references', () => {

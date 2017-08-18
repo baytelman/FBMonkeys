@@ -10,7 +10,7 @@ var CharacterDisplay = React.createClass({
     let characters = Object.values(this.props.player.city.characters);
     return (
       <div id='character-display' className='hud-window'>
-        <span>Characters</span>
+        <b>Characters</b>
         <characters className='characters'>
           {characters.map((character) => (
             <div>

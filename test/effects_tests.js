@@ -9,7 +9,7 @@ const CityEvent = require('../lib/city/CityEvent.js').default;
 describe('Frequency Effects', () => {
     it('require to send events', () => {
         const kTime = 2;
-        const event = new FrequencyEffect({frequency: kTime});
+        const event = new FrequencyEffect({period: kTime});
         const parents = [];
         event.updateTime(kTime/2, parents);
         
@@ -29,7 +29,7 @@ describe('Frequency Effects', () => {
         }
 
         const kTime = 2;
-        const event = new MyFrequencyEffect({frequency: kTime});
+        const event = new MyFrequencyEffect({period: kTime});
 
         const salute = "hello";
         const parents = { salutation: salute, time: 0 };
