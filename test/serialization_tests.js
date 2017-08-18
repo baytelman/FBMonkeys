@@ -34,10 +34,12 @@ describe('Serialization', () => {
 
     let player = new CityPlayer({
       characterFactories: {
-        kCharacter: new CityCharacter({
-          name: 'Character',
-          tasks: [new CollectBuildingResourcesEffect({frequency: time})]
-        })
+        [kCharacter]: {
+          factory: () => new CityCharacter({
+            name: 'Character',
+            tasks: [new CollectBuildingResourcesEffect({frequency: time})]
+          })
+        }
       }
     });
     player
