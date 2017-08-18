@@ -20,8 +20,13 @@ var BuildMenu = React.createClass({
         }
         const costs = action.costs(controller.player);
         const costsDescription = costs.length > 0 && "Cost:\n" + costs.map((c) => "[" + c.toString() + "]").join(" + ");
-        const effectsDescription = building.effects.length > 0 && building.effects.map((c) => "- " + c.getDescription()).join("\n");
-        const title = costsDescription + (effectsDescription ? ("\n⋯\nEffects:\n" + effectsDescription) : '');
+        const effectsDescription = building.effects.length > 0 && building
+          .effects
+          .map((c) => "- " + c.getDescription())
+          .join("\n");
+        const title = costsDescription + (effectsDescription
+          ? ("\n⋯\nEffects:\n" + effectsDescription)
+          : '');
 
         return (
           <button
@@ -29,7 +34,7 @@ var BuildMenu = React.createClass({
             disabled={!action.isAffordable(controller.player)}
             className='build-entity'
             onClick={addBuilding}
-            title={ title }>
+            title={title}>
             {building.name}
           </button>
         );
@@ -37,11 +42,10 @@ var BuildMenu = React.createClass({
 
     return (
       <div id='build-menu'>
-        <ul>
-          <li>
-            {buildingComponents}
-          </li>
-        </ul>
+        <b>Build</b>
+        <div>
+        {buildingComponents}
+        </div>
       </div>
     )
   }

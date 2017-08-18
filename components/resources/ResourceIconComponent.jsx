@@ -1,6 +1,6 @@
 const React = require('react');
 
-export const ResourceIcon = (type) => (<div className={'resource-icon ' + type.toLowerCase()}></div>);
+export const ResourceIcon = (namespace) => (<div className={'resource-icon ' + namespace.toLowerCase()}></div>);
 
 var ResourceSummaryComponent = React.createClass({
   getInitialState: function () {
@@ -17,7 +17,7 @@ var ResourceSummaryComponent = React.createClass({
         <amount className='resource-amount'>{amount}</amount>
         /
         <amount className='max-amount'>{max}</amount>
-        { ResourceIcon(this.props.resource.type) }
+        { ResourceIcon(this.props.resource.namespace) }
       </resource>
     );
   }

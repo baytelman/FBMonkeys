@@ -10,12 +10,12 @@ var ResourceDisplay = React.createClass({
     let resources = Object.values(this.props.player.resources);
     return (
       <div id='resource-display' className='hud-window'>
-        <span>Resources</span>
+        <b>Resources</b>
         <resources className='resources'>
           {resources.map((resource) => (resource.amount && <ResourceSummary
             key={resource.id}
             resource={resource}
-            max={capacity[resource.type]}/>))}
+            max={capacity[resource.namespace]}/>))}
         </resources>
       </div>
     );
