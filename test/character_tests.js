@@ -5,8 +5,8 @@ import {MutableObject} from "../lib/city/utils/Utils.js";
 import City from '../lib/city/City.js';
 import {CityResource} from '../lib/city/CityResource.js';
 import {Building, CollectBuildingResourcesEffect, BuildingStoreResourceEffect} from '../lib/city/Building.js';
-import {CityPlayer, PlayerEarnResourceEffect, CharacterConsumeResourceOrGetsRemovedEffect} from '../lib/city/CityPlayer.js';
-import {CityCharacter} from '../lib/city/CityCharacter.js';
+import {CityPlayer, PlayerEarnResourceEffect } from '../lib/city/CityPlayer.js';
+import {CityCharacter, CharacterConsumeResourceOrGetsRemovedEffect } from '../lib/city/CityCharacter.js';
 import CityEvent from '../lib/city/CityEvent.js'
 
 const kCharacter = 'character';
@@ -81,11 +81,12 @@ describe('Player\'s Characters', () => {
     player.earnResources([new CityResource(kCharGold, 3)]);
     player.earnResources([new CityResource(kCharWood, 3)]);
     /* Only gold characters suffice their requirement */
-    player.earnResources([new CityResource(kGold, amount)]);
+    let number = 2;
+    player.earnResources([new CityResource(kGold, amount * number)]);
     player.updateTime(1);
 
     let characters = Object.values(player.city.characters);
-    assert.equal(3, characters.length);
+    assert.equal(number, characters.length);
     assert.isTrue(characters.every(c => c.name == kCharGold));
   });
 
@@ -98,11 +99,11 @@ describe('Player\'s Characters', () => {
 
     const task1 = new PlayerEarnResourceEffect({
       resources: [gold(amount)],
-      frequency: time
+      period: time
     });
     const task2 = new PlayerEarnResourceEffect({
       resources: [wood(amount)],
-      frequency: time
+      period: time
     });
 
     char1.tasks = [task1, task2];
@@ -142,7 +143,7 @@ describe('Player\'s Characters', () => {
     let resources = [resource];
 
     let storingBuilding = new Building({
-      effects: [new BuildingStoreResourceEffect({resources: resources, frequency: time})]
+      effects: [new BuildingStoreResourceEffect({resources: resources, period: time})]
     });
     player
       .city
@@ -153,7 +154,7 @@ describe('Player\'s Characters', () => {
     player.updateTime(1);
     const char1 = Object.values(player.city.characters)[0];
 
-    const collectTask = new CollectBuildingResourcesEffect({frequency: time});
+    const collectTask = new CollectBuildingResourcesEffect({period: time});
     char1.tasks = [collectTask];
     player.updateTime(1);
 
@@ -189,7 +190,7 @@ describe('Player\'s Characters', () => {
     let resources = [resource];
 
     let storingBuilding = new Building({
-      effects: [new BuildingStoreResourceEffect({resources: resources, frequency: time})]
+      effects: [new BuildingStoreResourceEffect({resources: resources, period: time})]
     });
     player
       .city
@@ -201,7 +202,7 @@ describe('Player\'s Characters', () => {
     const char1 = Object.values(player.city.characters)[0];
     const char2 = Object.values(player.city.characters)[1];
 
-    const collectTask = new CollectBuildingResourcesEffect({frequency: time});
+    const collectTask = new CollectBuildingResourcesEffect({period: time});
     char1.tasks = [collectTask];
     char2.tasks = [collectTask];
     player.updateTime(1);
@@ -221,7 +222,7 @@ describe('Player\'s Characters', () => {
   it('Can consume resources', () => {
     const initialAmount = 5;
     const amountNeeded = 1;
-    const frequency = 3;
+    const period = 3;
     const characters = 2;
 
     const player = new CityPlayer({
@@ -235,7 +236,7 @@ describe('Player\'s Characters', () => {
             name: charName,
             effects: [new CharacterConsumeResourceOrGetsRemovedEffect({
                 resources: [gold(amountNeeded)],
-                frequency: frequency
+                period: period
               })]
           })
         }
@@ -246,7 +247,7 @@ describe('Player\'s Characters', () => {
     player.updateTime(1);
     assert.equal(characters, Object.values(player.city.characters).length);
 
-    let events1 = player.updateTime(frequency);
+    let events1 = player.updateTime(period);
     assert.equal(characters, events1.length);
     assert.isTrue(events1.every(e => e.type == CityEvent.kSpendResourceEvent));
 
@@ -255,7 +256,7 @@ describe('Player\'s Characters', () => {
 
   it('Can die', () => {
     const amountNeeded = 1;
-    const frequency = 3;
+    const period = 3;
     const times = 5;
 
     const player = new CityPlayer({
@@ -272,7 +273,7 @@ describe('Player\'s Characters', () => {
             name: charName,
             effects: [new CharacterConsumeResourceOrGetsRemovedEffect({
                 resources: [gold(amountNeeded)],
-                frequency: frequency
+                period: period
               })]
           })
         }
@@ -285,12 +286,12 @@ describe('Player\'s Characters', () => {
     ]);
     player.updateTime(1);
 
-    let events1 = player.updateTime(frequency * times);
+    let events1 = player.updateTime(period * times);
     assert.equal(times, events1.length);
     assert.isTrue(events1.every(e => e.type == CityEvent.kSpendResourceEvent));
     assert.equal(player.getResourceAmountForType(kGold), 0);
 
-    let events2 = player.updateTime(frequency);
+    let events2 = player.updateTime(period);
     assert.equal(1, events2.length);
     assert.equal(events2[0].type, CityEvent.kCharacterRemovedEvent);
     assert.equal(0, Object.values(player.city.characters).length);

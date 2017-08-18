@@ -18,11 +18,11 @@ describe('Buildings Effects', () => {
   let resources = [resource];
   let time = 10;
   let grantingBuilding = new Building({
-    effects: [new PlayerEarnResourceEffect({resources: resources, frequency: time})]
+    effects: [new PlayerEarnResourceEffect({resources: resources, period: time})]
   });
 
   let storingBuilding = new Building({
-    effects: [new BuildingStoreResourceEffect({resources: resources, frequency: time})]
+    effects: [new BuildingStoreResourceEffect({resources: resources, period: time})]
   });
 
   it('can grant resources to player', () => {
