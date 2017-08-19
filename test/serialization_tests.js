@@ -33,6 +33,8 @@ describe('Serialization', () => {
     });
 
     let player = new CityPlayer({
+      seasonPeriod: 1,
+      seasonAffectedResource: kGold,
       characterFactories: {
         [kCharacter]: {
           factory: () => new CityCharacter({
@@ -60,6 +62,8 @@ describe('Serialization', () => {
     assert.isTrue(updates.length > 0);
     b = Object.values(player.city.buildings)[0];
     assert.closeTo(b.progress(), 0.2, 0.01);
+
+    updates = player.updateTime(time);
   });
 
   it('Can deserialize recursive references', () => {

@@ -50,15 +50,14 @@ describe('Game Controller', () => {
     
     /* Producing food by a farm takes 5. Expect food on 6: */
     controller.tick(5);
-    assert.strictEqual(sentStoreResourceEvents.length, 1);
-    assert.strictEqual(sentGrantResourceEvents.length, 0);
-    let event = controller.collectFromBuilding(buildingId);
+    assert.strictEqual(sentStoreResourceEvents.length, 1); /* Banana fields store 7 banana every 2 */
+    assert.strictEqual(sentGrantResourceEvents.length, 2); /* Banana fields grant 1 banana every 3 */
 
-    assert.isTrue(controller.player.canAfford([GameModule.banana(1)]));
+    let event = controller.collectFromBuilding(buildingId); /* One more grant, from collect */
     assert.strictEqual(sentStoreResourceEvents.length, 1);
     
     /* Need to allows collects to send events: */
-    assert.strictEqual(sentGrantResourceEvents.length, 1);
+    assert.strictEqual(sentGrantResourceEvents.length, 3);
     assert.strictEqual(event.type, CityEvent.kEarnResourceEvent);
   });
   

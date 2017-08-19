@@ -59,29 +59,7 @@ describe('Resources Capacity', () => {
     assert.strictEqual(capacityAfter[resourceType2] || 0, amount * 8);
     assert.strictEqual(capacityAfter[resourceType3] || 0, amount * 1);
   });
-  
-  it('Player capacity can be multiplied by buildings', () => {
-    let player = new CityPlayer(playerCapacity);
     
-    player
-    .city
-    .planBuilding({
-      building: new Building({
-        time: 0,
-        permanentEffects: [new CapacityGrantingEffect({
-          multipliers: {
-            [resourceType1]: 0.5 // +50%
-          }
-        })]
-      })
-    });
-    
-    const capacityAfterMultiply = player.getCapacity();
-    assert.strictEqual(capacityAfterMultiply[resourceType1] || 0, amount * 3);
-    assert.strictEqual(capacityAfterMultiply[resourceType2] || 0, amount * 5);
-    
-  });
-  
   it('can only earn up to a limit', () => {
     let player = new CityPlayer({
       initialCapacity: {

@@ -9,10 +9,10 @@ import {CityPlayer, PlayerEarnResourceEffect } from '../lib/city/CityPlayer.js';
 import {CityCharacter, CharacterConsumeResourceOrGetsRemovedEffect } from '../lib/city/CityCharacter.js';
 import CityEvent from '../lib/city/CityEvent.js'
 
-const kCharacter = 'character';
-const character = (amount) => new CityResource(kCharacter, amount);
-
 describe('Player\'s Characters', () => {
+
+  const kCharacter = 'character';
+  const character = (amount) => new CityResource(kCharacter, amount);
 
   const kGold = 'gold';
   const gold = (amount) => new CityResource(kGold, amount);
