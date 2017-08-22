@@ -1,7 +1,8 @@
 import {assert} from 'chai'
-import {CityPlayer} from '../lib/city/CityPlayer';
-import {CityResource} from '../lib/city/CityResource';
+import {CityPlayer, CapacityGrantingEffect} from '../lib/city/CityPlayer';
+import {CityResource, ResourceEffect} from '../lib/city/CityResource';
 import CityResearchProject, {ScheduleResearchProjectAction} from '../lib/city/CityResearchProject';
+
 const kTestResourceType = "ResourceType";
 const createResource = (amount) => new CityResource(kTestResourceType, amount);
 
@@ -11,7 +12,7 @@ let resources = [createResource(amount)];
 let researchTime = 200;
 let playerCapacity = {
   initialCapacity: {
-    [kTestResourceType]: amount * 10
+    [kTestResourceType]: amount
   }
 };
 
@@ -91,5 +92,25 @@ describe('Research Projects', () => {
     player.earnResearch(researchTime);
     assert.strictEqual(player.researchedProjects.length, 1);
     assert.strictEqual(player.researchedProjects[0].namespace, project.namespace);
+  });
+
+  it('Has permanent effects', () => {
+    let player = new CityPlayer(playerCapacity);
+    let effect = new CapacityGrantingEffect({
+      additions: {
+        [kTestResourceType]: amount
+      }
+    });
+    let config = Object.assign({}, projectConfig);
+    config.cost = [];
+    config.permanentEffects = [effect];
+    let project = new CityResearchProject(config);
+    let action = new ScheduleResearchProjectAction({project: project});
+
+    action.executeForPlayer(player);
+    assert.strictEqual(player.getCapacity()[kTestResourceType], amount);
+    
+    player.earnResearch(researchTime);
+    assert.strictEqual(player.getCapacity()[kTestResourceType], 2*amount);
   });
 });
