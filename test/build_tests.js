@@ -1,15 +1,12 @@
-const assert = require('chai').assert
+import {assert} from 'chai'
 
-const CityPlayer = require('../lib/city/CityPlayer.js').CityPlayer;
-const CityEvent = require('../lib/city/CityEvent.js').default;
-const City = require('../lib/city/City.js').default;
+import {CityPlayer} from '../lib/city/CityPlayer';
+import CityEvent from '../lib/city/CityEvent';
+import City from '../lib/city/City';
 
-const CityResource = require('../lib/city/CityResource.js').CityResource;
+import {CityResource} from '../lib/city/CityResource';
 
-const BuildingJS = require('../lib/city/Building.js');
-const Building = BuildingJS.Building;
-const BuildingConstructionAction = BuildingJS.BuildingConstructionAction
-const ProjectAlreadyCompletedError = BuildingJS.ProjectAlreadyCompletedError;
+import CityBuilding, {BuildingConstructionAction, ProjectAlreadyCompletedError} from '../lib/city/CityBuilding';
 
 const kGold = 'gold';
 const gold = (amount) => new CityResource(kGold, amount);
@@ -21,17 +18,17 @@ describe('City', () => {
 	});
 });
 
-describe('Building Construction', () => {
+describe('CityBuilding Construction', () => {
 	let resource = gold(100);
 	let time = 10;
 	let totalTime = 100;
 	
-	let building = new Building({
-		costs: [resource],
+	let building = new CityBuilding({
+		cost: [resource],
 		time: totalTime,
 	});
 	
-	it('cannot compute costs without a player', () => {
+	it('cannot compute cost without a player', () => {
 		let player = new CityPlayer({
 			initialCapacity: {
 				[kGold]: 1000
@@ -42,10 +39,10 @@ describe('Building Construction', () => {
 			building: building,
 		});
 
-		assert.throw(() => action.costs(), Error);
+		assert.throw(() => action.cost(), Error);
 	});
 
-	it('have action costs', () => {
+	it('have action cost', () => {
 		let player = new CityPlayer({
 			initialCapacity: {
 				[kGold]: 1000
@@ -80,15 +77,15 @@ describe('Building Construction', () => {
 		assert.strictEqual(updates[updates.length-1].type, CityEvent.kBuildingProgressEvent);
 		b = Object.values(player.city.buildings)[0];
 		assert.closeTo(b.progress(), 0.2, 0.01);
-		assert.include(b.toString(), 'Building');
+		assert.include(b.toString(), 'Setting Up');
 		
 		updates = player.updateTime(totalTime);
 		assert.strictEqual(updates[updates.length-1].type, CityEvent.kBuildingCompletedEvent);
 		assert.isTrue(b.isCompleted());
-		assert.notInclude(b.toString(), 'Building');
+		assert.notInclude(b.toString(), 'Setting Up');
 	});
 	
-	it('have increasing costs', () => {
+	it('have increasing cost', () => {
 		let player = new CityPlayer({
 			initialCapacity: {
 				[kGold]: 1000
@@ -96,8 +93,8 @@ describe('Building Construction', () => {
 		});
 		player.earnResources(CityResource.resourcesWithMultiplier([resource], 100));	
 		
-		let building = new Building({
-			costs: [resource],
+		let building = new CityBuilding({
+			cost: [resource],
 			time: totalTime,
 			costFactor: 2
 		});
@@ -107,11 +104,11 @@ describe('Building Construction', () => {
 		});
 		
 		action.executeForPlayer(player);
-		let costForSecond = action.costs(player);
+		let costForSecond = action.cost(player);
 		assert.strictEqual(costForSecond[0].amount, 100 * 2);
 		
 		action.executeForPlayer(player);
-		let costForThird = action.costs(player);
+		let costForThird = action.cost(player);
 		assert.strictEqual(costForThird[0].amount, 100 * 4);
 	});
 });

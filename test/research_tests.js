@@ -1,7 +1,7 @@
 import {assert} from 'chai'
 import {CityPlayer} from '../lib/city/CityPlayer';
-import {CityResource, ResourceConsumingAction, InsuficientResourcesError, UnavailableActionError} from '../lib/city/CityResource';
-
+import {CityResource} from '../lib/city/CityResource';
+import CityResearchProject, {ScheduleResearchProjectAction} from '../lib/city/CityResearchProject';
 const kTestResourceType = "ResourceType";
 const createResource = (amount) => new CityResource(kTestResourceType, amount);
 
@@ -11,7 +11,7 @@ let resources = [createResource(amount)];
 let researchTime = 200;
 let playerCapacity = {
   initialCapacity: {
-    [kTestResourceType]: amount * 10,
+    [kTestResourceType]: amount * 10
   }
 };
 
@@ -23,17 +23,17 @@ let projectConfig = {
 };
 
 describe('Research Projects', () => {
-  it('Have availability and costs', () => {
+  it('Have availability and cost', () => {
     let player = new CityPlayer(playerCapacity);
     let project = new CityResearchProject(projectConfig);
     let action = new ScheduleResearchProjectAction({project: project});
 
     // InsuficientResourcesError);
-    assert.isFalse(action.isAvailable(player));
+    assert.isFalse(action.isAffordable(player));
     assert.throw(() => action.executeForPlayer(player));
 
     player.earnResources(resources);
-    assert.isTrue(action.isAvailable(player));
+    assert.isTrue(action.isAffordable(player));
     action.executeForPlayer(player);
 
     assert.strictEqual(player.researchProjects.length, 1);
@@ -61,20 +61,20 @@ describe('Research Projects', () => {
     assert.strictEqual(player.researchProjects[0].namespace, project1.namespace);
     assert.strictEqual(player.researchProjects[1].namespace, project2.namespace);
 
-    assert.strictEqual(player.researchProjects[0].remainingTime, researchTime);
-    assert.strictEqual(player.researchProjects[1].remainingTime, researchTime);
+    assert.strictEqual(player.researchProjects[0].progress(), 0);
+    assert.strictEqual(player.researchProjects[1].progress(), 0);
 
-    player.earnResearch(researchTime / 4);
+    player.earnResearch(researchTime / 4.0);
     assert.strictEqual(player.researchProjects.length, 2);
     assert.strictEqual(player.researchProjects[0].namespace, project1.namespace);
     assert.strictEqual(player.researchProjects[1].namespace, project2.namespace);
-    assert.strictEqual(player.researchProjects[0].remainingTime, researchTime - researchTime / 4);
-    assert.strictEqual(player.researchProjects[1].remainingTime, researchTime);
+    assert.strictEqual(player.researchProjects[0].progress(), (researchTime - researchTime * 3.0 / 4.0) / researchTime);
+    assert.strictEqual(player.researchProjects[1].progress(), 0);
 
     player.earnResearch(researchTime);
     assert.strictEqual(player.researchProjects.length, 1);
     assert.strictEqual(player.researchProjects[0].namespace, project2.namespace);
-    assert.strictEqual(player.researchProjects[0].remainingTime, researchTime - researchTime / 4);
+    assert.strictEqual(player.researchProjects[0].progress(), (researchTime - researchTime * 3.0 / 4.0) / researchTime);
   });
 
   it('Can be completed', () => {
@@ -90,6 +90,6 @@ describe('Research Projects', () => {
 
     player.earnResearch(researchTime);
     assert.strictEqual(player.researchedProjects.length, 1);
-    assert.strictEqual(player.researchProjects[0].namespace, project.namespace);
+    assert.strictEqual(player.researchedProjects[0].namespace, project.namespace);
   });
 });

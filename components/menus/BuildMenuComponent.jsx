@@ -1,7 +1,7 @@
 const React = require('react');
 
 const GameController = require('../../lib/controller/GameController.js').default;
-const BuildingJS = require('../../lib/city/Building.js');
+const BuildingJS = require('../../lib/city/CityBuilding.js');
 const BuildingConstructionAction = BuildingJS.BuildingConstructionAction
 
 var BuildMenu = React.createClass({
@@ -18,8 +18,8 @@ var BuildMenu = React.createClass({
         if (!action.isAvailable(controller.player)) {
           return null;
         }
-        const costs = action.costs(controller.player);
-        const costsDescription = costs.length > 0 && "Cost:\n" + costs.map((c) => "[" + c.toString() + "]").join(" + ");
+        const cost = action.cost(controller.player);
+        const costsDescription = cost.length > 0 && "Cost:\n" + cost.map((c) => "[" + c.toString() + "]").join(" + ");
         const effectsDescription = building.effects.length > 0 && building
           .effects
           .map((c) => "- " + c.getDescription())

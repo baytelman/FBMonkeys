@@ -1,6 +1,6 @@
 import {assert} from 'chai'
 import {CityResource} from '../lib/city/CityResource';
-import {Building} from '../lib/city/Building';
+import CityBuilding from '../lib/city/CityBuilding';
 import {CityPlayer, CapacityGrantingEffect} from '../lib/city/CityPlayer';
 
 const resourceType1 = "kTestResourceType";
@@ -18,7 +18,7 @@ let playerCapacity = {
   }
 };
 
-let building = new Building({
+let building = new CityBuilding({
   time: 100,
   permanentEffects: [new CapacityGrantingEffect({
     additions: {
@@ -53,7 +53,7 @@ describe('Resources Capacity', () => {
     assert.strictEqual(capacity[resourceType2] || 0, amount * 5);
     assert.strictEqual(capacity[resourceType3] || 0, 0);
     
-    player.updateTime(building.buildingTime);
+    player.updateTime(building.setupTime);
     const capacityAfter = player.getCapacity();
     assert.strictEqual(capacityAfter[resourceType1] || 0, amount * 2);
     assert.strictEqual(capacityAfter[resourceType2] || 0, amount * 8);
@@ -82,7 +82,7 @@ describe('Resources Capacity', () => {
     assert.strictEqual(amount * 3, player.getResourceAmountForType(resourceType2));
     assert.strictEqual(0, player.getResourceAmountForType(resourceType3));
     
-    player.updateTime(building.buildingTime);
+    player.updateTime(building.setupTime);
     
     player.earnResources([
       createResource1(amount * 3),

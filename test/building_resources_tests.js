@@ -1,12 +1,9 @@
-const assert = require('chai').assert
+import {assert} from 'chai'
 
-const MutableObject = require("../lib/city/utils/Utils.js").MutableObject;
-
-const City = require('../lib/city/City.js').default;
 import CityEvent from '../lib/city/CityEvent';
-
+import City from '../lib/city/City';
 import {CityResource, UnavailableActionError} from '../lib/city/CityResource.js';
-import {Building, BuildingStoreResourceEffect} from '../lib/city/Building.js';
+import CityBuilding, {BuildingStoreResourceEffect} from '../lib/city/CityBuilding.js';
 import {CityPlayer, PlayerEarnResourceEffect} from '../lib/city/CityPlayer.js';
 
 const kGold = 'gold';
@@ -17,11 +14,11 @@ describe('Buildings Effects', () => {
   let resource = gold(amount);
   let resources = [resource];
   let time = 10;
-  let grantingBuilding = new Building({
+  let grantingBuilding = new CityBuilding({
     effects: [new PlayerEarnResourceEffect({resources: resources, period: time})]
   });
 
-  let storingBuilding = new Building({
+  let storingBuilding = new CityBuilding({
     effects: [new BuildingStoreResourceEffect({resources: resources, period: time})]
   });
 

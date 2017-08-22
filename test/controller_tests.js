@@ -28,7 +28,7 @@ describe('Game Controller', () => {
     /* Let's force it complete */
     let buildingId = events[0].object.id;
     let building = controller.player.city.buildings[buildingId];
-    building.costs = [];
+    building.cost = [];
     building.isCompleted();
     
     let sentGrantResourceEvents = [];

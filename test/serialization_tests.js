@@ -1,6 +1,7 @@
 import {assert} from 'chai';
 
-import {Building, BuildingStoreResourceEffect, CollectBuildingResourcesEffect} from '../lib/city/Building.js';
+import CityProject from '../lib/city/CityProject.js';
+import CityBuilding, {BuildingStoreResourceEffect, CollectBuildingResourcesEffect} from '../lib/city/CityBuilding.js';
 import CitySerializer from "../lib/city/CitySerializer.js";
 
 import {CityPlayer} from '../lib/city/CityPlayer.js';
@@ -24,7 +25,7 @@ describe('Serialization', () => {
 
   it('Deserialized player continues building', () => {
     let construction = 10;
-    let building = new Building({
+    let building = new CityBuilding({
       time: totalTime,
       effects: [
         new PlayerEarnResourceEffect({resources: resources, period: time}),
