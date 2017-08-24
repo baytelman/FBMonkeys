@@ -2,6 +2,7 @@ import {assert} from 'chai'
 import {CityPlayer, CapacityGrantingEffect} from '../lib/city/CityPlayer';
 import {CityResource, ResourceEffect} from '../lib/city/CityResource';
 import CityResearchProject, {ScheduleResearchProjectAction} from '../lib/city/CityResearchProject';
+import CityBuilding from '../lib/city/CityBuilding';
 
 const kTestResourceType = "ResourceType";
 const createResource = (amount) => new CityResource(kTestResourceType, amount);
@@ -94,7 +95,7 @@ describe('Research Projects', () => {
     assert.strictEqual(player.researchedProjects[0].namespace, project.namespace);
   });
 
-  it('Has permanent effects', () => {
+  it('Have permanent effects', () => {
     let player = new CityPlayer(playerCapacity);
     let effect = new CapacityGrantingEffect({
       additions: {
@@ -109,8 +110,56 @@ describe('Research Projects', () => {
 
     action.executeForPlayer(player);
     assert.strictEqual(player.getCapacity()[kTestResourceType], amount);
-    
+
     player.earnResearch(researchTime);
-    assert.strictEqual(player.getCapacity()[kTestResourceType], 2*amount);
+    assert.strictEqual(player.getCapacity()[kTestResourceType], 2 * amount);
+  });
+
+  it('Have dependencies', () => {
+    let player = new CityPlayer(playerCapacity);
+    let effect = new CapacityGrantingEffect({
+      additions: {
+        [kTestResourceType]: amount
+      }
+    });
+    let building = new CityBuilding();
+
+    let config1 = Object.assign({}, projectConfig);
+    config1.namespace += '1';
+    config1.cost = [];
+    config1.requirements = [building.namespace];
+
+    let config2 = Object.assign({}, projectConfig);
+    config2.namespace += '2';
+    config2.cost = [];
+    config2.requirements = [config1.namespace];
+
+    let project1 = new CityResearchProject(config1);
+    let project2 = new CityResearchProject(config2);
+    
+    let action1 = new ScheduleResearchProjectAction({project: project1});
+    let action2 = new ScheduleResearchProjectAction({project: project2});
+    
+    assert.isFalse(action1.isAvailable(player));
+    assert.isFalse(action2.isAvailable(player));
+    
+    assert.throw(() => action1.executeForPlayer(player));
+    assert.throw(() => action2.executeForPlayer(player));
+    
+		player.city.planBuilding({
+			building: building
+    });
+    player.updateTime(1);
+
+    assert.isTrue(action1.isAvailable(player));
+    assert.isFalse(action2.isAvailable(player));
+    
+    action1.executeForPlayer(player);
+    assert.throw(() => action2.executeForPlayer(player));
+
+    player.earnResearch(researchTime);
+    player.updateTime(1);
+    
+    assert.isTrue(action2.isAvailable(player));
   });
 });

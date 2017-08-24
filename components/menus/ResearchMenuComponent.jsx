@@ -1,19 +1,18 @@
-const React = require('react');
+import React from 'react';
 
-const GameController = require('../../lib/controller/GameController.js').default;
-const BuildingJS = require('../../lib/city/CityBuilding.js');
-const BuildingConstructionAction = BuildingJS.BuildingConstructionAction
+import GameController from '../../lib/controller/GameController.js';
+import CityResearchProject, {ScheduleResearchProjectAction } from '../../lib/city/CityResearchProject.js';
 
-const availableBuildingActions = Object
-  .values(GameController.instance.module.availableBuildings())
-  .map((building) => new BuildingConstructionAction({building: building}));
+const availableResearchActions = Object
+  .values(GameController.instance.module.availableResearch())
+  .map((project) => new ScheduleResearchProjectAction({project: project}));
 
-var BuildMenu = React.createClass({
+var ResearchMenu = React.createClass({
   render: function () {
     let _this = this;
     let controller = GameController.instance;
-    let buildingComponents = availableBuildingActions.map(action => {
-      let addBuilding = function () {
+    let researchComponents = availableResearchActions.map(action => {
+      let scheduleResearch = function () {
         action.executeForPlayer(controller.player);
       };
       if (!action.isAvailable(controller.player)) {
@@ -21,7 +20,7 @@ var BuildMenu = React.createClass({
       }
       const cost = action.cost(controller.player);
       const costsDescription = cost.length > 0 && "Cost:\n" + cost.map((c) => "[" + c.toString() + "]").join(" + ");
-      const effectsDescription = action.building.effects.length > 0 && action
+      const effectsDescription = action.project.permanentEffects.length > 0 && action
         .building
         .effects
         .map((c) => "- " + c.getDescription())
@@ -32,25 +31,25 @@ var BuildMenu = React.createClass({
 
       return (
         <button
-          key={"btn_bld_" + action.building.id}
+          key={"btn_bld_" + action.project.id}
           disabled={!action.isAffordable(controller.player)}
           className='build-entity'
-          onClick={addBuilding}
+          onClick={scheduleResearch}
           title={title}>
-          {action.building.name}
+          {action.project.name}
         </button>
       );
     });
 
     return (
-      <div id='build-menu'>
-        <b>Build</b>
+      <div id='project-menu'>
+        <b>Research</b>
         <div>
-          {buildingComponents}
+          {researchComponents}
         </div>
       </div>
     )
   }
 });
 
-export default BuildMenu;
+export default ResearchMenu;
