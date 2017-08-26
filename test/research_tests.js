@@ -1,11 +1,18 @@
 import {assert} from 'chai'
 import {CityPlayer, CapacityGrantingEffect} from '../lib/city/CityPlayer';
 import {CityResource, ResourceEffect} from '../lib/city/CityResource';
-import CityResearchProject, {ScheduleResearchProjectAction} from '../lib/city/CityResearchProject';
 import CityBuilding from '../lib/city/CityBuilding';
+
+import {CityCharacter } from '../lib/city/CityCharacter.js';
+import CityResearchProject, {ScheduleResearchProjectAction, PlayerEarnResearchEffect} from '../lib/city/CityResearchProject';
+
 
 const kTestResourceType = "ResourceType";
 const createResource = (amount) => new CityResource(kTestResourceType, amount);
+
+const kCharacter = 'character';
+const charName = 'character name';
+const character = (amount) => new CityResource(kCharacter, amount);
 
 let amount = 100;
 let resources = [createResource(amount)];
@@ -13,7 +20,13 @@ let resources = [createResource(amount)];
 let researchTime = 200;
 let playerCapacity = {
   initialCapacity: {
+    [kCharacter]: 3,
     [kTestResourceType]: amount
+  },
+  characterFactories: {
+    [kCharacter]: {
+      factory: () => new CityCharacter({name: charName})
+    }
   }
 };
 
@@ -136,30 +149,60 @@ describe('Research Projects', () => {
 
     let project1 = new CityResearchProject(config1);
     let project2 = new CityResearchProject(config2);
-    
+
     let action1 = new ScheduleResearchProjectAction({project: project1});
     let action2 = new ScheduleResearchProjectAction({project: project2});
-    
+
     assert.isFalse(action1.isAvailable(player));
     assert.isFalse(action2.isAvailable(player));
-    
+
     assert.throw(() => action1.executeForPlayer(player));
     assert.throw(() => action2.executeForPlayer(player));
-    
-		player.city.planBuilding({
-			building: building
-    });
+
+    player
+      .city
+      .planBuilding({building: building});
     player.updateTime(1);
 
     assert.isTrue(action1.isAvailable(player));
     assert.isFalse(action2.isAvailable(player));
-    
+
     action1.executeForPlayer(player);
     assert.throw(() => action2.executeForPlayer(player));
 
     player.earnResearch(researchTime);
     player.updateTime(1);
-    
+
     assert.isTrue(action2.isAvailable(player));
+  });
+
+  it('Can be researched by characters', () => {
+    let player = new CityPlayer(playerCapacity);
+
+    let config = Object.assign({}, projectConfig);
+    config.cost = [];
+    let project = new CityResearchProject(config);
+    let action = new ScheduleResearchProjectAction({project: project});
+
+    /* Player chose a research project */
+    action.executeForPlayer(player);
+    assert.strictEqual(player.researchProjects.length, 1);
+
+    /* Player gets one character */
+    player.earnResources([character(1)]);
+    player.updateTime(1);
+
+    /* Character gets research task */
+    let time = 3;
+    const char = Object.values(player.city.characters)[0];
+    const task = new PlayerEarnResearchEffect({
+      research: 1,
+      period: time
+    });
+    char.tasks = [task];
+    
+    player.updateTime(time);
+    assert.strictEqual(player.researchProjects.length, 1);
+    assert.strictEqual(player.researchProjects[0].remainingTime(), researchTime - 1);
   });
 });
