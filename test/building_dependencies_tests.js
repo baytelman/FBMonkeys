@@ -1,6 +1,6 @@
 import {assert} from 'chai'
 import {CityResource} from '../lib/city/CityResource';
-import {Building, BuildingConstructionAction} from '../lib/city/Building';
+import CityBuilding, {BuildingConstructionAction} from '../lib/city/CityBuilding';
 import {CityPlayer} from '../lib/city/CityPlayer';
 
 const kGold = 'gold';
@@ -12,7 +12,7 @@ describe('Buildings Dependencies', () => {
   it('can be resources', () => {
     let resources = [resource];
     let time = 10;
-    let building = new Building({
+    let building = new CityBuilding({
       requirements: [[kGold, 5]]
     });
     let player = new CityPlayer({
@@ -35,8 +35,8 @@ describe('Buildings Dependencies', () => {
   it('can be buildings', () => {
     let resources = [resource];
     let time = 10;
-    let building1 = new Building();
-    let building2 = new Building({
+    let building1 = new CityBuilding();
+    let building2 = new CityBuilding({
       requirements: [building1.namespace]
     });
     let player = new CityPlayer();
@@ -48,15 +48,15 @@ describe('Buildings Dependencies', () => {
       .city
       .planBuilding({building: building1});
 
-    player.updateTime(building1.buildingTime);
+    player.updateTime(building1.setupTime);
     assert.isTrue(action.isAvailable(player));
   });
 
   it('can require multiple of same', () => {
     let resources = [resource];
     let time = 10;
-    let building1 = new Building();
-    let building2 = new Building({
+    let building1 = new CityBuilding();
+    let building2 = new CityBuilding({
       requirements: [
         [building1.namespace, 2]
       ]
@@ -70,26 +70,26 @@ describe('Buildings Dependencies', () => {
     player
       .city
       .planBuilding({building: building1});
-    player.updateTime(building1.buildingTime);
+    player.updateTime(building1.setupTime);
     assert.isFalse(action.isAvailable(player));
 
     /* Second one, not enough */
     player
       .city
       .planBuilding({building: building1});
-    player.updateTime(building1.buildingTime);
+    player.updateTime(building1.setupTime);
     assert.isTrue(action.isAvailable(player));
   });
 
   it('once are unlocked, they stay, even if the requiremens become unmeant', () => {
     let resources = [resource];
     let time = 10;
-    let building1 = new Building();
-    let building2 = new Building({
+    let building1 = new CityBuilding();
+    let building2 = new CityBuilding({
       namespace: 'abc',
       requirements: [building1.namespace]
     });
-    let building3 = new Building({
+    let building3 = new CityBuilding({
       namespace: 'def',
       requirements: [building1.namespace]
     });
@@ -100,7 +100,7 @@ describe('Buildings Dependencies', () => {
       .city
       .planBuilding({building: building1});
 
-    player.updateTime(building1.buildingTime);
+    player.updateTime(building1.setupTime);
     assert.isTrue(action2.isAvailable(player));
 
     player.city.buildings = {};

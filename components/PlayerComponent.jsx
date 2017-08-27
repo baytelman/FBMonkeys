@@ -1,6 +1,7 @@
 import React from 'react';
 
 import BuildMenuComponent from "../components/menus/BuildMenuComponent.jsx";
+import ResearchMenuComponent from "../components/menus/ResearchMenuComponent.jsx";
 import SaveMenuComponent from "../components/menus/SaveMenuComponent.jsx";
 import ResourceDisplay from "../components/resources/ResourceDisplayComponent.jsx";
 import CharacterDisplay from "../components/characters/CharacterDisplayComponent.jsx";
@@ -19,6 +20,7 @@ var Player = React.createClass({
         }}>
           <SaveMenuComponent player={this.props.player}/>
           <BuildMenuComponent player={this.props.player}/>
+          <ResearchMenuComponent player={this.props.player}/>
           <ResourceDisplay player={this.props.player} data={this.props.player}/>
           <CharacterDisplay player={this.props.player} data={this.props.player}/>
         </div>

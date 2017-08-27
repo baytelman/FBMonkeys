@@ -4,9 +4,9 @@ import {MutableObject} from "../lib/city/utils/Utils.js";
 
 import City from '../lib/city/City.js';
 import {CityResource} from '../lib/city/CityResource.js';
-import {Building, CollectBuildingResourcesEffect, BuildingStoreResourceEffect} from '../lib/city/Building.js';
-import {CityPlayer, PlayerEarnResourceEffect } from '../lib/city/CityPlayer.js';
-import {CityCharacter, CharacterConsumeResourceOrGetsRemovedEffect } from '../lib/city/CityCharacter.js';
+import CityBuilding, {CollectBuildingResourcesEffect, BuildingStoreResourceEffect} from '../lib/city/CityBuilding.js';
+import {CityPlayer, PlayerEarnResourceEffect} from '../lib/city/CityPlayer.js';
+import CityCharacter, {CharacterConsumeResourceOrGetsRemovedEffect} from '../lib/city/CityCharacter.js';
 import CityEvent from '../lib/city/CityEvent.js'
 
 describe('Player\'s Characters', () => {
@@ -142,7 +142,7 @@ describe('Player\'s Characters', () => {
     let resource = gold(amount);
     let resources = [resource];
 
-    let storingBuilding = new Building({
+    let storingBuilding = new CityBuilding({
       effects: [new BuildingStoreResourceEffect({resources: resources, period: time})]
     });
     player
@@ -162,7 +162,7 @@ describe('Player\'s Characters', () => {
     assert.isNull(char1.activeTask);
     assert.isFalse(plannedBuilding.getStoredResources());
 
-    /* Building finished production, picking up */
+    /* CityBuilding finished production, picking up */
     player.updateTime(time);
     assert.isNotFalse(plannedBuilding.getStoredResources());
     assert.equal(char1.activeTask.originalId, collectTask.id);
@@ -189,7 +189,7 @@ describe('Player\'s Characters', () => {
     let resource = gold(amount);
     let resources = [resource];
 
-    let storingBuilding = new Building({
+    let storingBuilding = new CityBuilding({
       effects: [new BuildingStoreResourceEffect({resources: resources, period: time})]
     });
     player
@@ -212,7 +212,7 @@ describe('Player\'s Characters', () => {
     assert.isNull(char2.activeTask);
     assert.isFalse(plannedBuilding.getStoredResources());
 
-    /* Building finished production, picking up */
+    /* CityBuilding finished production, picking up */
     player.updateTime(time);
     assert.isNotFalse(plannedBuilding.getStoredResources());
     assert.equal(char1.activeTask.originalId, collectTask.id);

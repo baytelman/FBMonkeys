@@ -2,8 +2,8 @@ import {assert} from 'chai';
 
 import {CityResource} from '../lib/city/CityResource.js';
 import {CityPlayer} from '../lib/city/CityPlayer.js';
-import {Building, CollectBuildingResourcesEffect, BuildingStoreResourceEffect, ResourceStoringModifierEffect} from '../lib/city/Building.js';
-import {CityCharacter, CharacterConsumeResourceOrGetsRemovedEffect } from '../lib/city/CityCharacter.js';
+import CityBuilding, {CollectBuildingResourcesEffect, BuildingStoreResourceEffect, ResourceStoringModifierEffect} from '../lib/city/CityBuilding.js';
+import CityCharacter, {CharacterConsumeResourceOrGetsRemovedEffect} from '../lib/city/CityCharacter.js';
 
 describe('City\'s seasons', () => {
 
@@ -60,7 +60,7 @@ describe('City\'s seasons', () => {
     let resources = [resource];
     let time = 1;
 
-    let storingBuilding = new Building({
+    let storingBuilding = new CityBuilding({
       effects: [new BuildingStoreResourceEffect({resources: resources, period: time})]
     });
     player
