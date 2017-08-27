@@ -9,8 +9,8 @@ describe('Game Controller', () => {
   it('Can plan or install buildings', () => {
     let controller = new GameController();
     controller.startNewGame();
-    let fieldEvent = controller.planBuilding(GameModule.kBananaField.id);
-    let caveEvents = controller.installCompletedBuilding(GameModule.kCabin.id);
+    let fieldEvent = controller.planBuilding(GameModule.kBananaField.namespace);
+    let caveEvents = controller.installCompletedBuilding(GameModule.kCabin.namespace);
     
     let field = controller.player.city.buildings[fieldEvent.object.id];
     let cave = controller.player.city.buildings[caveEvents[0].object.id];
@@ -23,7 +23,7 @@ describe('Game Controller', () => {
     controller.startNewGame();
     
     /* Let's add a building */
-    let events = controller.installCompletedBuilding(GameModule.kBananaField.id);
+    let events = controller.installCompletedBuilding(GameModule.kBananaField.namespace);
     
     /* Let's force it complete */
     let buildingId = events[0].object.id;
@@ -74,9 +74,41 @@ describe('Game Controller', () => {
     assert.isFalse(called);
     
     let id = Object.keys(controller.module.availableBuildings())[0];
-    controller.planBuilding(id, -1, -1);
+    controller.planBuilding(id);
     assert.strictEqual(Object.keys(controller.getAllMyBuilding()).length, 1);
     assert.isTrue(called);
+  });
+  
+  it('Can Assign Roles', () => {
+    let controller = new GameController();
+    controller.startNewGame();
+    /* Let's ensure we have enough bananas for the 2 monkeys */
+    controller.installCompletedBuilding(GameModule.kBananaTree.namespace);
+    controller.installCompletedBuilding(GameModule.kBananaCrate.namespace);
+    controller.installCompletedBuilding(GameModule.kBananaField.namespace);
+    controller.installCompletedBuilding(GameModule.kBananaField.namespace);
+    /* Let's get 2 monkeys */
+    controller.installCompletedBuilding(GameModule.kCabin.namespace);
+    controller.installCompletedBuilding(GameModule.kCabin.namespace);
+
+    /* I should have 1 monkey */
+    controller.tick(9);
+    assert.strictEqual(Object.values(controller.player.city.characters).length, 1);
+    let monkey1 = Object.values(controller.player.city.characters)[0];
+    controller.setCharacterTasks(monkey1.id, [GameModule.kTaskGather.namespace]);
+
+    controller.scheduleResearch(GameModule.kDigging.namespace);
+    assert.strictEqual(Object.values(controller.player.researchProjects).length, 1);
+    
+    controller.tick(20);
+    assert.strictEqual(Object.values(controller.player.city.characters).length, 2);
+    let monkey2 = Object.values(controller.player.city.characters)[1];
+    controller.setCharacterTasks(monkey2.id, [GameModule.kTaskResearch.namespace]);
+    
+    /* Let's finish that research */
+    controller.tick(100);
+    assert.strictEqual(Object.values(controller.player.researchProjects).length, 0);
+    assert.strictEqual(Object.values(controller.player.researchedProjects).length, 1);
   });
 
   it('JSON interface', () => {
@@ -85,8 +117,8 @@ describe('Game Controller', () => {
     let id = Object.keys(controller.module.availableBuildings())[0];
     let buildingTemplate = controller.module.availableBuildings()[id];
 
-    controller.planBuilding(id, -1, -1);
-
+    controller.planBuilding(id);
+    
     let newBuildingId = Object.keys(controller.getAllMyBuilding())[0];
     let building = controller.getBuilding(newBuildingId);
 
