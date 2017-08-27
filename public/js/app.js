@@ -28104,6 +28104,9 @@
 	    key: 'planBuilding',
 	    value: function planBuilding(namespace) {
 	      var b = this.module.allBuildings()[namespace];
+	      if (!b) {
+	        throw new UnavailableActionError();
+	      }
 	      var event = this.player.city.planBuilding({
 	        building: b
 	      });
@@ -28114,6 +28117,9 @@
 	    key: 'collectFromBuilding',
 	    value: function collectFromBuilding(id) {
 	      var b = this.player.city.buildings[id];
+	      if (!b) {
+	        throw new UnavailableActionError();
+	      }
 	      var event = b.collectResources(this.player);
 	      this._emit(event);
 	      return event;
@@ -28124,6 +28130,9 @@
 	      var event = this.planBuilding(namespace);
 	      var events = [event];
 	      var building = this.player.city.buildings[event.object.id];
+	      if (!building) {
+	        throw new UnavailableActionError();
+	      }
 	      events.push(building.updateTime(building.setupTime, {}));
 	      return events;
 	    }
@@ -28131,6 +28140,9 @@
 	    key: 'scheduleResearch',
 	    value: function scheduleResearch(namespace) {
 	      var research = this.module.allResearch()[namespace];
+	      if (!research) {
+	        throw new UnavailableActionError();
+	      }
 	      var event = this.player.scheduleResearch(research);
 	      return [event];
 	    }
@@ -28140,6 +28152,9 @@
 	      var _this3 = this;
 	
 	      var character = this.player.city.characters[id];
+	      if (!character) {
+	        throw new UnavailableActionError();
+	      }
 	      var tasks = taskNamespaces.map(function (n) {
 	        return _this3.module.availableTasks()[n];
 	      });
@@ -31972,9 +31987,14 @@
 	  value: true
 	});
 	
-	var _additions2;
+	var _additions;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	exports.wood = wood;
+	exports.banana = banana;
+	exports.monkey = monkey;
+	exports.rock = rock;
 	
 	var _object = __webpack_require__(472);
 	
@@ -32132,17 +32152,6 @@
 	  })]
 	});
 	
-	GameModule.kCabin = new _CityBuilding2.default({
-	  name: "Cabin",
-	  namespace: "building.basic.cabin",
-	  requirements: ["building.basic.crate"],
-	  time: 10,
-	  cost: [wood(5)],
-	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
-	    additions: _defineProperty({}, GameModule.kResourceMonkey, 1)
-	  })]
-	});
-	
 	GameModule.kBananaField = new _CityBuilding2.default({
 	  name: "Banana Field",
 	  namespace: "building.basic.banana_field",
@@ -32158,6 +32167,28 @@
 	  requirements: [[GameModule.kResourceBanana, 2]]
 	});
 	
+	GameModule.kCrate = new _CityBuilding2.default({
+	  name: "Crate",
+	  namespace: "building.basic.crate",
+	  time: 5,
+	  cost: [wood(5)],
+	  requirements: [GameModule.kBananaField.namespace, [GameModule.kResourceWood, 3]],
+	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
+	    additions: (_additions = {}, _defineProperty(_additions, GameModule.kResourceBanana, 50), _defineProperty(_additions, GameModule.kResourceWood, 10), _defineProperty(_additions, GameModule.kResourceRock, 10), _additions)
+	  })]
+	});
+	
+	GameModule.kCabin = new _CityBuilding2.default({
+	  name: "Cabin",
+	  namespace: "building.basic.cabin",
+	  requirements: ["building.basic.crate"],
+	  time: 10,
+	  cost: [wood(5)],
+	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
+	    additions: _defineProperty({}, GameModule.kResourceMonkey, 1)
+	  })]
+	});
+	
 	GameModule.kWoodField = new _CityBuilding2.default({
 	  name: "Wood Field",
 	  namespace: "building.basic.wood_field",
@@ -32168,17 +32199,6 @@
 	    period: 4
 	  })],
 	  requirements: ["research.basic.agriculture", [GameModule.kResourceWood, 5]]
-	});
-	
-	GameModule.kCrate = new _CityBuilding2.default({
-	  name: "Crate",
-	  namespace: "building.basic.crate",
-	  time: 5,
-	  cost: [wood(5)],
-	  requirements: ["building.basic.banana_field", [GameModule.kResourceWood, 3]],
-	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
-	    additions: (_additions2 = {}, _defineProperty(_additions2, GameModule.kResourceBanana, 50), _defineProperty(_additions2, GameModule.kResourceWood, 10), _defineProperty(_additions2, GameModule.kResourceRock, 10), _additions2)
-	  })]
 	});
 	
 	GameModule.kSawmill = new _CityBuilding2.default({
@@ -32274,7 +32294,7 @@
 	  }
 	});
 	
-	GameModule.kDefaultBuildings = [GameModule.kBananaTree.namespace, GameModule.kBananaField.namespace, GameModule.kBananaField.namespace, GameModule.kWoodField.namespace, GameModule.kWoodField.namespace, GameModule.kCrate.namespace, GameModule.kCrate.namespace, GameModule.kSawmill.namespace, GameModule.kCabin.namespace, GameModule.kCabin.namespace, GameModule.kBananaTree.namespace];
+	GameModule.kDefaultBuildings = [GameModule.kBananaTree.namespace];
 
 /***/ }),
 /* 507 */
