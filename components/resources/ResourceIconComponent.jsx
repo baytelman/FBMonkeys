@@ -1,6 +1,6 @@
 const React = require('react');
 
-export const ResourceIcon = (namespace) => (<div className={'resource-icon ' + namespace.toLowerCase()}></div>);
+export const ResourceIcon = (namespace) => (<div key={namespace} className={'resource-icon ' + namespace.toLowerCase()}></div>);
 
 var ResourceSummaryComponent = React.createClass({
   getInitialState: function () {

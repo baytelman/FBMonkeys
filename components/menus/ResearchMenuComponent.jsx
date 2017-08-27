@@ -1,7 +1,7 @@
 import React from 'react';
 
 import GameController from '../../lib/controller/GameController.js';
-import CityResearchProject, {ScheduleResearchProjectAction } from '../../lib/city/CityResearchProject.js';
+import CityResearchProject, {ScheduleResearchProjectAction} from '../../lib/city/CityResearchProject.js';
 
 const availableResearchActions = Object
   .values(GameController.instance.module.availableResearch())
@@ -11,6 +11,18 @@ var ResearchMenu = React.createClass({
   render: function () {
     let _this = this;
     let controller = GameController.instance;
+    let ongoingResearch = controller
+      .player
+      .researchProjects
+      .map(project => (
+        <div key={project.id}>{project.getDescription()}</div>
+      ));
+    let completedResearch = controller
+      .player
+      .researchedProjects
+      .map(project => (
+        <div key={project.id}>{project.getDescription()}</div>
+      ));
     let researchComponents = availableResearchActions.map(action => {
       let scheduleResearch = function () {
         action.executeForPlayer(controller.player);
@@ -45,6 +57,8 @@ var ResearchMenu = React.createClass({
       <div id='project-menu'>
         <b>Research</b>
         <div>
+          {ongoingResearch}
+          {completedResearch}
           {researchComponents}
         </div>
       </div>
