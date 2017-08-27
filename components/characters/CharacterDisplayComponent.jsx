@@ -36,11 +36,14 @@ var CharacterDisplay = React.createClass({
     );
   },
   render: function () {
+    let characters = Object.values(this.props.player.city.characters);
+    if (characters.length == 0) {
+      return null;
+    }
     let capacity = this
       .props
       .player
       .getCapacity();
-    let characters = Object.values(this.props.player.city.characters);
     return (
       <div key="characters" id='character-display' className='hud-window'>
         <b key="title">Characters</b>

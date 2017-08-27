@@ -73,7 +73,7 @@ describe('Game Controller', () => {
     assert.strictEqual(Object.keys(controller.getAllMyBuilding()).length, 0);
     assert.isFalse(called);
     
-    let id = Object.keys(controller.module.availableBuildings())[0];
+    let id = Object.keys(controller.module.allBuildings())[0];
     controller.planBuilding(id);
     assert.strictEqual(Object.keys(controller.getAllMyBuilding()).length, 1);
     assert.isTrue(called);
@@ -114,8 +114,8 @@ describe('Game Controller', () => {
   it('JSON interface', () => {
     let controller = new GameController();
     controller.startNewGame();
-    let id = Object.keys(controller.module.availableBuildings())[0];
-    let buildingTemplate = controller.module.availableBuildings()[id];
+    let id = Object.keys(controller.module.allBuildings())[0];
+    let buildingTemplate = controller.module.allBuildings()[id];
 
     controller.planBuilding(id);
     
