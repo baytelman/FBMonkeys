@@ -4,11 +4,8 @@
     &.wood {
       color: brown;
     }
-    &.stone {
+    &.rock {
       background-color: grey;
-    }
-    &.gold {
-      background-color: gold;
     }
     &.banana {
       background-color: yellow;
@@ -33,11 +30,9 @@
   &.wood {
     background-image: url(../images/resources/wood.png);
   }
-  &.stone {
+  &.rock {
     background-color: grey;
-  }
-  &.gold {
-    background-color: gold;
+    background-image: url(../images/resources/rock.png);
   }
   &.banana {
     background-image: url(../images/resources/banana.png);

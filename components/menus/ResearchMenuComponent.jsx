@@ -58,9 +58,9 @@ var ResearchMenu = React.createClass({
       <div id='project-menu'>
         <b>Research</b>
         <div>
+          {researchComponents}
           {ongoingResearch}
           {completedResearch}
-          {researchComponents}
         </div>
       </div>
     )

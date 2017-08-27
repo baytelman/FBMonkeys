@@ -62,10 +62,8 @@ input:-moz-placeholder {
   display: block; }
   .resources .resource.wood {
     color: brown; }
-  .resources .resource.stone {
+  .resources .resource.rock {
     background-color: grey; }
-  .resources .resource.gold {
-    background-color: gold; }
   .resources .resource.banana {
     background-color: yellow; }
   .resources .resource .resource-amount {
@@ -84,10 +82,9 @@ input:-moz-placeholder {
   background-size: contain; }
   .resource-icon.wood {
     background-image: url(../images/resources/wood.png); }
-  .resource-icon.stone {
-    background-color: grey; }
-  .resource-icon.gold {
-    background-color: gold; }
+  .resource-icon.rock {
+    background-color: grey;
+    background-image: url(../images/resources/rock.png); }
   .resource-icon.banana {
     background-image: url(../images/resources/banana.png); }
   .resource-icon.monkey {

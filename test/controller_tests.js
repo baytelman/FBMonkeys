@@ -42,7 +42,7 @@ describe('Game Controller', () => {
     
     /* Producing food by a farm takes 5. Don't expect anything done on 5: */
     let events1 = controller.tick(1);
-    assert.isFalse(controller.player.canAfford([GameModule.banana(1)]));
+    assert.isFalse(controller.player.canAfford([banana(1)]));
     let tickedResourceEvents1 = events1.filter(e => e.type == CityEvent.kEarnResourceEvent);
     assert.strictEqual(sentGrantResourceEvents.length, 0);
     assert.strictEqual(sentStoreResourceEvents.length, 0);
