@@ -1,10 +1,10 @@
 import React from 'react';
 
-import BuildMenuComponent from "../components/menus/BuildMenuComponent.jsx";
-import ResearchMenuComponent from "../components/menus/ResearchMenuComponent.jsx";
-import SaveMenuComponent from "../components/menus/SaveMenuComponent.jsx";
-import ResourceDisplay from "../components/resources/ResourceDisplayComponent.jsx";
-import CharacterDisplay from "../components/characters/CharacterDisplayComponent.jsx";
+import BuildMenuComponent from "../components/menu/BuildMenuComponent.jsx";
+import ResearchMenuComponent from "../components/menu/ResearchMenuComponent.jsx";
+import SaveMenuComponent from "../components/menu/SaveMenuComponent.jsx";
+import ResourceDisplay from "../components/menu/resources/ResourceDisplayComponent.jsx";
+import CharacterDisplay from "../components/menu/characters/CharacterDisplayComponent.jsx";
 import CityDisplayComponent from "../components/CityDisplayComponent.jsx";
 
 var Player = React.createClass({

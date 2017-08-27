@@ -1,5 +1,5 @@
 const React = require('react');
-import {ResourceIcon} from './resources/ResourceIconComponent.jsx';
+import {ResourceIcon} from './menu/resources/ResourceIconComponent.jsx';
 
 let _spiralCache = {}
 let spiral = function (index) {

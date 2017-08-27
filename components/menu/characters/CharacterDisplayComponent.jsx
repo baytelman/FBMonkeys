@@ -1,6 +1,6 @@
 import React from 'react';
 import {ResourceIcon} from '../resources/ResourceIconComponent.jsx';
-const GameController = require('../../lib/controller/GameController.js').default;
+const GameController = require('../../../lib/controller/GameController.js').default;
 
 var CharacterDisplay = React.createClass({
   activeTaskMenu: function (character) {
