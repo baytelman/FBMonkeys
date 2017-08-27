@@ -3,14 +3,18 @@ import React from 'react';
 import GameController from '../../lib/controller/GameController.js';
 import CityResearchProject, {ScheduleResearchProjectAction} from '../../lib/city/CityResearchProject.js';
 
-const availableResearchActions = Object
-  .values(GameController.instance.module.availableResearch())
+const allResearchActions = Object
+  .values(GameController.instance.module.allResearch())
   .map((project) => new ScheduleResearchProjectAction({project: project}));
 
 var ResearchMenu = React.createClass({
   render: function () {
-    let _this = this;
     let controller = GameController.instance;
+    let availableResearch = allResearchActions.filter(action => action.isAvailable(controller.player));
+    if (availableResearch.length + controller.player.researchedProjects.length + controller.player.researchProjects.length == 0) {
+      return null;
+    }
+    let _this = this;
     let ongoingResearch = controller
       .player
       .researchProjects
@@ -23,13 +27,10 @@ var ResearchMenu = React.createClass({
       .map(project => (
         <div key={project.id}>{project.getDescription()}</div>
       ));
-    let researchComponents = availableResearchActions.map(action => {
+    let researchComponents = availableResearch.map(action => {
       let scheduleResearch = function () {
         action.executeForPlayer(controller.player);
       };
-      if (!action.isAvailable(controller.player)) {
-        return null;
-      }
       const cost = action.cost(controller.player);
       const costsDescription = cost.length > 0 && "Cost:\n" + cost.map((c) => "[" + c.toString() + "]").join(" + ");
       const effectsDescription = action.project.permanentEffects.length > 0 && action
@@ -57,9 +58,9 @@ var ResearchMenu = React.createClass({
       <div id='project-menu'>
         <b>Research</b>
         <div>
+          {researchComponents}
           {ongoingResearch}
           {completedResearch}
-          {researchComponents}
         </div>
       </div>
     )

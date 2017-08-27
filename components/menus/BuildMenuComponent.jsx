@@ -4,30 +4,38 @@ const GameController = require('../../lib/controller/GameController.js').default
 const BuildingJS = require('../../lib/city/CityBuilding.js');
 const BuildingConstructionAction = BuildingJS.BuildingConstructionAction
 
-const availableBuildingActions = Object
-  .values(GameController.instance.module.availableBuildings())
+const allBuildingActions = Object
+  .values(GameController.instance.module.allBuildings())
   .map((building) => new BuildingConstructionAction({building: building}));
 
 var BuildMenu = React.createClass({
   render: function () {
     let _this = this;
     let controller = GameController.instance;
+    let availableBuildingActions = allBuildingActions.filter(a => a.isAvailable(controller.player));
+    if (availableBuildingActions.length == 0) {
+      return null;
+    }
     let buildingComponents = availableBuildingActions.map(action => {
       let addBuilding = function () {
         action.executeForPlayer(controller.player);
       };
-      if (!action.isAvailable(controller.player)) {
-        return null;
-      }
       const cost = action.cost(controller.player);
       const costsDescription = cost.length > 0 && "Cost:\n" + cost.map((c) => "[" + c.toString() + "]").join(" + ");
       const effectsDescription = action.building.effects.length > 0 && action
         .building
         .effects
-        .map((c) => "- " + c.getDescription())
+        .map(e => "- " + e.getDescription())
+        .join("\n");
+      const permEffectsDescription = action.building.permanentEffects.length > 0 && action
+        .building
+        .permanentEffects
+        .map(e => "- " + e.getDescription())
         .join("\n");
       const title = costsDescription + (effectsDescription
         ? ("\n⋯\nEffects:\n" + effectsDescription)
+        : '') + (permEffectsDescription
+        ? ("\n⋯\nEnablers:\n" + permEffectsDescription)
         : '');
 
       return (

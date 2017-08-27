@@ -8,31 +8,17 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 
 // Components
-const MainWindow = require('./components/MainWindowComponent.jsx').default;
+const MainWindow = require('../components/MainWindowComponent.jsx').default;
 
 // Default Data (user)
-const Data                = require('./lib/demo_data.js');
-// LocalStorage Data
-const localStorageHandler = require('./public/js/localStorageHandler.js');
+const Data                = require('../lib/demo_data.js');
 
 /************************************/
 /*********** 2. Configure ***********/
 /************************************/
 
-// Handle localStorage user data
-// window.sessionDataObject = localStorageHandler.get('exampleStoredObject');
-// if (sessionDataObject)
-//     // Apply retrieved localStorage user data
-//     Data.user = sessionDataObject;
-// else {
-//     // Set localStorage user data to defaults
-//     localStorageHandler.set('exampleStoredObject', Data.user)
-//     window.sessionDataObject = Data.user;
-// }
-
 // Set props from retrieved data
-const GameController      = require('./lib/controller/GameController.js').default;
-const CityEvent           = require('./lib/city/CityEvent.js').CityEvent;
+const GameController      = require('../lib/controller/GameController.js').default;
 // var something = ExampleStore.getData();
 
 /************************************/
@@ -50,5 +36,5 @@ ReactDOM.render(
 /************************************/
 
 // Require Mixpanel
-const Mixpanel = require('./lib/helpers/mixpanel.js');
+const Mixpanel = require('../lib/helpers/mixpanel.js');
 mixpanel.track('City Instance Loaded');
