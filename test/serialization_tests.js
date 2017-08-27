@@ -7,7 +7,7 @@ import CitySerializer from "../lib/city/CitySerializer.js";
 import {CityPlayer} from '../lib/city/CityPlayer.js';
 import {PlayerEarnResourceEffect} from '../lib/city/CityPlayer.js';
 import {CityResource} from '../lib/city/CityResource.js';
-import CityCharacter from '../lib/city/CityCharacter.js';
+import {CityCharacter} from '../lib/city/CityCharacter.js';
 import City from '../lib/city/City.js';
 
 const kGold = 'gold';

@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {CityResource} from '../lib/city/CityResource.js';
 import {CityPlayer} from '../lib/city/CityPlayer.js';
 import CityBuilding, {CollectBuildingResourcesEffect, BuildingStoreResourceEffect, ResourceStoringModifierEffect} from '../lib/city/CityBuilding.js';
-import CityCharacter, {CharacterConsumeResourceOrGetsRemovedEffect, CityRole} from '../lib/city/CityCharacter.js';
+import {CityCharacter, CharacterConsumeResourceOrGetsRemovedEffect } from '../lib/city/CityCharacter.js';
 
 describe('City\'s seasons', () => {
 
@@ -73,7 +73,7 @@ describe('City\'s seasons', () => {
     const char1 = Object.values(player.city.characters)[0];
 
     const collectTask = new CollectBuildingResourcesEffect({period: time});
-    char1.setRole(new CityRole({tasks: [collectTask]}));
+    char1.tasks = [collectTask];
     player.updateTime(0.1);
 
     player.updateTime(seasonPeriod);
