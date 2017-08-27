@@ -24,10 +24,17 @@ var BuildMenu = React.createClass({
       const effectsDescription = action.building.effects.length > 0 && action
         .building
         .effects
-        .map((c) => "- " + c.getDescription())
+        .map(e => "- " + e.getDescription())
+        .join("\n");
+      const permEffectsDescription = action.building.permanentEffects.length > 0 && action
+        .building
+        .permanentEffects
+        .map(e => "- " + e.getDescription())
         .join("\n");
       const title = costsDescription + (effectsDescription
         ? ("\n⋯\nEffects:\n" + effectsDescription)
+        : '') + (permEffectsDescription
+        ? ("\n⋯\nEnablers:\n" + permEffectsDescription)
         : '');
 
       return (
