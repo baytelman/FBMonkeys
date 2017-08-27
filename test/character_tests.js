@@ -5,8 +5,8 @@ import {MutableObject} from "../lib/city/utils/Utils.js";
 import City from '../lib/city/City.js';
 import {CityResource} from '../lib/city/CityResource.js';
 import CityBuilding, {CollectBuildingResourcesEffect, BuildingStoreResourceEffect} from '../lib/city/CityBuilding.js';
-import {CityPlayer, PlayerEarnResourceEffect } from '../lib/city/CityPlayer.js';
-import {CityCharacter, CharacterConsumeResourceOrGetsRemovedEffect } from '../lib/city/CityCharacter.js';
+import {CityPlayer, PlayerEarnResourceEffect} from '../lib/city/CityPlayer.js';
+import CityCharacter, {CharacterConsumeResourceOrGetsRemovedEffect, CityRole} from '../lib/city/CityCharacter.js';
 import CityEvent from '../lib/city/CityEvent.js'
 
 describe('Player\'s Characters', () => {
@@ -106,7 +106,7 @@ describe('Player\'s Characters', () => {
       period: time
     });
 
-    char1.tasks = [task1, task2];
+    char1.setRole(new CityRole({tasks: [task1, task2]}));
     player.updateTime(1);
 
     assert.equal(char1.activeTask.originalId, task1.id);
@@ -155,7 +155,7 @@ describe('Player\'s Characters', () => {
     const char1 = Object.values(player.city.characters)[0];
 
     const collectTask = new CollectBuildingResourcesEffect({period: time});
-    char1.tasks = [collectTask];
+    char1.setRole(new CityRole({tasks: [collectTask]}));
     player.updateTime(1);
 
     /* Nothing to pickup */
@@ -203,8 +203,10 @@ describe('Player\'s Characters', () => {
     const char2 = Object.values(player.city.characters)[1];
 
     const collectTask = new CollectBuildingResourcesEffect({period: time});
-    char1.tasks = [collectTask];
-    char2.tasks = [collectTask];
+    let role = new CityRole({tasks: [collectTask]});
+      
+    char1.setRole(role);
+    char2.setRole(role);
     player.updateTime(1);
 
     /* Nothing to pickup */
@@ -248,6 +250,7 @@ describe('Player\'s Characters', () => {
     assert.equal(characters, Object.values(player.city.characters).length);
 
     let events1 = player.updateTime(period);
+    console.log(events1);
     assert.equal(characters, events1.length);
     assert.isTrue(events1.every(e => e.type == CityEvent.kSpendResourceEvent));
 
@@ -287,6 +290,7 @@ describe('Player\'s Characters', () => {
     player.updateTime(1);
 
     let events1 = player.updateTime(period * times);
+    console.log(events1);
     assert.equal(times, events1.length);
     assert.isTrue(events1.every(e => e.type == CityEvent.kSpendResourceEvent));
     assert.equal(player.getResourceAmountForType(kGold), 0);
