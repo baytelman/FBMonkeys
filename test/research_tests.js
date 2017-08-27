@@ -3,7 +3,7 @@ import {CityPlayer, CapacityGrantingEffect} from '../lib/city/CityPlayer';
 import {CityResource, ResourceEffect} from '../lib/city/CityResource';
 import CityBuilding from '../lib/city/CityBuilding';
 
-import {CityCharacter } from '../lib/city/CityCharacter.js';
+import CityCharacter from '../lib/city/CityCharacter.js';
 import CityResearchProject, {ScheduleResearchProjectAction, PlayerEarnResearchEffect} from '../lib/city/CityResearchProject';
 
 

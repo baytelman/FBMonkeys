@@ -5,8 +5,8 @@ import {MutableObject} from "../lib/city/utils/Utils.js";
 import City from '../lib/city/City.js';
 import {CityResource} from '../lib/city/CityResource.js';
 import CityBuilding, {CollectBuildingResourcesEffect, BuildingStoreResourceEffect} from '../lib/city/CityBuilding.js';
-import {CityPlayer, PlayerEarnResourceEffect } from '../lib/city/CityPlayer.js';
-import {CityCharacter, CharacterConsumeResourceOrGetsRemovedEffect } from '../lib/city/CityCharacter.js';
+import {CityPlayer, PlayerEarnResourceEffect} from '../lib/city/CityPlayer.js';
+import CityCharacter, {CharacterConsumeResourceOrGetsRemovedEffect} from '../lib/city/CityCharacter.js';
 import CityEvent from '../lib/city/CityEvent.js'
 
 describe('Player\'s Characters', () => {

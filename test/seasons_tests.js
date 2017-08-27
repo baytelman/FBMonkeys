@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {CityResource} from '../lib/city/CityResource.js';
 import {CityPlayer} from '../lib/city/CityPlayer.js';
 import CityBuilding, {CollectBuildingResourcesEffect, BuildingStoreResourceEffect, ResourceStoringModifierEffect} from '../lib/city/CityBuilding.js';
-import {CityCharacter, CharacterConsumeResourceOrGetsRemovedEffect } from '../lib/city/CityCharacter.js';
+import CityCharacter, {CharacterConsumeResourceOrGetsRemovedEffect} from '../lib/city/CityCharacter.js';
 
 describe('City\'s seasons', () => {
 
