@@ -66,9 +66,9 @@
 	var MainWindow = __webpack_require__(160).default;
 	
 	// Default Data (user)
-	var Data = __webpack_require__(214);
+	var Data = __webpack_require__(217);
 	// LocalStorage Data
-	var localStorageHandler = __webpack_require__(215);
+	var localStorageHandler = __webpack_require__(218);
 	
 	/************************************/
 	/*********** 2. Configure ***********/
@@ -102,7 +102,7 @@
 	/************************************/
 	
 	// Require Mixpanel
-	var Mixpanel = __webpack_require__(216);
+	var Mixpanel = __webpack_require__(219);
 	mixpanel.track('City Instance Loaded');
 
 /***/ }),
@@ -19889,19 +19889,23 @@
 	
 	var _BuildMenuComponent2 = _interopRequireDefault(_BuildMenuComponent);
 	
-	var _SaveMenuComponent = __webpack_require__(209);
+	var _ResearchMenuComponent = __webpack_require__(211);
+	
+	var _ResearchMenuComponent2 = _interopRequireDefault(_ResearchMenuComponent);
+	
+	var _SaveMenuComponent = __webpack_require__(212);
 	
 	var _SaveMenuComponent2 = _interopRequireDefault(_SaveMenuComponent);
 	
-	var _ResourceDisplayComponent = __webpack_require__(210);
+	var _ResourceDisplayComponent = __webpack_require__(213);
 	
 	var _ResourceDisplayComponent2 = _interopRequireDefault(_ResourceDisplayComponent);
 	
-	var _CharacterDisplayComponent = __webpack_require__(212);
+	var _CharacterDisplayComponent = __webpack_require__(215);
 	
 	var _CharacterDisplayComponent2 = _interopRequireDefault(_CharacterDisplayComponent);
 	
-	var _CityDisplayComponent = __webpack_require__(213);
+	var _CityDisplayComponent = __webpack_require__(216);
 	
 	var _CityDisplayComponent2 = _interopRequireDefault(_CityDisplayComponent);
 	
@@ -19925,6 +19929,7 @@
 	          } },
 	        _react2.default.createElement(_SaveMenuComponent2.default, { player: this.props.player }),
 	        _react2.default.createElement(_BuildMenuComponent2.default, { player: this.props.player }),
+	        _react2.default.createElement(_ResearchMenuComponent2.default, { player: this.props.player }),
 	        _react2.default.createElement(_ResourceDisplayComponent2.default, { player: this.props.player, data: this.props.player }),
 	        _react2.default.createElement(_CharacterDisplayComponent2.default, { player: this.props.player, data: this.props.player })
 	      ),
@@ -19950,25 +19955,28 @@
 	var BuildingJS = __webpack_require__(171);
 	var BuildingConstructionAction = BuildingJS.BuildingConstructionAction;
 	
+	var availableBuildingActions = Object.values(GameController.instance.module.availableBuildings()).map(function (building) {
+	  return new BuildingConstructionAction({ building: building });
+	});
+	
 	var BuildMenu = React.createClass({
 	  displayName: 'BuildMenu',
 	
 	  render: function render() {
 	    var _this = this;
 	    var controller = GameController.instance;
-	    var buildingComponents = Object.values(controller.module.availableBuildings()).map(function (building) {
-	      var action = new BuildingConstructionAction({ building: building });
+	    var buildingComponents = availableBuildingActions.map(function (action) {
 	      var addBuilding = function addBuilding() {
 	        action.executeForPlayer(controller.player);
 	      };
 	      if (!action.isAvailable(controller.player)) {
 	        return null;
 	      }
-	      var costs = action.costs(controller.player);
-	      var costsDescription = costs.length > 0 && "Cost:\n" + costs.map(function (c) {
+	      var cost = action.cost(controller.player);
+	      var costsDescription = cost.length > 0 && "Cost:\n" + cost.map(function (c) {
 	        return "[" + c.toString() + "]";
 	      }).join(" + ");
-	      var effectsDescription = building.effects.length > 0 && building.effects.map(function (c) {
+	      var effectsDescription = action.building.effects.length > 0 && action.building.effects.map(function (c) {
 	        return "- " + c.getDescription();
 	      }).join("\n");
 	      var title = costsDescription + (effectsDescription ? "\n⋯\nEffects:\n" + effectsDescription : '');
@@ -19976,12 +19984,12 @@
 	      return React.createElement(
 	        'button',
 	        {
-	          key: "btn_bld_" + building.id,
+	          key: "btn_bld_" + action.building.id,
 	          disabled: !action.isAffordable(controller.player),
 	          className: 'build-entity',
 	          onClick: addBuilding,
 	          title: title },
-	        building.name
+	        action.building.name
 	      );
 	    });
 	
@@ -20024,11 +20032,11 @@
 	
 	var CitySerializer = __webpack_require__(165).default;
 	
-	var _require = __webpack_require__(173),
+	var _require = __webpack_require__(174),
 	    CityPlayer = _require.CityPlayer;
 	
-	var GameModule = __webpack_require__(207).default;
-	var EventEmitter = __webpack_require__(208);
+	var GameModule = __webpack_require__(208).default;
+	var EventEmitter = __webpack_require__(210);
 	
 	var GameController = function (_EventEmitter) {
 	  _inherits(GameController, _EventEmitter);
@@ -20087,8 +20095,8 @@
 	    }
 	  }, {
 	    key: 'planBuilding',
-	    value: function planBuilding(id) {
-	      var b = this.module.availableBuildings()[id];
+	    value: function planBuilding(namespace) {
+	      var b = this.module.availableBuildings()[namespace];
 	      var event = this.player.city.planBuilding({
 	        building: b
 	      });
@@ -20105,12 +20113,31 @@
 	    }
 	  }, {
 	    key: 'installCompletedBuilding',
-	    value: function installCompletedBuilding(id) {
-	      var event = this.planBuilding(id);
+	    value: function installCompletedBuilding(namespace) {
+	      var event = this.planBuilding(namespace);
 	      var events = [event];
 	      var building = this.player.city.buildings[event.object.id];
-	      events.push(building.updateTime(building.buildingTime, {}));
+	      events.push(building.updateTime(building.setupTime, {}));
 	      return events;
+	    }
+	  }, {
+	    key: 'scheduleResearch',
+	    value: function scheduleResearch(namespace) {
+	      var research = this.module.availableResearch()[namespace];
+	      var event = this.player.scheduleResearch(research);
+	      return [event];
+	    }
+	  }, {
+	    key: 'setCharacterTasks',
+	    value: function setCharacterTasks(id, taskNamespaces) {
+	      var _this3 = this;
+	
+	      var character = this.player.city.characters[id];
+	      var tasks = taskNamespaces.map(function (n) {
+	        return _this3.module.availableTasks()[n];
+	      });
+	      var event = character.setTasks(tasks);
+	      return [event];
 	    }
 	  }]);
 	
@@ -20142,21 +20169,23 @@
 	    CityResource = _require.CityResource,
 	    ResourceEffect = _require.ResourceEffect;
 	
+	var CityBuilding = __webpack_require__(171).default;
+	
 	var _require2 = __webpack_require__(171),
-	    Building = _require2.Building,
 	    BuildingStoreResourceEffect = _require2.BuildingStoreResourceEffect,
 	    CollectBuildingResourcesEffect = _require2.CollectBuildingResourcesEffect,
 	    ResourceStoringModifierEffect = _require2.ResourceStoringModifierEffect;
 	
-	var FrequencyEffect = __webpack_require__(172).FrequencyEffect;
+	var FrequencyEffect = __webpack_require__(173).FrequencyEffect;
 	
-	var _require3 = __webpack_require__(173),
+	var _require3 = __webpack_require__(174),
 	    CityPlayer = _require3.CityPlayer,
 	    PlayerEarnResourceEffect = _require3.PlayerEarnResourceEffect,
 	    CapacityGrantingEffect = _require3.CapacityGrantingEffect;
 	
-	var _require4 = __webpack_require__(206),
-	    CityCharacter = _require4.CityCharacter,
+	var CityCharacter = __webpack_require__(207).default;
+	
+	var _require4 = __webpack_require__(207),
 	    CharacterConsumeResourceOrGetsRemovedEffect = _require4.CharacterConsumeResourceOrGetsRemovedEffect;
 	
 	var CitySerializer = function () {
@@ -20243,7 +20272,7 @@
 	
 	var _CityEvent2 = _interopRequireDefault(_CityEvent);
 	
-	var _Building = __webpack_require__(171);
+	var _CityBuilding = __webpack_require__(171);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -20371,12 +20400,16 @@
 	      return updated;
 	    }
 	  }, {
+	    key: 'getActivePermamentEffects',
+	    value: function getActivePermamentEffects(type) {
+	      return [this.seasonPermanentEffect].filter(function (e) {
+	        return !type || e instanceof type;
+	      });
+	    }
+	  }, {
 	    key: 'updateTime',
 	    value: function updateTime(deltaSeconds, parents) {
-	      parents = Object.assign(parents, {
-	        city: this,
-	        permanentEffects: [this.seasonPermanentEffect]
-	      });
+	      parents = Object.assign(parents, { city: this });
 	      this.time += deltaSeconds;
 	
 	      var year = Math.floor(this.time / (this.seasonPeriod * 4));
@@ -20385,7 +20418,7 @@
 	      if (this.currentSeason != season || this.currentYear != year) {
 	        this.currentSeason = season;
 	        this.currentYear = year;
-	        this.seasonPermanentEffect = new _Building.ResourceStoringModifierEffect({ resourceType: this.seasonAffectedResource, season: season });
+	        this.seasonPermanentEffect = new _CityBuilding.ResourceStoringModifierEffect({ resourceType: this.seasonAffectedResource, season: season });
 	      }
 	
 	      var updated = [];
@@ -20835,8 +20868,8 @@
 	    }
 	  }, {
 	    key: 'resourcesCoverCosts',
-	    value: function resourcesCoverCosts(resources, costs) {
-	      var remainder = CityResource.aggregateSameTypeResources(resources.concat(CityResource.resourcesWithMultiplier(costs, -1)));
+	    value: function resourcesCoverCosts(resources, cost) {
+	      var remainder = CityResource.aggregateSameTypeResources(resources.concat(CityResource.resourcesWithMultiplier(cost, -1)));
 	      var missing = 0;
 	      remainder.forEach(function (res) {
 	        if (res.amount < 0) {
@@ -20845,7 +20878,7 @@
 	      });
 	      if (missing > 0) {
 	        var total = 0;
-	        costs.forEach(function (cost) {
+	        cost.forEach(function (cost) {
 	          total += cost.amount;
 	        });
 	        return 1.0 - missing / (1.0 * total);
@@ -20881,12 +20914,12 @@
 	  }, {
 	    key: 'isAffordable',
 	    value: function isAffordable(player) {
-	      var costs = CityResource.aggregateSameTypeResources(this.costs(player));
-	      return player.canAfford(costs);
+	      var cost = CityResource.aggregateSameTypeResources(this.cost(player));
+	      return player.canAfford(cost);
 	    }
 	  }, {
-	    key: 'costs',
-	    value: function costs(player) {
+	    key: 'cost',
+	    value: function cost(player) {
 	      if (!player) {
 	        throw new Error("Cost can only be calculated for a specific player");
 	      }
@@ -20901,7 +20934,7 @@
 	      if (!this.isAffordable(player)) {
 	        throw new InsuficientResourcesError();
 	      }
-	      player.spendResources(this.costs(player));
+	      player.spendResources(this.cost(player));
 	      this.actionFunction(player);
 	    }
 	  }]);
@@ -20943,6 +20976,11 @@
 	      combinedUnits.multipliers = this._combine(combinedUnits.multipliers || {}, this.multipliers);
 	      return combinedUnits;
 	    }
+	  }, {
+	    key: 'toString',
+	    value: function toString() {
+	      return "ResourceEffect";
+	    }
 	  }]);
 
 	  return ResourceEffect;
@@ -20968,7 +21006,7 @@
 	
 	var _CityResource = __webpack_require__(169);
 	
-	var _Building = __webpack_require__(171);
+	var _CityBuilding = __webpack_require__(171);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -21010,12 +21048,19 @@
 	CityEvent.kSpendResourceEvent = 'SpendResource';
 	CityEvent.kStoreResourceEvent = 'StoreResource';
 	
+	CityEvent.kResearchScheduledEvent = 'ResearchScheduled';
+	CityEvent.kEarnResearchEvent = 'EarnResearch';
+	CityEvent.kProjectCompletedEvent = 'ProjectCompleted';
+	CityEvent.kProjectProgressEvent = 'ProjectProgress';
+	
 	CityEvent.kBuildingPlannedEvent = 'BuildingPlanned';
 	CityEvent.kBuildingCompletedEvent = 'BuildingCompleted';
 	CityEvent.kBuildingProgressEvent = 'BuildingProgress';
 	
 	CityEvent.kCharacterAddedEvent = 'CharacterAdded';
 	CityEvent.kCharacterRemovedEvent = 'CharacterRemoved';
+	CityEvent.kCharacterTasksAssigned = 'CharacterAssigned';
+	
 	CityEvent.kActionAbortedEvent = 'ActionAborted';
 	CityEvent.kTaskAbortedEvent = 'TaskAborted';
 
@@ -21028,9 +21073,11 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.ResourceStoringModifierEffect = exports.CollectBuildingResourcesEffect = exports.BuildingStoreResourceEffect = exports.BuildingConstructionAction = exports.Building = exports.ProjectAlreadyCompletedError = undefined;
+	exports.ResourceStoringModifierEffect = exports.CollectBuildingResourcesEffect = exports.BuildingStoreResourceEffect = exports.BuildingConstructionAction = exports.ProjectAlreadyCompletedError = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 	
 	var _uuidJs = __webpack_require__(167);
 	
@@ -21038,13 +21085,17 @@
 	
 	var _Utils = __webpack_require__(168);
 	
+	var _CityProject2 = __webpack_require__(172);
+	
+	var _CityProject3 = _interopRequireDefault(_CityProject2);
+	
 	var _CityResource = __webpack_require__(169);
 	
 	var _CityEvent = __webpack_require__(170);
 	
 	var _CityEvent2 = _interopRequireDefault(_CityEvent);
 	
-	var _Effect = __webpack_require__(172);
+	var _Effect = __webpack_require__(173);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -21068,62 +21119,43 @@
 	  return ProjectAlreadyCompletedError;
 	}(Error);
 	
-	var Building = exports.Building = function () {
-	  function Building() {
+	var CityBuilding = function (_CityProject) {
+	  _inherits(CityBuilding, _CityProject);
+	
+	  function CityBuilding() {
 	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
 	        _ref$name = _ref.name,
-	        name = _ref$name === undefined ? "City Hall" : _ref$name,
-	        _ref$namespace = _ref.namespace,
-	        namespace = _ref$namespace === undefined ? null : _ref$namespace,
-	        _ref$requirements = _ref.requirements,
-	        requirements = _ref$requirements === undefined ? [] : _ref$requirements,
-	        _ref$costs = _ref.costs,
-	        costs = _ref$costs === undefined ? [] : _ref$costs,
+	        name = _ref$name === undefined ? "CityBuilding" : _ref$name,
 	        _ref$costFactor = _ref.costFactor,
 	        costFactor = _ref$costFactor === undefined ? 2 : _ref$costFactor,
-	        _ref$time = _ref.time,
-	        time = _ref$time === undefined ? 0 : _ref$time,
 	        _ref$effects = _ref.effects,
-	        effects = _ref$effects === undefined ? [] : _ref$effects,
-	        _ref$permanentEffects = _ref.permanentEffects,
-	        permanentEffects = _ref$permanentEffects === undefined ? [] : _ref$permanentEffects;
+	        effects = _ref$effects === undefined ? [] : _ref$effects;
 	
-	    _classCallCheck(this, Building);
+	    _classCallCheck(this, CityBuilding);
 	
-	    this.id = _uuidJs2.default.create().toString();
-	    this.name = name;
-	    this.namespace = (namespace || name || this.id).toLowerCase().replace(" ", "_");
+	    var params = Object.assign(arguments[0] || {}, {
+	      name: name,
+	      costFactor: costFactor,
+	      effects: effects,
+	      completionEventType: _CityEvent2.default.kBuildingCompletedEvent,
+	      progressEventType: _CityEvent2.default.kBuildingProgressEvent
+	    });
 	
-	    this.requirements = requirements;
-	    this.costs = costs;
-	    this.costFactor = costFactor;
-	    this.buildingTime = time;
+	    var _this2 = _possibleConstructorReturn(this, (CityBuilding.__proto__ || Object.getPrototypeOf(CityBuilding)).call(this, params));
 	
-	    this.storedResources = false;
-	
-	    this.effects = effects;
-	    this.permanentEffects = permanentEffects;
-	
-	    this.time = 0;
+	    _this2.costFactor = costFactor;
+	    _this2.storedResources = false;
+	    _this2.effects = effects;
+	    return _this2;
 	  }
 	
-	  _createClass(Building, [{
-	    key: 'toString',
-	    value: function toString() {
-	      return this.name + " (" + this.id + ") " + this.getStatus();
-	    }
-	  }, {
+	  _createClass(CityBuilding, [{
 	    key: 'getStatus',
 	    value: function getStatus() {
-	      if (this.isCompleted()) {
-	        if (this.effects.length > 0) {
-	          return this.effects[0].getStatus();
-	        } else {
-	          return "";
-	        }
-	      } else {
-	        return "[" + Math.round(this.progress() * 100) + "% Building]";
+	      if (this.isCompleted() && this.effects.length > 0) {
+	        return this.effects[0].getStatus();
 	      }
+	      return _get(CityBuilding.prototype.__proto__ || Object.getPrototypeOf(CityBuilding.prototype), 'getStatus', this).call(this);
 	    }
 	  }, {
 	    key: 'storeResources',
@@ -21138,13 +21170,13 @@
 	  }, {
 	    key: 'getCollectingTask',
 	    value: function getCollectingTask(player) {
-	      var _this2 = this;
+	      var _this3 = this;
 	
 	      var collectingTask = null;
 	      Object.values(player.city.characters).map(function (c) {
 	        return c.activeTask;
 	      }).filter(function (at) {
-	        return at instanceof CollectBuildingResourcesEffect && at.building == _this2;
+	        return at instanceof CollectBuildingResourcesEffect && at.building == _this3;
 	      }).forEach(function (at) {
 	        return collectingTask = at;
 	      });
@@ -21178,55 +21210,29 @@
 	      return event;
 	    }
 	  }, {
-	    key: 'progress',
-	    value: function progress() {
-	      if (this.time >= this.buildingTime) {
-	        return 1;
-	      }
-	      return this.time / this.buildingTime;
+	    key: 'complete',
+	    value: function complete() {
+	      /* We will mutate (update time) of these */
+	      this.effects = this.effects.map(_Utils.MutableObject.mutableCopy);
 	    }
 	  }, {
-	    key: 'isCompleted',
-	    value: function isCompleted() {
-	      return this.progress() >= 1;
-	    }
-	  }, {
-	    key: 'updateTime',
-	    value: function updateTime(deltaSeconds, parents) {
+	    key: 'postCompletionUpdateTime',
+	    value: function postCompletionUpdateTime(deltaSeconds, parents) {
 	      _Utils.MutableObject.checkIsMutable(this);
 	      parents = Object.assign(parents, { building: this });
 	      var updated = [];
-	
-	      /* This works for buildings with `buildingTime == 0` */
-	      var wasCompleted = this.time > 0 && this.isCompleted();
-	
-	      this.time += deltaSeconds;
-	      this.time = Math.round(this.time * 100) / 100;
-	
-	      if (this.isCompleted()) {
-	        if (!wasCompleted) {
-	          /* Copy effects, because we will mutate them (start time) */
-	          this.effects = this.effects.map(_Utils.MutableObject.mutableCopy);
-	          this.permanentEffects = this.permanentEffects.map(_Utils.MutableObject.mutableCopy);
-	
-	          updated.push(new _CityEvent2.default({ type: _CityEvent2.default.kBuildingCompletedEvent, object: this }));
-	          deltaSeconds = this.time - this.buildingTime;
-	        }
-	
-	        this.effects.forEach(function (effect) {
-	          var effectUpdate = effect.updateTime(deltaSeconds, parents);
-	          updated = updated.concat(effectUpdate);
-	        });
-	      } else {
-	        updated.push(new _CityEvent2.default({ type: _CityEvent2.default.kBuildingProgressEvent, object: this }));
-	      }
-	
+	      this.effects.forEach(function (effect) {
+	        var effectUpdate = effect.updateTime(deltaSeconds, parents);
+	        updated = updated.concat(effectUpdate);
+	      });
 	      return updated;
 	    }
 	  }]);
 	
-	  return Building;
-	}();
+	  return CityBuilding;
+	}(_CityProject3.default);
+	
+	exports.default = CityBuilding;
 	
 	var BuildingConstructionAction = exports.BuildingConstructionAction = function (_ResourceConsumingAct) {
 	  _inherits(BuildingConstructionAction, _ResourceConsumingAct);
@@ -21236,7 +21242,7 @@
 	
 	    _classCallCheck(this, BuildingConstructionAction);
 	
-	    var _this3 = _possibleConstructorReturn(this, (BuildingConstructionAction.__proto__ || Object.getPrototypeOf(BuildingConstructionAction)).call(this, "Build", function (player) {
+	    var _this4 = _possibleConstructorReturn(this, (BuildingConstructionAction.__proto__ || Object.getPrototypeOf(BuildingConstructionAction)).call(this, "Build", function (player) {
 	      return player.fulfillsRequirements(this.building.namespace, this.building.requirements);
 	    }, function (player) {
 	      var factor = 1;
@@ -21244,13 +21250,13 @@
 	        var achievements = player.getAchievements({ completedOnly: false });
 	        factor = Math.pow(this.building.costFactor, achievements[this.building.namespace] || 0);
 	      }
-	      return _CityResource.CityResource.resourcesWithMultiplier(this.building.costs, factor);
+	      return _CityResource.CityResource.resourcesWithMultiplier(this.building.cost, factor);
 	    }, function (player) {
 	      player.city.planBuilding({ building: this.building });
 	    }));
 	
-	    _this3.building = building;
-	    return _this3;
+	    _this4.building = building;
+	    return _this4;
 	  }
 	
 	  return BuildingConstructionAction;
@@ -21268,10 +21274,10 @@
 	
 	    _classCallCheck(this, BuildingStoreResourceEffect);
 	
-	    var _this4 = _possibleConstructorReturn(this, (BuildingStoreResourceEffect.__proto__ || Object.getPrototypeOf(BuildingStoreResourceEffect)).call(this, arguments[0]));
+	    var _this5 = _possibleConstructorReturn(this, (BuildingStoreResourceEffect.__proto__ || Object.getPrototypeOf(BuildingStoreResourceEffect)).call(this, arguments[0]));
 	
-	    _this4.resources = resources;
-	    return _this4;
+	    _this5.resources = resources;
+	    return _this5;
 	  }
 	
 	  _createClass(BuildingStoreResourceEffect, [{
@@ -21286,7 +21292,7 @@
 	        return effect instanceof ResourceStoringModifierEffect;
 	      });
 	
-	      var modifiers = {};
+	      var modifiers = { multipliers: {} };
 	      effects.forEach(function (effect) {
 	        return effect.combine(modifiers);
 	      });
@@ -21321,10 +21327,10 @@
 	
 	    _classCallCheck(this, CollectBuildingResourcesEffect);
 	
-	    var _this5 = _possibleConstructorReturn(this, (CollectBuildingResourcesEffect.__proto__ || Object.getPrototypeOf(CollectBuildingResourcesEffect)).call(this, arguments[0]));
+	    var _this6 = _possibleConstructorReturn(this, (CollectBuildingResourcesEffect.__proto__ || Object.getPrototypeOf(CollectBuildingResourcesEffect)).call(this, arguments[0]));
 	
-	    _this5.building = null;
-	    return _this5;
+	    _this6.building = null;
+	    return _this6;
 	  }
 	
 	  _createClass(CollectBuildingResourcesEffect, [{
@@ -21388,13 +21394,13 @@
 	      multiplier = -0.75;
 	    }
 	
-	    var _this6 = _possibleConstructorReturn(this, (ResourceStoringModifierEffect.__proto__ || Object.getPrototypeOf(ResourceStoringModifierEffect)).call(this, {
+	    var _this7 = _possibleConstructorReturn(this, (ResourceStoringModifierEffect.__proto__ || Object.getPrototypeOf(ResourceStoringModifierEffect)).call(this, {
 	      multipliers: _defineProperty({}, resourceType, multiplier)
 	    }));
 	
-	    _this6.name = name;
-	    _this6.effect = (multiplier > 0 ? "+" : "-") + Math.abs(Math.round(100 * multiplier)) + "%";
-	    return _this6;
+	    _this7.name = name;
+	    _this7.effect = (multiplier > 0 ? "+" : "-") + Math.abs(Math.round(100 * multiplier)) + "%";
+	    return _this7;
 	  }
 	
 	  _createClass(ResourceStoringModifierEffect, [{
@@ -21409,6 +21415,168 @@
 
 /***/ }),
 /* 172 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.ProjectAlreadyCompletedError = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _uuidJs = __webpack_require__(167);
+	
+	var _uuidJs2 = _interopRequireDefault(_uuidJs);
+	
+	var _Utils = __webpack_require__(168);
+	
+	var _CityEvent = __webpack_require__(170);
+	
+	var _CityEvent2 = _interopRequireDefault(_CityEvent);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var ProjectAlreadyCompletedError = exports.ProjectAlreadyCompletedError = function (_Error) {
+	  _inherits(ProjectAlreadyCompletedError, _Error);
+	
+	  function ProjectAlreadyCompletedError() {
+	    _classCallCheck(this, ProjectAlreadyCompletedError);
+	
+	    return _possibleConstructorReturn(this, (ProjectAlreadyCompletedError.__proto__ || Object.getPrototypeOf(ProjectAlreadyCompletedError)).apply(this, arguments));
+	  }
+	
+	  return ProjectAlreadyCompletedError;
+	}(Error);
+	
+	var CityProject = function () {
+	  function CityProject() {
+	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref$name = _ref.name,
+	        name = _ref$name === undefined ? "A project" : _ref$name,
+	        _ref$namespace = _ref.namespace,
+	        namespace = _ref$namespace === undefined ? null : _ref$namespace,
+	        _ref$requirements = _ref.requirements,
+	        requirements = _ref$requirements === undefined ? [] : _ref$requirements,
+	        _ref$cost = _ref.cost,
+	        cost = _ref$cost === undefined ? [] : _ref$cost,
+	        _ref$time = _ref.time,
+	        time = _ref$time === undefined ? 0 : _ref$time,
+	        _ref$permanentEffects = _ref.permanentEffects,
+	        permanentEffects = _ref$permanentEffects === undefined ? [] : _ref$permanentEffects,
+	        _ref$completionEventT = _ref.completionEventType,
+	        completionEventType = _ref$completionEventT === undefined ? _CityEvent2.default.kProjectCompletedEvent : _ref$completionEventT,
+	        _ref$progressEventTyp = _ref.progressEventType,
+	        progressEventType = _ref$progressEventTyp === undefined ? _CityEvent2.default.kProjectProgressEvent : _ref$progressEventTyp;
+	
+	    _classCallCheck(this, CityProject);
+	
+	    this.id = _uuidJs2.default.create().toString();
+	    this.name = name;
+	    this.namespace = namespace || name.toLowerCase().replace(" ", "_") || this.id;
+	    this.requirements = requirements;
+	    this.cost = cost;
+	    this.permanentEffects = permanentEffects;
+	
+	    this.setupTime = time;
+	    this.completionEventType = completionEventType;
+	    this.progressEventType = progressEventType;
+	
+	    this.time = 0;
+	  }
+	
+	  _createClass(CityProject, [{
+	    key: 'toString',
+	    value: function toString() {
+	      return this.name + " (" + this.id + ") " + this.getStatus();
+	    }
+	  }, {
+	    key: 'getStatus',
+	    value: function getStatus() {
+	      if (this.isCompleted()) {
+	        if (this.permanentEffects.length > 0) {
+	          return this.permanentEffects[0].toString();
+	        } else {
+	          return "";
+	        }
+	      } else {
+	        return "[" + Math.round(this.progress() * 100) + "% Setting Up]";
+	      }
+	    }
+	  }, {
+	    key: 'getDescription',
+	    value: function getDescription() {
+	      return this.name + " " + this.getStatus();
+	    }
+	  }, {
+	    key: 'remainingTime',
+	    value: function remainingTime() {
+	      return this.time >= this.setupTime ? 0 : this.setupTime - this.time;
+	    }
+	  }, {
+	    key: 'progress',
+	    value: function progress() {
+	      if (this.time >= this.setupTime) {
+	        return 1;
+	      }
+	      return this.time / this.setupTime;
+	    }
+	  }, {
+	    key: 'isCompleted',
+	    value: function isCompleted() {
+	      return this.progress() >= 1;
+	    }
+	  }, {
+	    key: 'complete',
+	    value: function complete() {
+	      /* To be overriden if needed */
+	    }
+	  }, {
+	    key: 'postCompletionUpdateTime',
+	    value: function postCompletionUpdateTime(deltaSeconds, parents) {
+	      return [];
+	    }
+	  }, {
+	    key: 'updateTime',
+	    value: function updateTime(deltaSeconds, parents) {
+	      _Utils.MutableObject.checkIsMutable(this);
+	      var updated = [];
+	
+	      /* This works for projects with `setupTime == 0` */
+	      var wasCompleted = this.time > 0 && this.isCompleted();
+	
+	      this.time += deltaSeconds;
+	      this.time = Math.round(this.time * 100) / 100;
+	
+	      if (this.isCompleted()) {
+	        if (!wasCompleted) {
+	          updated.push(new _CityEvent2.default({ type: this.completionEventType, object: this }));
+	          deltaSeconds = this.time - this.setupTime;
+	          this.complete();
+	        }
+	        updated = updated.concat(this.postCompletionUpdateTime(deltaSeconds, parents));
+	      } else {
+	        updated.push(new _CityEvent2.default({ type: this.progressEventType, object: this }));
+	      }
+	
+	      return updated;
+	    }
+	  }]);
+	
+	  return CityProject;
+	}();
+	
+	exports.default = CityProject;
+
+/***/ }),
+/* 173 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21438,11 +21606,15 @@
 	  function FrequencyEffect() {
 	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
 	        _ref$period = _ref.period,
-	        period = _ref$period === undefined ? 1 : _ref$period;
+	        period = _ref$period === undefined ? 1 : _ref$period,
+	        name = _ref.name,
+	        namespace = _ref.namespace;
 	
 	    _classCallCheck(this, FrequencyEffect);
 	
 	    this.id = UUIDjs.create().toString();
+	    this.name = name;
+	    this.namespace = namespace;
 	    this.period = period;
 	
 	    this.cycleStart = 0;
@@ -21531,7 +21703,7 @@
 	}();
 
 /***/ }),
-/* 173 */
+/* 174 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21543,11 +21715,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _object = __webpack_require__(174);
+	var _object = __webpack_require__(175);
 	
 	var _object2 = _interopRequireDefault(_object);
 	
-	var _object3 = __webpack_require__(202);
+	var _object3 = __webpack_require__(203);
 	
 	var _object4 = _interopRequireDefault(_object3);
 	
@@ -21557,8 +21729,6 @@
 	
 	var _Utils = __webpack_require__(168);
 	
-	var _Utils2 = _interopRequireDefault(_Utils);
-	
 	var _City = __webpack_require__(166);
 	
 	var _City2 = _interopRequireDefault(_City);
@@ -21567,7 +21737,7 @@
 	
 	var _CityEvent2 = _interopRequireDefault(_CityEvent);
 	
-	var _Effect = __webpack_require__(172);
+	var _Effect = __webpack_require__(173);
 	
 	var _CityResource = __webpack_require__(169);
 	
@@ -21610,7 +21780,10 @@
 	    this.initialCapacity = initialCapacity;
 	    this.characterFactories = characterFactories;
 	    this.city = city || new _City2.default({ seasonAffectedResource: seasonAffectedResource, seasonPeriod: seasonPeriod });
+	
 	    this.fulfilledRequirements = {};
+	    this.researchProjects = [];
+	    this.researchedProjects = [];
 	
 	    this.earnResources(resources);
 	  }
@@ -21619,18 +21792,20 @@
 	    key: 'updateTime',
 	    value: function updateTime(deltaSeconds) {
 	      this.time += deltaSeconds;
-	      var parents = {
-	        player: this
-	      };
 	
 	      var updated = [];
 	      while (deltaSeconds > 0) {
+	        var parents = {
+	          player: this,
+	          permanentEffects: this.getActivePermamentEffects()
+	        };
 	        var d = Math.min(deltaSeconds, CityPlayer.timeGranularity);
 	        updated = updated.concat(this.city.updateTime(d, parents));
 	        deltaSeconds -= d;
 	      }
 	      return updated;
 	    }
+	
 	    /* Resources */
 	
 	  }, {
@@ -21662,11 +21837,11 @@
 	    }
 	  }, {
 	    key: 'canAfford',
-	    value: function canAfford(costs) {
+	    value: function canAfford(cost) {
 	      var _this2 = this;
 	
 	      var canAfford = true;
-	      _CityResource.CityResource.aggregateSameTypeResources(costs).forEach(function (cost) {
+	      _CityResource.CityResource.aggregateSameTypeResources(cost).forEach(function (cost) {
 	        var r = _this2.getResourceAmountForType(cost.namespace);
 	        if (r < cost.amount) {
 	          canAfford = false;
@@ -21676,12 +21851,12 @@
 	    }
 	  }, {
 	    key: 'spendResources',
-	    value: function spendResources(costs) {
+	    value: function spendResources(cost) {
 	      var _this3 = this;
 	
 	      var canAfford = true;
-	      costs = _CityResource.CityResource.aggregateSameTypeResources(costs);
-	      costs.forEach(function (c) {
+	      cost = _CityResource.CityResource.aggregateSameTypeResources(cost);
+	      cost.forEach(function (c) {
 	        if (_this3.getResourceAmountForType(c.namespace) < c.amount) {
 	          canAfford = false;
 	        }
@@ -21689,7 +21864,7 @@
 	      if (!canAfford) {
 	        throw new _CityResource.InsuficientResourcesError();
 	      }
-	      costs.forEach(function (c) {
+	      cost.forEach(function (c) {
 	        _this3.resources[c.namespace].amount -= c.amount;
 	      });
 	    }
@@ -21705,18 +21880,82 @@
 	        additions: Object.assign({}, this.initialCapacity)
 	      };
 	
-	      Object.values(this.city.buildings).filter(function (b) {
-	        return b.isCompleted();
-	      }).forEach(function (b) {
-	        var effects = b.permanentEffects.filter(function (effect) {
-	          return effect instanceof CapacityGrantingEffect;
-	        });
-	        effects.forEach(function (effect) {
-	          return effect.combine(capacity);
-	        });
+	      var permanentEffects = this.getActivePermamentEffects(CapacityGrantingEffect);
+	      permanentEffects.forEach(function (effect) {
+	        return effect.combine(capacity);
 	      });
 	      return capacity.additions;
 	    }
+	
+	    /* Research */
+	
+	  }, {
+	    key: 'scheduleResearch',
+	    value: function scheduleResearch(project) {
+	      this.researchProjects.push(_Utils.MutableObject.mutableCopy(project));
+	      var event = new _CityEvent2.default({ type: _CityEvent2.default.kResearchScheduledEvent, object: this, data: this.project });
+	      return event;
+	    }
+	  }, {
+	    key: 'canEarnAnyResearch',
+	    value: function canEarnAnyResearch() {
+	      return this.researchProjects.length > 0;
+	    }
+	  }, {
+	    key: 'earnResearch',
+	    value: function earnResearch(time) {
+	      var updated = [];
+	      var parents = {
+	        player: this
+	      };
+	      while (this.researchProjects.length > 0 && time > 0) {
+	        var remaining = this.researchProjects[0].remainingTime();
+	        if (remaining <= time) {
+	          updated = updated.concat(this.researchProjects[0].updateTime(remaining));
+	          time -= remaining;
+	          this.researchedProjects.push(this.researchProjects.shift());
+	        } else {
+	          updated = updated.concat(this.researchProjects[0].updateTime(time));
+	          time = 0;
+	        }
+	      }
+	      return updated;
+	    }
+	
+	    /* Effects */
+	
+	  }, {
+	    key: 'getActivePermamentEffects',
+	    value: function getActivePermamentEffects(type) {
+	      var effects = [];
+	
+	      /* From Research */
+	      this.researchedProjects.forEach(function (p) {
+	        return p.permanentEffects.filter(function (effect) {
+	          return !type || effect instanceof type;
+	        }).forEach(function (effect) {
+	          return effects.push(effect);
+	        });
+	      });
+	
+	      /* From City */
+	      effects = effects.concat(this.city.getActivePermamentEffects(type));
+	
+	      /* From Buildings */
+	      Object.values(this.city.buildings).filter(function (b) {
+	        return b.isCompleted();
+	      }).forEach(function (b) {
+	        return b.permanentEffects.filter(function (effect) {
+	          return !type || effect instanceof type;
+	        }).forEach(function (effect) {
+	          return effects.push(effect);
+	        });
+	      });
+	      return effects;
+	    }
+	
+	    /* Requirements */
+	
 	  }, {
 	    key: 'getAchievements',
 	    value: function getAchievements() {
@@ -21728,9 +21967,15 @@
 	      var addAchievement = function addAchievement(ns, a) {
 	        return achievements[ns] = a + (achievements[ns] || 0);
 	      };
+	      /* Resources */
 	      Object.values(this.resources).forEach(function (r) {
 	        return addAchievement(r.namespace, r.amount);
 	      });
+	      /* Research */
+	      this.researchedProjects.forEach(function (r) {
+	        return addAchievement(r.namespace, 1);
+	      });
+	      /* Buildings */
 	      Object.values(this.city.buildings).filter(function (b) {
 	        return b.namespace && (!completedOnly || b.isCompleted());
 	      }).forEach(function (b) {
@@ -21823,16 +22068,16 @@
 	}(_CityResource.ResourceEffect);
 
 /***/ }),
-/* 174 */
+/* 175 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var define = __webpack_require__(175);
+	var define = __webpack_require__(176);
 	
-	var implementation = __webpack_require__(179);
-	var getPolyfill = __webpack_require__(200);
-	var shim = __webpack_require__(201);
+	var implementation = __webpack_require__(180);
+	var getPolyfill = __webpack_require__(201);
+	var shim = __webpack_require__(202);
 	
 	var polyfill = getPolyfill();
 	
@@ -21846,13 +22091,13 @@
 
 
 /***/ }),
-/* 175 */
+/* 176 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var keys = __webpack_require__(176);
-	var foreach = __webpack_require__(178);
+	var keys = __webpack_require__(177);
+	var foreach = __webpack_require__(179);
 	var hasSymbols = typeof Symbol === 'function' && typeof Symbol() === 'symbol';
 	
 	var toStr = Object.prototype.toString;
@@ -21908,7 +22153,7 @@
 
 
 /***/ }),
-/* 176 */
+/* 177 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21917,7 +22162,7 @@
 	var has = Object.prototype.hasOwnProperty;
 	var toStr = Object.prototype.toString;
 	var slice = Array.prototype.slice;
-	var isArgs = __webpack_require__(177);
+	var isArgs = __webpack_require__(178);
 	var isEnumerable = Object.prototype.propertyIsEnumerable;
 	var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
 	var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
@@ -22054,7 +22299,7 @@
 
 
 /***/ }),
-/* 177 */
+/* 178 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -22077,7 +22322,7 @@
 
 
 /***/ }),
-/* 178 */
+/* 179 */
 /***/ (function(module, exports) {
 
 	
@@ -22105,14 +22350,14 @@
 
 
 /***/ }),
-/* 179 */
+/* 180 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var ES = __webpack_require__(180);
-	var has = __webpack_require__(183);
-	var bind = __webpack_require__(184);
+	var ES = __webpack_require__(181);
+	var has = __webpack_require__(184);
+	var bind = __webpack_require__(185);
 	var isEnumerable = bind.call(Function.call, Object.prototype.propertyIsEnumerable);
 	
 	module.exports = function values(O) {
@@ -22128,22 +22373,22 @@
 
 
 /***/ }),
-/* 180 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	module.exports = __webpack_require__(181);
-
-
-/***/ }),
 /* 181 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var ES2015 = __webpack_require__(182);
-	var assign = __webpack_require__(188);
+	module.exports = __webpack_require__(182);
+
+
+/***/ }),
+/* 182 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var ES2015 = __webpack_require__(183);
+	var assign = __webpack_require__(189);
 	
 	var ES2016 = assign(assign({}, ES2015), {
 		// https://github.com/tc39/ecma262/pull/60
@@ -22159,28 +22404,28 @@
 
 
 /***/ }),
-/* 182 */
+/* 183 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var has = __webpack_require__(183);
+	var has = __webpack_require__(184);
 	
 	var toStr = Object.prototype.toString;
 	var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
 	var symbolToStr = hasSymbols ? Symbol.prototype.toString : toStr;
 	
-	var $isNaN = __webpack_require__(186);
-	var $isFinite = __webpack_require__(187);
+	var $isNaN = __webpack_require__(187);
+	var $isFinite = __webpack_require__(188);
 	var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || Math.pow(2, 53) - 1;
 	
-	var assign = __webpack_require__(188);
-	var sign = __webpack_require__(189);
-	var mod = __webpack_require__(190);
-	var isPrimitive = __webpack_require__(191);
-	var toPrimitive = __webpack_require__(192);
+	var assign = __webpack_require__(189);
+	var sign = __webpack_require__(190);
+	var mod = __webpack_require__(191);
+	var isPrimitive = __webpack_require__(192);
+	var toPrimitive = __webpack_require__(193);
 	var parseInteger = parseInt;
-	var bind = __webpack_require__(184);
+	var bind = __webpack_require__(185);
 	var arraySlice = bind.call(Function.call, Array.prototype.slice);
 	var strSlice = bind.call(Function.call, String.prototype.slice);
 	var isBinary = bind.call(Function.call, RegExp.prototype.test, /^0b[01]+$/i);
@@ -22205,9 +22450,9 @@
 		return replace(value, trimRegex, '');
 	};
 	
-	var ES5 = __webpack_require__(197);
+	var ES5 = __webpack_require__(198);
 	
-	var hasRegExpMatcher = __webpack_require__(199);
+	var hasRegExpMatcher = __webpack_require__(200);
 	
 	// https://people.mozilla.org/~jorendorff/es6-draft.html#sec-abstract-operations
 	var ES6 = assign(assign({}, ES5), {
@@ -22630,25 +22875,25 @@
 
 
 /***/ }),
-/* 183 */
+/* 184 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var bind = __webpack_require__(184);
+	var bind = __webpack_require__(185);
 	
 	module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
 
 
 /***/ }),
-/* 184 */
+/* 185 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var implementation = __webpack_require__(185);
+	var implementation = __webpack_require__(186);
 	
 	module.exports = Function.prototype.bind || implementation;
 
 
 /***/ }),
-/* 185 */
+/* 186 */
 /***/ (function(module, exports) {
 
 	var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
@@ -22702,7 +22947,7 @@
 
 
 /***/ }),
-/* 186 */
+/* 187 */
 /***/ (function(module, exports) {
 
 	module.exports = Number.isNaN || function isNaN(a) {
@@ -22711,7 +22956,7 @@
 
 
 /***/ }),
-/* 187 */
+/* 188 */
 /***/ (function(module, exports) {
 
 	var $isNaN = Number.isNaN || function (a) { return a !== a; };
@@ -22720,7 +22965,7 @@
 
 
 /***/ }),
-/* 188 */
+/* 189 */
 /***/ (function(module, exports) {
 
 	var has = Object.prototype.hasOwnProperty;
@@ -22738,7 +22983,7 @@
 
 
 /***/ }),
-/* 189 */
+/* 190 */
 /***/ (function(module, exports) {
 
 	module.exports = function sign(number) {
@@ -22747,7 +22992,7 @@
 
 
 /***/ }),
-/* 190 */
+/* 191 */
 /***/ (function(module, exports) {
 
 	module.exports = function mod(number, modulo) {
@@ -22757,7 +23002,7 @@
 
 
 /***/ }),
-/* 191 */
+/* 192 */
 /***/ (function(module, exports) {
 
 	module.exports = function isPrimitive(value) {
@@ -22766,17 +23011,17 @@
 
 
 /***/ }),
-/* 192 */
+/* 193 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
 	
-	var isPrimitive = __webpack_require__(193);
-	var isCallable = __webpack_require__(194);
-	var isDate = __webpack_require__(195);
-	var isSymbol = __webpack_require__(196);
+	var isPrimitive = __webpack_require__(194);
+	var isCallable = __webpack_require__(195);
+	var isDate = __webpack_require__(196);
+	var isSymbol = __webpack_require__(197);
 	
 	var ordinaryToPrimitive = function OrdinaryToPrimitive(O, hint) {
 		if (typeof O === 'undefined' || O === null) {
@@ -22846,7 +23091,7 @@
 
 
 /***/ }),
-/* 193 */
+/* 194 */
 /***/ (function(module, exports) {
 
 	module.exports = function isPrimitive(value) {
@@ -22855,7 +23100,7 @@
 
 
 /***/ }),
-/* 194 */
+/* 195 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -22900,7 +23145,7 @@
 
 
 /***/ }),
-/* 195 */
+/* 196 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -22926,7 +23171,7 @@
 
 
 /***/ }),
-/* 196 */
+/* 197 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -22959,21 +23204,21 @@
 
 
 /***/ }),
-/* 197 */
+/* 198 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var $isNaN = __webpack_require__(186);
-	var $isFinite = __webpack_require__(187);
+	var $isNaN = __webpack_require__(187);
+	var $isFinite = __webpack_require__(188);
 	
-	var sign = __webpack_require__(189);
-	var mod = __webpack_require__(190);
+	var sign = __webpack_require__(190);
+	var mod = __webpack_require__(191);
 	
-	var IsCallable = __webpack_require__(194);
-	var toPrimitive = __webpack_require__(198);
+	var IsCallable = __webpack_require__(195);
+	var toPrimitive = __webpack_require__(199);
 	
-	var has = __webpack_require__(183);
+	var has = __webpack_require__(184);
 	
 	// https://es5.github.io/#x9
 	var ES5 = {
@@ -23201,16 +23446,16 @@
 
 
 /***/ }),
-/* 198 */
+/* 199 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	var toStr = Object.prototype.toString;
 	
-	var isPrimitive = __webpack_require__(193);
+	var isPrimitive = __webpack_require__(194);
 	
-	var isCallable = __webpack_require__(194);
+	var isCallable = __webpack_require__(195);
 	
 	// https://es5.github.io/#x8.12
 	var ES5internalSlots = {
@@ -23244,12 +23489,12 @@
 
 
 /***/ }),
-/* 199 */
+/* 200 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var has = __webpack_require__(183);
+	var has = __webpack_require__(184);
 	var regexExec = RegExp.prototype.exec;
 	var gOPD = Object.getOwnPropertyDescriptor;
 	
@@ -23289,12 +23534,12 @@
 
 
 /***/ }),
-/* 200 */
+/* 201 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var implementation = __webpack_require__(179);
+	var implementation = __webpack_require__(180);
 	
 	module.exports = function getPolyfill() {
 		return typeof Object.values === 'function' ? Object.values : implementation;
@@ -23302,13 +23547,13 @@
 
 
 /***/ }),
-/* 201 */
+/* 202 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var getPolyfill = __webpack_require__(200);
-	var define = __webpack_require__(175);
+	var getPolyfill = __webpack_require__(201);
+	var define = __webpack_require__(176);
 	
 	module.exports = function shimValues() {
 		var polyfill = getPolyfill();
@@ -23322,16 +23567,16 @@
 
 
 /***/ }),
-/* 202 */
+/* 203 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var define = __webpack_require__(175);
+	var define = __webpack_require__(176);
 	
-	var implementation = __webpack_require__(203);
-	var getPolyfill = __webpack_require__(204);
-	var shim = __webpack_require__(205);
+	var implementation = __webpack_require__(204);
+	var getPolyfill = __webpack_require__(205);
+	var shim = __webpack_require__(206);
 	
 	var polyfill = getPolyfill();
 	
@@ -23345,14 +23590,14 @@
 
 
 /***/ }),
-/* 203 */
+/* 204 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var ES = __webpack_require__(180);
-	var has = __webpack_require__(183);
-	var bind = __webpack_require__(184);
+	var ES = __webpack_require__(181);
+	var has = __webpack_require__(184);
+	var bind = __webpack_require__(185);
 	var isEnumerable = bind.call(Function.call, Object.prototype.propertyIsEnumerable);
 	
 	module.exports = function entries(O) {
@@ -23368,12 +23613,12 @@
 
 
 /***/ }),
-/* 204 */
+/* 205 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var implementation = __webpack_require__(203);
+	var implementation = __webpack_require__(204);
 	
 	module.exports = function getPolyfill() {
 		return typeof Object.entries === 'function' ? Object.entries : implementation;
@@ -23381,13 +23626,13 @@
 
 
 /***/ }),
-/* 205 */
+/* 206 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var getPolyfill = __webpack_require__(204);
-	var define = __webpack_require__(175);
+	var getPolyfill = __webpack_require__(205);
+	var define = __webpack_require__(176);
 	
 	module.exports = function shimEntries() {
 		var polyfill = getPolyfill();
@@ -23401,7 +23646,7 @@
 
 
 /***/ }),
-/* 206 */
+/* 207 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23409,7 +23654,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.CharacterConsumeResourceOrGetsRemovedEffect = exports.CityCharacter = undefined;
+	exports.CharacterConsumeResourceOrGetsRemovedEffect = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -23423,7 +23668,7 @@
 	
 	var _CityEvent2 = _interopRequireDefault(_CityEvent);
 	
-	var _Effect = __webpack_require__(172);
+	var _Effect = __webpack_require__(173);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -23433,7 +23678,7 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var CityCharacter = exports.CityCharacter = function () {
+	var CityCharacter = function () {
 	  function CityCharacter() {
 	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
 	        _ref$name = _ref.name,
@@ -23458,6 +23703,13 @@
 	    key: 'toString',
 	    value: function toString() {
 	      return this.name + " (" + this.id + ")";
+	    }
+	  }, {
+	    key: 'setTasks',
+	    value: function setTasks(tasks) {
+	      this.tasks = tasks;
+	      var event = new _CityEvent2.default({ type: _CityEvent2.default.kCharacterTasksAssigned, object: this, data: tasks });
+	      return event;
 	    }
 	  }, {
 	    key: 'updateTime',
@@ -23504,6 +23756,8 @@
 	  return CityCharacter;
 	}();
 	
+	exports.default = CityCharacter;
+	
 	var CharacterConsumeResourceOrGetsRemovedEffect = exports.CharacterConsumeResourceOrGetsRemovedEffect = function (_FrequencyEffect) {
 	  _inherits(CharacterConsumeResourceOrGetsRemovedEffect, _FrequencyEffect);
 	
@@ -23548,7 +23802,7 @@
 	}(_Effect.FrequencyEffect);
 
 /***/ }),
-/* 207 */
+/* 208 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23559,17 +23813,27 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _object = __webpack_require__(174);
+	var _object = __webpack_require__(175);
 	
 	var _object2 = _interopRequireDefault(_object);
 	
-	var _Building = __webpack_require__(171);
-	
 	var _CityResource = __webpack_require__(169);
 	
-	var _CityPlayer = __webpack_require__(173);
+	var _CityPlayer = __webpack_require__(174);
 	
-	var _CityCharacter = __webpack_require__(206);
+	var _CityCharacter = __webpack_require__(207);
+	
+	var _CityCharacter2 = _interopRequireDefault(_CityCharacter);
+	
+	var _Effect = __webpack_require__(173);
+	
+	var _CityBuilding = __webpack_require__(171);
+	
+	var _CityBuilding2 = _interopRequireDefault(_CityBuilding);
+	
+	var _CityResearchProject = __webpack_require__(209);
+	
+	var _CityResearchProject2 = _interopRequireDefault(_CityResearchProject);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -23603,6 +23867,16 @@
 	      return GameModule.kAvailableBuildings;
 	    }
 	  }, {
+	    key: 'availableResearch',
+	    value: function availableResearch() {
+	      return GameModule.kAvailableResearch;
+	    }
+	  }, {
+	    key: 'availableTasks',
+	    value: function availableTasks() {
+	      return GameModule.kAvailableTasks;
+	    }
+	  }, {
 	    key: 'getSeasonPeriod',
 	    value: function getSeasonPeriod() {
 	      return 60;
@@ -23617,7 +23891,7 @@
 	    value: function getPlayerInitialCapacity() {
 	      var _ref;
 	
-	      return _ref = {}, _defineProperty(_ref, GameModule.kResourceGold, 50), _defineProperty(_ref, GameModule.kResourceBanana, 25), _defineProperty(_ref, GameModule.kResourceWood, 20), _ref;
+	      return _ref = {}, _defineProperty(_ref, GameModule.kResourceBanana, 25), _defineProperty(_ref, GameModule.kResourceWood, 20), _ref;
 	    }
 	  }, {
 	    key: 'getCharacterFactories',
@@ -23626,25 +23900,19 @@
 	        monkey: {
 	          requirements: [[GameModule.kResourceBanana, 5]],
 	          factory: function factory() {
-	            var char = new _CityCharacter.CityCharacter({
+	            var char = new _CityCharacter2.default({
 	              effects: [new _CityCharacter.CharacterConsumeResourceOrGetsRemovedEffect({
 	                resources: [GameModule.banana(1)],
 	                period: 1
 	              })],
 	              name: nameGenerator()
 	            });
-	            char.tasks = [new _Building.CollectBuildingResourcesEffect({ time: 1 })];
 	            return char;
 	          }
 	        }
 	      };
 	    }
 	  }], [{
-	    key: 'gold',
-	    value: function gold(amount) {
-	      return new _CityResource.CityResource(GameModule.kResourceGold, amount);
-	    }
-	  }, {
 	    key: 'wood',
 	    value: function wood(amount) {
 	      return new _CityResource.CityResource(GameModule.kResourceWood, amount);
@@ -23672,13 +23940,29 @@
 	GameModule.kResourceMonkey = 'monkey';
 	GameModule.kResourceWood = 'wood';
 	
-	GameModule.kBananaTree = new _Building.Building({
+	/* ROLES */
+	
+	GameModule.kTaskGather = new _CityBuilding.CollectBuildingResourcesEffect({
+	  name: 'Gather',
+	  namespace: 'role.basic.gather',
+	  time: 1
+	});
+	
+	GameModule.kTaskResearch = new _CityResearchProject.PlayerEarnResearchEffect({
+	  name: 'Research',
+	  namespace: 'role.basic.research',
+	  time: 1
+	});
+	
+	/* BUILDINGS */
+	
+	GameModule.kBananaTree = new _CityBuilding2.default({
 	  name: "Central Banana Tree",
 	  requirements: ["never"],
 	  namespace: "building.basic.banana_tree",
 	  time: 50,
-	  costs: [GameModule.wood(9999)],
-	  effects: [new _Building.BuildingStoreResourceEffect({
+	  cost: [GameModule.wood(9999)],
+	  effects: [new _CityBuilding.BuildingStoreResourceEffect({
 	    resources: [GameModule.banana(1)],
 	    period: 2
 	  }), new _CityPlayer.PlayerEarnResourceEffect({
@@ -23687,23 +23971,23 @@
 	  })]
 	});
 	
-	GameModule.kCabin = new _Building.Building({
+	GameModule.kCabin = new _CityBuilding2.default({
 	  name: "Cabin",
 	  namespace: "building.basic.cabin",
 	  requirements: ["building.basic.banana_crate"],
 	  time: 10,
-	  costs: [GameModule.wood(5)],
+	  cost: [GameModule.wood(5)],
 	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
 	    additions: _defineProperty({}, GameModule.kResourceMonkey, 1)
 	  })]
 	});
 	
-	GameModule.kBananaField = new _Building.Building({
+	GameModule.kBananaField = new _CityBuilding2.default({
 	  name: "Banana Field",
 	  namespace: "building.basic.banana_field",
 	  time: 10,
-	  costs: [GameModule.banana(5)],
-	  effects: [new _Building.BuildingStoreResourceEffect({
+	  cost: [GameModule.banana(5)],
+	  effects: [new _CityBuilding.BuildingStoreResourceEffect({
 	    resources: [GameModule.banana(7), GameModule.wood(1)],
 	    period: 2
 	  }), new _CityPlayer.PlayerEarnResourceEffect({
@@ -23713,34 +23997,34 @@
 	  requirements: [[GameModule.kResourceBanana, 2]]
 	});
 	
-	GameModule.kWoodField = new _Building.Building({
+	GameModule.kWoodField = new _CityBuilding2.default({
 	  name: "Wood Field",
 	  namespace: "building.basic.wood_field",
 	  time: 10,
-	  costs: [GameModule.banana(25)],
-	  effects: [new _Building.BuildingStoreResourceEffect({
+	  cost: [GameModule.banana(25)],
+	  effects: [new _CityBuilding.BuildingStoreResourceEffect({
 	    resources: [GameModule.wood(10)],
 	    period: 4
 	  })],
 	  requirements: [[GameModule.kResourceWood, 5]]
 	});
 	
-	GameModule.kBananaCrate = new _Building.Building({
+	GameModule.kBananaCrate = new _CityBuilding2.default({
 	  name: "Banana Crate",
 	  namespace: "building.basic.banana_crate",
 	  time: 5,
-	  costs: [GameModule.wood(5)],
+	  cost: [GameModule.wood(5)],
 	  requirements: ["building.basic.banana_field", [GameModule.kResourceWood, 3]],
 	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
 	    additions: _defineProperty({}, GameModule.kResourceBanana, 50)
 	  })]
 	});
 	
-	GameModule.kSawmill = new _Building.Building({
+	GameModule.kSawmill = new _CityBuilding2.default({
 	  name: "Sawmill",
 	  namespace: "building.basic.sawmill",
 	  time: 5,
-	  costs: [GameModule.wood(20)],
+	  cost: [GameModule.wood(20)],
 	  costFactor: 1.5,
 	  requirements: ["building.basic.banana_crate", [GameModule.kResourceWood, 15]],
 	  permanentEffects: [new _CityPlayer.CapacityGrantingEffect({
@@ -23748,16 +24032,182 @@
 	  })]
 	});
 	
-	GameModule.kAvailableBuildings = {};
+	GameModule.kMine = new _CityBuilding2.default({
+	  name: "Mine",
+	  namespace: "building.basic.sawmill",
+	  time: 5,
+	  cost: [GameModule.wood(20)],
+	  costFactor: 1.5,
+	  requirements: ["research.basic.digging"]
+	});
+	
+	/* RESEARCH */
+	
+	GameModule.kDigging = new _CityResearchProject2.default({
+	  name: "Digging",
+	  namespace: "research.basic.digging",
+	  time: 5,
+	  cost: [GameModule.wood(20)],
+	  requirements: [[GameModule.kResourceMonkey, 1]]
+	});
+	
+	/* LOADER */
+	
+	GameModule.kAvailableTasks = {};
 	Object.values(GameModule).forEach(function (value) {
-	  if (value instanceof _Building.Building) {
-	    GameModule.kAvailableBuildings[value.id] = value;
+	  if (value instanceof _Effect.FrequencyEffect) {
+	    GameModule.kAvailableTasks[value.namespace] = value;
 	  }
 	});
-	GameModule.kDefaultBuildings = [GameModule.kBananaTree.id];
+	
+	GameModule.kAvailableBuildings = {};
+	Object.values(GameModule).forEach(function (value) {
+	  if (value instanceof _CityBuilding2.default) {
+	    GameModule.kAvailableBuildings[value.namespace] = value;
+	  }
+	});
+	
+	GameModule.kAvailableResearch = {};
+	Object.values(GameModule).forEach(function (value) {
+	  if (value instanceof _CityResearchProject2.default) {
+	    GameModule.kAvailableResearch[value.namespace] = value;
+	  }
+	});
+	
+	GameModule.kDefaultBuildings = [GameModule.kBananaTree.namespace];
 
 /***/ }),
-/* 208 */
+/* 209 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.PlayerEarnResearchEffect = exports.ScheduleResearchProjectAction = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _CityProject2 = __webpack_require__(172);
+	
+	var _CityProject3 = _interopRequireDefault(_CityProject2);
+	
+	var _CityEvent = __webpack_require__(170);
+	
+	var _CityEvent2 = _interopRequireDefault(_CityEvent);
+	
+	var _CityResource = __webpack_require__(169);
+	
+	var _CityPlayer = __webpack_require__(174);
+	
+	var _Effect = __webpack_require__(173);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var CityResearchProject = function (_CityProject) {
+	  _inherits(CityResearchProject, _CityProject);
+	
+	  function CityResearchProject() {
+	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref$name = _ref.name,
+	        name = _ref$name === undefined ? "Some research" : _ref$name,
+	        _ref$namespace = _ref.namespace,
+	        namespace = _ref$namespace === undefined ? 'research.name' : _ref$namespace;
+	
+	    _classCallCheck(this, CityResearchProject);
+	
+	    var params = Object.assign(arguments[0] || {}, {
+	      name: name,
+	      namespace: namespace,
+	      completionEventType: _CityEvent2.default.kProjectCompletedEvent,
+	      progressEventType: _CityEvent2.default.kProjectProgressEvent
+	    });
+	    return _possibleConstructorReturn(this, (CityResearchProject.__proto__ || Object.getPrototypeOf(CityResearchProject)).call(this, params));
+	  }
+	
+	  return CityResearchProject;
+	}(_CityProject3.default);
+	
+	exports.default = CityResearchProject;
+	
+	var ScheduleResearchProjectAction = exports.ScheduleResearchProjectAction = function (_ResourceConsumingAct) {
+	  _inherits(ScheduleResearchProjectAction, _ResourceConsumingAct);
+	
+	  function ScheduleResearchProjectAction(_ref2) {
+	    var project = _ref2.project;
+	
+	    _classCallCheck(this, ScheduleResearchProjectAction);
+	
+	    var _this2 = _possibleConstructorReturn(this, (ScheduleResearchProjectAction.__proto__ || Object.getPrototypeOf(ScheduleResearchProjectAction)).call(this, "Project", function (player) {
+	      var unavailableResearch = player.researchProjects.map(function (r) {
+	        return r.namespace;
+	      }).concat(player.researchedProjects.map(function (r) {
+	        return r.namespace;
+	      }));
+	      return unavailableResearch.indexOf(this.project.namespace) < 0 && player.fulfillsRequirements(this.project.namespace, this.project.requirements);
+	    }, function (player) {
+	      return this.project.cost;
+	    }, function (player) {
+	      player.scheduleResearch(this.project);
+	    }));
+	
+	    _this2.project = project;
+	    return _this2;
+	  }
+	
+	  return ScheduleResearchProjectAction;
+	}(_CityResource.ResourceConsumingAction);
+	
+	var PlayerEarnResearchEffect = exports.PlayerEarnResearchEffect = function (_FrequencyEffect) {
+	  _inherits(PlayerEarnResearchEffect, _FrequencyEffect);
+	
+	  function PlayerEarnResearchEffect() {
+	    var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref3$research = _ref3.research,
+	        research = _ref3$research === undefined ? 1 : _ref3$research,
+	        _ref3$period = _ref3.period,
+	        period = _ref3$period === undefined ? 1 : _ref3$period;
+	
+	    _classCallCheck(this, PlayerEarnResearchEffect);
+	
+	    var _this3 = _possibleConstructorReturn(this, (PlayerEarnResearchEffect.__proto__ || Object.getPrototypeOf(PlayerEarnResearchEffect)).call(this, arguments[0]));
+	
+	    _this3.research = 1;
+	    return _this3;
+	  }
+	
+	  _createClass(PlayerEarnResearchEffect, [{
+	    key: 'canBegin',
+	    value: function canBegin(parents) {
+	      return parents.player.canEarnAnyResearch();
+	    }
+	  }, {
+	    key: 'trigger',
+	    value: function trigger(parents) {
+	      var event = new _CityEvent2.default({ type: _CityEvent2.default.kEarnResearchEvent, object: this, data: this.research });
+	      var updated = [event];
+	      updated = updated.concat(parents.player.earnResearch(this.research));
+	      return updated;
+	    }
+	  }, {
+	    key: 'getDescription',
+	    value: function getDescription() {
+	      return "Researches " + this.research + " every " + this.period + " sec";
+	    }
+	  }]);
+
+	  return PlayerEarnResearchEffect;
+	}(_Effect.FrequencyEffect);
+
+/***/ }),
+/* 210 */
 /***/ (function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -24065,7 +24515,104 @@
 
 
 /***/ }),
-/* 209 */
+/* 211 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(2);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _GameController = __webpack_require__(164);
+	
+	var _GameController2 = _interopRequireDefault(_GameController);
+	
+	var _CityResearchProject = __webpack_require__(209);
+	
+	var _CityResearchProject2 = _interopRequireDefault(_CityResearchProject);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var availableResearchActions = Object.values(_GameController2.default.instance.module.availableResearch()).map(function (project) {
+	  return new _CityResearchProject.ScheduleResearchProjectAction({ project: project });
+	});
+	
+	var ResearchMenu = _react2.default.createClass({
+	  displayName: 'ResearchMenu',
+	
+	  render: function render() {
+	    var _this = this;
+	    var controller = _GameController2.default.instance;
+	    var ongoingResearch = controller.player.researchProjects.map(function (project) {
+	      return _react2.default.createElement(
+	        'div',
+	        { key: project.id },
+	        project.getDescription()
+	      );
+	    });
+	    var completedResearch = controller.player.researchedProjects.map(function (project) {
+	      return _react2.default.createElement(
+	        'div',
+	        { key: project.id },
+	        project.getDescription()
+	      );
+	    });
+	    var researchComponents = availableResearchActions.map(function (action) {
+	      var scheduleResearch = function scheduleResearch() {
+	        action.executeForPlayer(controller.player);
+	      };
+	      if (!action.isAvailable(controller.player)) {
+	        return null;
+	      }
+	      var cost = action.cost(controller.player);
+	      var costsDescription = cost.length > 0 && "Cost:\n" + cost.map(function (c) {
+	        return "[" + c.toString() + "]";
+	      }).join(" + ");
+	      var effectsDescription = action.project.permanentEffects.length > 0 && action.building.effects.map(function (c) {
+	        return "- " + c.getDescription();
+	      }).join("\n");
+	      var title = costsDescription + (effectsDescription ? "\n⋯\nEffects:\n" + effectsDescription : '');
+	
+	      return _react2.default.createElement(
+	        'button',
+	        {
+	          key: "btn_bld_" + action.project.id,
+	          disabled: !action.isAffordable(controller.player),
+	          className: 'build-entity',
+	          onClick: scheduleResearch,
+	          title: title },
+	        action.project.name
+	      );
+	    });
+	
+	    return _react2.default.createElement(
+	      'div',
+	      { id: 'project-menu' },
+	      _react2.default.createElement(
+	        'b',
+	        null,
+	        'Research'
+	      ),
+	      _react2.default.createElement(
+	        'div',
+	        null,
+	        ongoingResearch,
+	        completedResearch,
+	        researchComponents
+	      )
+	    );
+	  }
+	});
+	
+	exports.default = ResearchMenu;
+
+/***/ }),
+/* 212 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24121,7 +24668,7 @@
 	exports.default = SaveMenu;
 
 /***/ }),
-/* 210 */
+/* 213 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24130,7 +24677,7 @@
 	  value: true
 	});
 	var React = __webpack_require__(2);
-	var ResourceSummary = __webpack_require__(211).default;
+	var ResourceSummary = __webpack_require__(214).default;
 	
 	var ResourceDisplay = React.createClass({
 	  displayName: 'ResourceDisplay',
@@ -24166,7 +24713,7 @@
 	exports.default = ResourceDisplay;
 
 /***/ }),
-/* 211 */
+/* 214 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24177,7 +24724,7 @@
 	var React = __webpack_require__(2);
 	
 	var ResourceIcon = exports.ResourceIcon = function ResourceIcon(namespace) {
-	  return React.createElement('div', { className: 'resource-icon ' + namespace.toLowerCase() });
+	  return React.createElement('div', { key: namespace, className: 'resource-icon ' + namespace.toLowerCase() });
 	};
 	
 	var ResourceSummaryComponent = React.createClass({
@@ -24214,7 +24761,7 @@
 	exports.default = ResourceSummaryComponent;
 
 /***/ }),
-/* 212 */
+/* 215 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24227,34 +24774,70 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _ResourceIconComponent = __webpack_require__(211);
+	var _ResourceIconComponent = __webpack_require__(214);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var GameController = __webpack_require__(164).default;
 	
 	var CharacterDisplay = _react2.default.createClass({
 	  displayName: 'CharacterDisplay',
 	
+	  activeTaskMenu: function activeTaskMenu(character) {
+	    var value = character.tasks.map(function (t) {
+	      return t.namespace;
+	    })[0];
+	    var tasks = [{
+	      namespace: "",
+	      name: 'Unassigned'
+	    }].concat(Object.values(GameController.instance.module.availableTasks()));
+	
+	    var options = tasks.map(function (task) {
+	      return _react2.default.createElement(
+	        'option',
+	        { value: task.namespace },
+	        task.name
+	      );
+	    });
+	
+	    var handleChange = function handleChange(event) {
+	      var value = event.target.value;
+	      if (value && value.length > 0) {
+	        GameController.instance.setCharacterTasks(character.id, [value]);
+	      } else {
+	        GameController.instance.setCharacterTasks(character.id, []);
+	      }
+	    };
+	
+	    return _react2.default.createElement(
+	      'select',
+	      { key: character.id + "_task", value: value, onChange: handleChange },
+	      options
+	    );
+	  },
 	  render: function render() {
+	    var _this = this;
+	
 	    var capacity = this.props.player.getCapacity();
 	    var characters = Object.values(this.props.player.city.characters);
 	    return _react2.default.createElement(
 	      'div',
-	      { id: 'character-display', className: 'hud-window' },
+	      { key: 'characters', id: 'character-display', className: 'hud-window' },
 	      _react2.default.createElement(
 	        'b',
-	        null,
+	        { key: 'title' },
 	        'Characters'
 	      ),
 	      _react2.default.createElement(
 	        'characters',
-	        { className: 'characters' },
+	        { key: 'list', className: 'characters' },
 	        characters.map(function (character) {
 	          return _react2.default.createElement(
 	            'div',
-	            null,
+	            { key: character.id },
 	            (0, _ResourceIconComponent.ResourceIcon)('monkey'),
 	            character.name,
-	            character.activeTask ? " will " + character.activeTask.getDescription() : null
+	            _this.activeTaskMenu(character)
 	          );
 	        })
 	      )
@@ -24265,7 +24848,7 @@
 	exports.default = CharacterDisplay;
 
 /***/ }),
-/* 213 */
+/* 216 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24274,7 +24857,7 @@
 	  value: true
 	});
 	
-	var _ResourceIconComponent = __webpack_require__(211);
+	var _ResourceIconComponent = __webpack_require__(214);
 	
 	var React = __webpack_require__(2);
 	
@@ -24414,6 +24997,7 @@
 	          React.createElement(
 	            'a',
 	            {
+	              key: b.id + "_collect_link",
 	              href: '#',
 	              onClick: function onClick() {
 	                return b.canCollectResources(player) ? collectFromBuilding(b) : null;
@@ -24424,7 +25008,9 @@
 	            b.getStoredResources().map(function (r) {
 	              return React.createElement(
 	                'collect',
-	                { style: {
+	                {
+	                  key: b.id + "_" + r.namespace + "_collect",
+	                  style: {
 	                    opacity: b.canCollectResources(player) ? 1 : 0.75
 	                  } },
 	                (0, _ResourceIconComponent.ResourceIcon)(r.namespace)
@@ -24463,32 +25049,32 @@
 	exports.default = CityDisplay;
 
 /***/ }),
-/* 214 */
+/* 217 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	var GameController = __webpack_require__(164).default;
-	var GameModule = __webpack_require__(207).default;
+	var GameModule = __webpack_require__(208).default;
 	
-	var CityPlayerJS = __webpack_require__(173);
+	var CityPlayerJS = __webpack_require__(174);
 	var BuildingJS = __webpack_require__(171);
 	var CityResourceJS = __webpack_require__(169);
 	
 	var PlayerEarnResourceEffect = CityPlayerJS.PlayerEarnResourceEffect;
 	var CityPlayer = CityPlayerJS.CityPlayer;
-	var Building = BuildingJS.Building;
+	var CityBuilding = BuildingJS.CityBuilding;
 	var CityResource = CityResourceJS.CityResource;
 	
 	var controller = GameController.instance;
 	
-	controller.installCompletedBuilding(GameModule.kBananaTree.id);
+	controller.installCompletedBuilding(GameModule.kBananaTree.namespace);
 	
 	var demoData = controller.player;
 	module.exports = demoData;
 
 /***/ }),
-/* 215 */
+/* 218 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -24520,7 +25106,7 @@
 	module.exports = localStorageHandler;
 
 /***/ }),
-/* 216 */
+/* 219 */
 /***/ (function(module, exports) {
 
 	"use strict";
