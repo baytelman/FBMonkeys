@@ -1,8 +1,8 @@
-const assert = require('chai').assert;
-const GameController = require("../lib/controller/GameController.js").default;
-const GameModule = require('../lib/module/GameModule.js').default;
-const CityEvent = require('../lib/city/CityEvent.js').default;
-const CityResource = require('../lib/city/CityResource.js').CityResource;
+import {assert} from 'chai';
+import GameController from "../lib/controller/GameController";
+import GameModule, {banana} from '../lib/module/GameModule';
+import CityEvent from '../lib/city/CityEvent';
+import {CityResource} from '../lib/city/CityResource';
 
 describe('Game Controller', () => {
 
@@ -84,7 +84,7 @@ describe('Game Controller', () => {
     controller.startNewGame();
     /* Let's ensure we have enough bananas for the 2 monkeys */
     controller.installCompletedBuilding(GameModule.kBananaTree.namespace);
-    controller.installCompletedBuilding(GameModule.kBananaCrate.namespace);
+    controller.installCompletedBuilding(GameModule.kCrate.namespace);
     controller.installCompletedBuilding(GameModule.kBananaField.namespace);
     controller.installCompletedBuilding(GameModule.kBananaField.namespace);
     /* Let's get 2 monkeys */
@@ -97,7 +97,7 @@ describe('Game Controller', () => {
     let monkey1 = Object.values(controller.player.city.characters)[0];
     controller.setCharacterTasks(monkey1.id, [GameModule.kTaskGather.namespace]);
 
-    controller.scheduleResearch(GameModule.kDigging.namespace);
+    controller.scheduleResearch(GameModule.kMining.namespace);
     assert.strictEqual(Object.values(controller.player.researchProjects).length, 1);
     
     controller.tick(20);
