@@ -1,8 +1,37 @@
-# Play it!
+# Monkeys
 
-https://baytelman.github.io/FBMonkeys/public/
+A village simulator inspired by [Kittens](http://bloodrizer.ru/games/kittens)
 
-# Before running locally:
+## It all starts with a banana
+
+Pick up a banana, and open the doors towards building a civilization.
+
+### [Play it!](https://baytelman.github.io/FBMonkeys/public/)
+
+## About this game
+
+This game is develop pure ES6 javascript for the game engine, and React for early visualizations. My goal is to practice Javascript, React and client-server architectures (soon). Ideally, this will become a great multiplayer game.
+
+## Wish list
+
+This is the current withlist, and what to expect soon:
+- [ ] Better, original graphics.
+- [ ] Mobile client.
+- [ ] Server-side storage and logic.
+- [ ] Async progress: Queuing actions (buildings, research, upgrades, etc).
+- [ ] Collaboration between players: Commerce.
+- [ ] Battles agains AI.
+- [ ] Battles agains other players
+
+### Storyline and gameplay:
+
+- [ ] Monkeys get skills.
+- [ ] Building get upgrades.
+- [ ] Village organization.
+
+# Development
+
+This game is develop pure ES6 javascript for the game engine, and React for early visualizations.
 
 ## To install and run
 
@@ -12,7 +41,7 @@ https://baytelman.github.io/FBMonkeys/public/
 
 `npm run dev` will run webpack dev server at localhost:8080
 
-#### Run either `heroku local` or `node index.js` to start the application server on localhost:5000
+#### Run `node index.js` to start the application server on localhost:5000
 
 ## Testing
 
@@ -23,10 +52,6 @@ or
 `npm run watch`
 or run coverage with:
 `npm run coverage`
-
-### Note: Don't forget to run a local redis server if you intend to use redis
-
-----------------------------------------------
 
 # Before deploying to production:
 
