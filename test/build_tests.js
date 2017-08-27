@@ -69,12 +69,12 @@ describe('CityBuilding Construction', () => {
     assert.strictEqual(updates[updates.length - 1].type, CityEvent.kBuildingProgressEvent);
     b = Object.values(player.city.buildings)[0];
     assert.closeTo(b.progress(), 0.2, 0.01);
-    assert.include(b.toString(), 'Setting Up');
+    assert.include(b.toString(), 'Progress');
 
     updates = player.updateTime(totalTime);
     assert.strictEqual(updates[updates.length - 1].type, CityEvent.kBuildingCompletedEvent);
     assert.isTrue(b.isCompleted());
-    assert.notInclude(b.toString(), 'Setting Up');
+    assert.notInclude(b.toString(), 'Progress');
   });
 
   it('have increasing cost', () => {
