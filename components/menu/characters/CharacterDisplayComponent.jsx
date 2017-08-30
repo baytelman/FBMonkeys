@@ -2,38 +2,55 @@ import React from 'react';
 import {ResourceIcon} from '../resources/ResourceIconComponent.jsx';
 const GameController = require('../../../lib/controller/GameController.js').default;
 
+const MAX_TASKS = 2;
+
 var CharacterDisplay = React.createClass({
-  activeTaskMenu: function (character) {
-    let value = character
-      .tasks
-      .map(t => t.namespace)[0];
-    let tasks = [
+  assignTaskMenu: function (characterId, availableTasks, assignedTask, taskIndex, assignTaskCallback) {
+    let options = availableTasks.map(task => (
+      <option
+        key={characterId + "_task_" + taskIndex + "_option_" + task.namespace}
+        value={task.namespace}>{task.name}</option>
+    ));
+
+    let handleChange = function (event) {
+      let value = event.target.value;
+      assignTaskCallback(value, taskIndex);
+    }
+
+    return (
+      <select
+        key={characterId + "_task_" + taskIndex}
+        value={assignedTask}
+        onChange={handleChange}>{options}</select>
+    );
+  },
+  activeTasks: function (character) {
+    let availableTasks = [
       {
         namespace: "",
         name: 'Unassigned'
       }
     ].concat(Object.values(GameController.instance.module.availableTasks()));
 
-    let options = tasks.map(task => (
-      <option value={task.namespace}>{task.name}</option>
-    ));
+    let assignedTaskNamespaces = character
+      .tasks
+      .map(t => t.namespace);
 
-    let handleChange = function (event) {
-      let value = event.target.value;
-      if (value && value.length > 0) {
-        GameController
-          .instance
-          .setCharacterTasks(character.id, [value]);
-      } else {
-        GameController
-          .instance
-          .setCharacterTasks(character.id, []);
-      }
-    }
+    let assignTask = function (task, index) {
+      assignedTaskNamespaces[index] = task;
 
-    return (
-      <select key={character.id + "_task"} value={value} onChange={handleChange}>{options}</select>
-    );
+      GameController
+        .instance
+        .setCharacterTasks(character.id, assignedTaskNamespaces.filter(n => n && n.length));
+    };
+    return Array(MAX_TASKS)
+      .fill()
+      .map((_, taskIndex) => {
+        return {
+          task: assignedTaskNamespaces[taskIndex],
+          menu: this.assignTaskMenu(character.id, availableTasks, assignedTaskNamespaces[taskIndex], taskIndex, assignTask)
+        };
+      });
   },
   render: function () {
     let characters = Object.values(this.props.player.city.characters);
@@ -47,16 +64,33 @@ var CharacterDisplay = React.createClass({
     return (
       <div key="characters" id='character-display' className='hud-window'>
         <b key="title">Characters</b>
-        <characters key="list" className='characters'>
-          {characters.map((character) => (
-            <div key={character.id}>
-              {ResourceIcon('monkey')}
-              {character.name}
-              {this.activeTaskMenu(character)}
-            </div>
-          ))
+        <table key="list" className='characters'>
+          <tbody>
+            {characters.map((character) => (
+              <tr key={character.id}>
+                <td key={character.id + "_name"}>
+                  {ResourceIcon('monkey')}
+                  {character.name}
+                </td>
+                {this
+                  .activeTasks(character)
+                  .map((item, index) => {
+                    let active = character.activeTask && item.task && character.activeTask.namespace == item.task;
+                    return <td
+                      key={character.id + "_task_" + index}
+                      style={{
+                      borderBottom: active
+                        ? '1px solid red'
+                        : '1px solid white'
+                    }}>
+                      {item.menu}
+                    </td>
+                  })}
+              </tr>
+            ))
 }
-        </characters>
+          </tbody>
+        </table>
       </div>
     );
   }
