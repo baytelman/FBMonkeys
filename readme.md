@@ -1,20 +1,31 @@
 # Monkeys
 
-A village simulator inspired by [Kittens](http://bloodrizer.ru/games/kittens)
-
 ## It all starts with a banana
 
 Pick up a banana, and open the doors towards building a civilization.
 
-### [Play it!](https://baytelman.github.io/FBMonkeys/public/)
+## What's this game about?
 
-## About this game
+A village simulator inspired by [Kittens](http://bloodrizer.ru/games/kittens).
+
+- Gather and create resources.
+- Plan and manage buildings.
+- Research new technologies.
+- Recruit and manage monkeys.
+
+
+## Wanna try it? [Click here to play!](https://baytelman.github.io/FBMonkeys/public/)
+
+## Why am I writing this game
 
 This game is develop pure ES6 javascript for the game engine, and React for early visualizations. My goal is to practice Javascript, React and client-server architectures (soon). Ideally, this will become a great multiplayer game.
+
+The game engine (a.k.a. `cities`) is totally separated from the game play and storytelling. If you want to check how Monkeys' world is described, checkout the [GameModule.js](https://github.com/baytelman/FBMonkeys/blob/develop/lib/module/GameModule.js).
 
 ## Wish list
 
 This is the current withlist, and what to expect soon:
+
 - [ ] Better, original graphics.
 - [ ] Mobile client.
 - [ ] Server-side storage and logic.
@@ -28,6 +39,13 @@ This is the current withlist, and what to expect soon:
 - [ ] Monkeys get skills.
 - [ ] Building get upgrades.
 - [ ] Village organization.
+
+### Technical wishlist:
+
+- [ ] Centralize all interaction through the GameController, instead of calling methods directly from class instances.
+- [ ] Better UI refreshment, based on events.
+- [ ] Responsive design.
+
 
 # Development
 
@@ -43,7 +61,7 @@ Check out the [Source Code](https://github.com/baytelman/FBMonkeys)!
 
 `npm run dev` will run webpack dev server at localhost:8080
 
-#### Run `node index.js` to start the application server on localhost:5000
+#### Run `node index.js` to start the application server on [localhost:5000](http://localhost:5000)
 
 ## Testing
 
@@ -57,7 +75,11 @@ or run coverage with:
 
 # Before deploying to production:
 
-#### Run `npm run gulp production`. This will change the following:
+The following steps should be executed by the CI engine. Currently, they must be executed manually.
+
+## Prepare HTML for production:
+
+Run `npm run gulp production`. This will change the following:
 
 ##### 1: Inside `./views/index.ejs`:
 ```
@@ -68,10 +90,6 @@ or run coverage with:
 <script src="/js/app.js" charset="utf-8"></script>
 ```
 
-### Note: Run the `webpack` command (to recompile app.js, etc.) before committing and deploying to production.
-```
-npm run postinstall
-```
-----------------------------------------------
+## Compile Javascript for production:
 
-# Important Note: Deploy and/or push to origin while app is in the `Production` state.
+`npm run postinsall`

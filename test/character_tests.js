@@ -219,6 +219,86 @@ describe('Player\'s Characters', () => {
     assert.isNull(char2.activeTask);
   });
 
+  it('collection can be limited to a specific building', () => {
+    let player = new CityPlayer({
+      initialCapacity: {
+        [kCharacter]: 3,
+        [kWood]: 1000,
+        [kGold]: 1000
+      },
+      characterFactories: {
+        [kCharacter]: {
+          factory: () => new CityCharacter({name: charName})
+        }
+      }
+    });
+    let resource = gold(amount);
+    let resources = [resource];
+
+    let woodBuilding = new CityBuilding({
+      namespace: 'b1',
+      effects: [new BuildingStoreResourceEffect({resources: [wood(10)], period: time})]
+    });
+    let goldBuilding = new CityBuilding({
+      namespace: 'b2',
+      effects: [new BuildingStoreResourceEffect({resources: [gold(10)], period: time})]
+    });
+    let anotherBuilding = new CityBuilding({
+      namespace: 'b3',
+      effects: [new BuildingStoreResourceEffect({resources: [gold(10)], period: time})]
+    });
+    player
+    .city
+    .planBuilding({building: woodBuilding});
+    player
+    .city
+    .planBuilding({building: goldBuilding});
+    player
+    .city
+    .planBuilding({building: anotherBuilding});
+    const plannedBuilding1 = Object.values(player.city.buildings)[0];
+    const plannedBuilding2 = Object.values(player.city.buildings)[1];
+    const plannedBuilding3 = Object.values(player.city.buildings)[2];
+    
+    player.earnResources([character(3)]);
+    player.updateTime(1);
+    const char1 = Object.values(player.city.characters)[0];
+    const char2 = Object.values(player.city.characters)[1];
+    const char3 = Object.values(player.city.characters)[2];
+    
+    char1.tasks = [new CollectBuildingResourcesEffect({
+      period: time,
+      allowedBuildings: [plannedBuilding1.namespace]
+    })];
+    char2.tasks = [new CollectBuildingResourcesEffect({
+      period: time,
+      allowedBuildings: [plannedBuilding2.namespace]
+    })];
+    char3.tasks = [new CollectBuildingResourcesEffect({
+      period: time,
+      allowedBuildings: ['a.different.namespace']
+    })];
+    player.updateTime(1);
+
+    /* Nothing to pickup */
+    assert.isNull(char1.activeTask);
+    assert.isNull(char2.activeTask);
+    assert.isNull(char3.activeTask);
+    assert.isFalse(plannedBuilding1.getStoredResources());
+    assert.isFalse(plannedBuilding2.getStoredResources());
+    assert.isFalse(plannedBuilding3.getStoredResources());
+    
+    /* CityBuilding finished production, picking up */
+    player.updateTime(time);
+    assert.isNotFalse(plannedBuilding1.getStoredResources());
+    assert.isNotFalse(plannedBuilding2.getStoredResources());
+    assert.isNotFalse(plannedBuilding3.getStoredResources());
+
+    assert.equal(char1.activeTask.building, plannedBuilding1);
+    assert.equal(char2.activeTask.building, plannedBuilding2);
+    assert.isNull(char3.activeTask);
+  });
+
   it('Can consume resources', () => {
     const initialAmount = 5;
     const amountNeeded = 1;

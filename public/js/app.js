@@ -29329,7 +29329,9 @@
 	        return effect instanceof ResourceStoringModifierEffect;
 	      });
 	
-	      var modifiers = { multipliers: {} };
+	      var modifiers = {
+	        multipliers: {}
+	      };
 	      effects.forEach(function (effect) {
 	        return effect.combine(modifiers);
 	      });
@@ -29359,6 +29361,8 @@
 	
 	  function CollectBuildingResourcesEffect() {
 	    var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        _ref4$allowedBuilding = _ref4.allowedBuildings,
+	        allowedBuildings = _ref4$allowedBuilding === undefined ? [] : _ref4$allowedBuilding,
 	        _ref4$period = _ref4.period,
 	        period = _ref4$period === undefined ? 1 : _ref4$period;
 	
@@ -29367,25 +29371,35 @@
 	    var _this6 = _possibleConstructorReturn(this, (CollectBuildingResourcesEffect.__proto__ || Object.getPrototypeOf(CollectBuildingResourcesEffect)).call(this, arguments[0]));
 	
 	    _this6.building = null;
+	    _this6.allowedBuildings = allowedBuildings;
 	    return _this6;
 	  }
 	
 	  _createClass(CollectBuildingResourcesEffect, [{
 	    key: 'canBegin',
 	    value: function canBegin(parents) {
+	      var _this7 = this;
+	
 	      return Object.values(parents.player.city.buildings).filter(function (b) {
+	        return _this7.allowedBuildings.length == 0 || _this7.allowedBuildings.indexOf(b.namespace) >= 0;
+	      }).filter(function (b) {
 	        return b.canCollectResources(parents.player);
 	      }).length > 0;
 	    }
 	  }, {
 	    key: 'began',
 	    value: function began(parents) {
-	      this.building = Object.values(parents.player.city.buildings).filter(function (b) {
+	      var _this8 = this;
+	
+	      var building = Object.values(parents.player.city.buildings).filter(function (b) {
+	        return _this8.allowedBuildings.length == 0 || _this8.allowedBuildings.indexOf(b.namespace) >= 0;
+	      }).filter(function (b) {
 	        return b.canCollectResources(parents.player);
 	      })[0];
-	      if (!this.building.getStoredResources()) {
+	      if (!building || !building.getStoredResources()) {
 	        throw new _CityResource.InsuficientResourcesError();
 	      }
+	      this.building = building;
 	      return [];
 	    }
 	  }, {
@@ -29431,13 +29445,13 @@
 	      multiplier = -0.75;
 	    }
 	
-	    var _this7 = _possibleConstructorReturn(this, (ResourceStoringModifierEffect.__proto__ || Object.getPrototypeOf(ResourceStoringModifierEffect)).call(this, {
+	    var _this9 = _possibleConstructorReturn(this, (ResourceStoringModifierEffect.__proto__ || Object.getPrototypeOf(ResourceStoringModifierEffect)).call(this, {
 	      multipliers: _defineProperty({}, resourceType, multiplier)
 	    }));
 	
-	    _this7.name = name;
-	    _this7.effect = (multiplier > 0 ? "+" : "-") + Math.abs(Math.round(100 * multiplier)) + "%";
-	    return _this7;
+	    _this9.name = name;
+	    _this9.effect = (multiplier > 0 ? "+" : "-") + Math.abs(Math.round(100 * multiplier)) + "%";
+	    return _this9;
 	  }
 	
 	  _createClass(ResourceStoringModifierEffect, [{
@@ -32120,21 +32134,6 @@
 	function rock(amount) {
 	  return new _CityResource.CityResource(GameModule.kResourceRock, amount);
 	}
-	
-	/* ROLES */
-	
-	GameModule.kTaskGather = new _CityBuilding.CollectBuildingResourcesEffect({
-	  name: 'Gather',
-	  namespace: 'role.basic.gather',
-	  time: 1
-	});
-	
-	GameModule.kTaskResearch = new _CityResearchProject.PlayerEarnResearchEffect({
-	  name: 'Research',
-	  namespace: 'role.basic.research',
-	  time: 1
-	});
-	
 	/* BUILDINGS */
 	
 	GameModule.kBananaTree = new _CityBuilding2.default({
@@ -32269,6 +32268,42 @@
 	  time: 20,
 	  cost: [wood(30), rock(50)],
 	  requirements: ["research.basic.mining", [GameModule.kResourceRock, 20]]
+	});
+	
+	/* ROLES */
+	
+	GameModule.kTaskGather = new _CityBuilding.CollectBuildingResourcesEffect({
+	  name: 'Gather',
+	  namespace: 'role.basic.gather',
+	  time: 1,
+	  allowedBuildings: [GameModule.kBananaTree.namespace, GameModule.kBananaField.namespace, GameModule.kWoodField.namespace]
+	});
+	
+	GameModule.kTaskLumberman = new _CityBuilding.CollectBuildingResourcesEffect({
+	  name: 'Lumberman',
+	  namespace: 'task.basic.lumberman',
+	  time: 1,
+	  allowedBuildings: [GameModule.kWoodField.namespace]
+	});
+	
+	GameModule.kTaskMiner = new _CityBuilding.CollectBuildingResourcesEffect({
+	  name: 'Miner',
+	  namespace: 'task.basic.miner',
+	  time: 3,
+	  allowedBuildings: [GameModule.kMine.namespace]
+	});
+	
+	GameModule.kTaskBlacksmith = new _CityBuilding.CollectBuildingResourcesEffect({
+	  name: 'Blacksmith',
+	  namespace: 'task.basic.blacksmith',
+	  time: 3,
+	  allowedBuildings: [GameModule.kForge.namespace]
+	});
+	
+	GameModule.kTaskResearch = new _CityResearchProject.PlayerEarnResearchEffect({
+	  name: 'Research',
+	  namespace: 'task.basic.researcher',
+	  time: 1
 	});
 	
 	/* LOADER */
@@ -32876,43 +32911,64 @@
 	
 	var GameController = __webpack_require__(461).default;
 	
+	var MAX_TASKS = 2;
+	
 	var CharacterDisplay = _react2.default.createClass({
 	  displayName: 'CharacterDisplay',
 	
-	  activeTaskMenu: function activeTaskMenu(character) {
-	    var value = character.tasks.map(function (t) {
-	      return t.namespace;
-	    })[0];
-	    var tasks = [{
-	      namespace: "",
-	      name: 'Unassigned'
-	    }].concat(Object.values(GameController.instance.module.availableTasks()));
-	
-	    var options = tasks.map(function (task) {
+	  assignTaskMenu: function assignTaskMenu(characterId, availableTasks, assignedTask, taskIndex, assignTaskCallback) {
+	    var options = availableTasks.map(function (task) {
 	      return _react2.default.createElement(
 	        'option',
-	        { value: task.namespace },
+	        {
+	          key: characterId + "_task_" + taskIndex + "_option_" + task.namespace,
+	          value: task.namespace },
 	        task.name
 	      );
 	    });
 	
 	    var handleChange = function handleChange(event) {
 	      var value = event.target.value;
-	      if (value && value.length > 0) {
-	        GameController.instance.setCharacterTasks(character.id, [value]);
-	      } else {
-	        GameController.instance.setCharacterTasks(character.id, []);
-	      }
+	      assignTaskCallback(value, taskIndex);
 	    };
 	
 	    return _react2.default.createElement(
 	      'select',
-	      { key: character.id + "_task", value: value, onChange: handleChange },
+	      {
+	        key: characterId + "_task_" + taskIndex,
+	        value: assignedTask,
+	        onChange: handleChange },
 	      options
 	    );
 	  },
-	  render: function render() {
+	  activeTasks: function activeTasks(character) {
 	    var _this = this;
+	
+	    var availableTasks = [{
+	      namespace: "",
+	      name: 'Unassigned'
+	    }].concat(Object.values(GameController.instance.module.availableTasks()));
+	
+	    var assignedTaskNamespaces = character.tasks.map(function (t) {
+	      return t.namespace;
+	    });
+	
+	    var assignTask = function assignTask(task, index) {
+	      assignedTaskNamespaces[index] = task;
+	
+	      GameController.instance.setCharacterTasks(character.id, assignedTaskNamespaces.filter(function (n) {
+	        return n && n.length;
+	      }));
+	    };
+	    return Array(MAX_TASKS).fill().map(function (_, taskIndex) {
+	      return {
+	        task: assignedTaskNamespaces[taskIndex],
+	        menu: _this.assignTaskMenu(character.id, availableTasks, assignedTaskNamespaces[taskIndex], taskIndex, assignTask)
+	      };
+	    });
+	  },
+	  render: function render() {
+	    var _this2 = this;
 	
 	    var characters = Object.values(this.props.player.city.characters);
 	    if (characters.length == 0) {
@@ -32928,17 +32984,36 @@
 	        'Characters'
 	      ),
 	      _react2.default.createElement(
-	        'characters',
+	        'table',
 	        { key: 'list', className: 'characters' },
-	        characters.map(function (character) {
-	          return _react2.default.createElement(
-	            'div',
-	            { key: character.id },
-	            (0, _ResourceIconComponent.ResourceIcon)('monkey'),
-	            character.name,
-	            _this.activeTaskMenu(character)
-	          );
-	        })
+	        _react2.default.createElement(
+	          'tbody',
+	          null,
+	          characters.map(function (character) {
+	            return _react2.default.createElement(
+	              'tr',
+	              { key: character.id },
+	              _react2.default.createElement(
+	                'td',
+	                { key: character.id + "_name" },
+	                (0, _ResourceIconComponent.ResourceIcon)('monkey'),
+	                character.name
+	              ),
+	              _this2.activeTasks(character).map(function (item, index) {
+	                var active = character.activeTask && item.task && character.activeTask.namespace == item.task;
+	                return _react2.default.createElement(
+	                  'td',
+	                  {
+	                    key: character.id + "_task_" + index,
+	                    style: {
+	                      borderBottom: active ? '1px solid red' : '1px solid white'
+	                    } },
+	                  item.menu
+	                );
+	              })
+	            );
+	          })
+	        )
 	      )
 	    );
 	  }
