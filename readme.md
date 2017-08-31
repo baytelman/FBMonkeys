@@ -51,6 +51,8 @@ This is the current withlist, and what to expect soon:
 
 This game is develop pure ES6 javascript for the game engine, and React for early visualizations.
 
+Check out the [Source Code](https://github.com/baytelman/FBMonkeys)!
+
 ## To install and run
 
 `npm install`
