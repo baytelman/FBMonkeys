@@ -25,12 +25,11 @@ var CharacterDisplay = React.createClass({
     );
   },
   activeTasks: function (character) {
-    let availableTasks = [
-      {
-        namespace: "",
-        name: 'Unassigned'
-      }
-    ].concat(Object.values(GameController.instance.module.availableTasks()));
+    let availableTasks = Object.values(GameController.instance.module.availableTasks()).filter(t => t.isAvailable(this.props.player));
+    availableTasks.unshift({
+      namespace: "",
+      name: 'Unassigned'
+    });
 
     let assignedTaskNamespaces = character
       .tasks
