@@ -5,6 +5,7 @@ import City from '../lib/city/City';
 import {CityResource, UnavailableActionError} from '../lib/city/CityResource.js';
 import CityBuilding, {BuildingStoreResourceEffect} from '../lib/city/CityBuilding.js';
 import {CityPlayer, PlayerEarnResourceEffect} from '../lib/city/CityPlayer.js';
+import {SpeedEnhancementEffect} from '../lib/city/Effect.js';
 
 const kGold = 'gold';
 const gold = (amount) => new CityResource(kGold, amount);
@@ -15,6 +16,7 @@ describe('Buildings Effects', () => {
   let resources = [resource];
   let time = 10;
   let grantingBuilding = new CityBuilding({
+    namespace: 'grantingBuilding',
     effects: [new PlayerEarnResourceEffect({resources: resources, period: time})]
   });
 
@@ -64,7 +66,7 @@ describe('Buildings Effects', () => {
     assert.isFalse(player.canAfford(resources));
     player.updateTime(time + 1);
     const effect = plannedBuilding.effects[0];
-    
+
     /* Player has NOT earned the resources yet, but they are ready to be collected */
     assert.isFalse(player.canAfford(resources));
     assert.isNotFalse(plannedBuilding.getStoredResources());
@@ -157,5 +159,46 @@ describe('Buildings Effects', () => {
     player.updateTime(time + 1);
     assert.equal(false, plannedBuilding.canCollectResources(player));
     assert.equal(plannedBuilding.collectResources(player).type, CityEvent.kActionAbortedEvent);
+  });
+
+  it('granting speed is influenced by effecsy', () => {
+    let player1 = new CityPlayer({
+        initialCapacity: {
+          [kGold]: 1000
+        }
+      }),
+      player2 = new CityPlayer({
+        initialCapacity: {
+          [kGold]: 1000
+        }
+      });
+
+    /* Player 1 produces at regular speed */
+    player1
+      .city
+      .planBuilding({building: grantingBuilding});
+    /* Player 2 produces faster due to effect */
+    player2
+      .city
+      .planBuilding({building: grantingBuilding});
+
+    let enhancement = 0.5;
+    player2
+      .city
+      .planBuilding({
+        building: new CityBuilding({
+          permanentEffects: [new SpeedEnhancementEffect({
+              namespaces: [grantingBuilding.namespace],
+              enhancement: enhancement
+            })]
+        })
+      });
+
+    let cycles = 4
+    player1.updateTime(time * cycles);
+    player2.updateTime(time * cycles);
+
+    assert.equal(player1.getResourceAmountForType(kGold), amount * cycles);
+    assert.equal(player2.getResourceAmountForType(kGold), amount * cycles * (1 + enhancement));
   });
 });

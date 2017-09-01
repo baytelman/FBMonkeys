@@ -1,4 +1,5 @@
 import {assert} from 'chai'
+
 import {CityPlayer} from '../lib/city/CityPlayer';
 import {CityResource, ResourceConsumingAction, InsuficientResourcesError, UnavailableActionError} from '../lib/city/CityResource';
 

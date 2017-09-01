@@ -1,6 +1,8 @@
 import {assert} from 'chai'
+
 import {CityPlayer, CapacityGrantingEffect} from '../lib/city/CityPlayer';
-import {CityResource, ResourceEffect} from '../lib/city/CityResource';
+import {CityResource} from '../lib/city/CityResource';
+import {ResourceEffect} from '../lib/city/Effect';
 import CityBuilding from '../lib/city/CityBuilding';
 
 import CityCharacter from '../lib/city/CityCharacter.js';

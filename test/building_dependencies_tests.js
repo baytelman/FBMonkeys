@@ -1,4 +1,5 @@
 import {assert} from 'chai'
+
 import {CityResource} from '../lib/city/CityResource';
 import CityBuilding, {BuildingConstructionAction} from '../lib/city/CityBuilding';
 import {CityPlayer} from '../lib/city/CityPlayer';

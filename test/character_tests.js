@@ -89,6 +89,32 @@ describe('Player\'s Characters', () => {
     assert.equal(number, characters.length);
     assert.isTrue(characters.every(c => c.name == kCharGold));
   });
+  
+  it('Can enable tasks', () => {
+    const player = newPlayer();
+
+    const char1 = Object.values(player.city.characters)[0];
+
+    const task1 = new PlayerEarnResourceEffect({
+      resources: [gold(amount)],
+      period: time
+    });
+    const task2 = new PlayerEarnResourceEffect({
+      resources: [wood(amount)],
+      period: time,
+      requirements: [[kGold, amount]]
+    });
+
+    assert.isTrue(task1.isAvailable(player));
+    assert.isFalse(task2.isAvailable(player));
+    
+    player.earnResources([
+      gold(amount)
+    ]);
+
+    assert.isTrue(task1.isAvailable(player));
+    assert.isTrue(task2.isAvailable(player));
+  });
 
   it('Can be assigned tasks, rotate as completed', () => {
     const player = newPlayer();

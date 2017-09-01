@@ -1,4 +1,5 @@
 import {assert} from 'chai';
+
 import GameController from "../lib/controller/GameController";
 import GameModule, {banana} from '../lib/module/GameModule';
 import CityEvent from '../lib/city/CityEvent';

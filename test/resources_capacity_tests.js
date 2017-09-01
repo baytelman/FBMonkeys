@@ -1,4 +1,5 @@
 import {assert} from 'chai'
+
 import {CityResource} from '../lib/city/CityResource';
 import CityBuilding from '../lib/city/CityBuilding';
 import {CityPlayer, CapacityGrantingEffect} from '../lib/city/CityPlayer';

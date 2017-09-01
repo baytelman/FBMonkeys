@@ -1,10 +1,7 @@
-const assert = require('chai').assert
+import {assert} from 'chai'
 
-const MutableObject = require("../lib/city/utils/Utils.js").MutableObject;
-
-const EffectJS = require('../lib/city/Effect.js');
-const FrequencyEffect = EffectJS.FrequencyEffect;
-const CityEvent = require('../lib/city/CityEvent.js').default;
+import {FrequencyEffect} from '../lib/city/Effect.js';
+import CityEvent from '../lib/city/CityEvent.js';
 
 describe('Frequency Effects', () => {
     it('require to send events', () => {
@@ -18,7 +15,6 @@ describe('Frequency Effects', () => {
     });
 
     it('Send events when updated', () => {
-
         const kEventType = "kEventType";
 
         class MyFrequencyEffect extends FrequencyEffect {
