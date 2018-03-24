@@ -105,7 +105,15 @@ export class CityPlayer {
 
     let permanentEffects = this.getActivePermamentEffects(CapacityGrantingEffect);
     permanentEffects.forEach(effect => effect.combine(capacity));
-    return capacity.additions;
+
+    let multiplied = {}
+    Object
+      .entries(capacity.additions)
+      .forEach(([key, value]) => {
+        multiplied[key] = (value || 0) * (1 + ((capacity.multipliers && capacity.multipliers[key]) || 0))
+      })
+
+    return multiplied;
   }
 
   /* Research */
