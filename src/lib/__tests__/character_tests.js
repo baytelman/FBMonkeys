@@ -89,7 +89,7 @@ describe('Player\'s Characters', () => {
     assert.equal(number, characters.length);
     assert.isTrue(characters.every(c => c.name == kCharGold));
   });
-  
+
   it('Can enable tasks', () => {
     const player = newPlayer();
 
@@ -102,15 +102,15 @@ describe('Player\'s Characters', () => {
     const task2 = new PlayerEarnResourceEffect({
       resources: [wood(amount)],
       period: time,
-      requirements: [[kGold, amount]]
+      requirements: [
+        [kGold, amount]
+      ]
     });
 
     assert.isTrue(task1.isAvailable(player));
     assert.isFalse(task2.isAvailable(player));
-    
-    player.earnResources([
-      gold(amount)
-    ]);
+
+    player.earnResources([gold(amount)]);
 
     assert.isTrue(task1.isAvailable(player));
     assert.isTrue(task2.isAvailable(player));
@@ -263,47 +263,53 @@ describe('Player\'s Characters', () => {
 
     let woodBuilding = new CityBuilding({
       namespace: 'b1',
-      effects: [new BuildingStoreResourceEffect({resources: [wood(10)], period: time})]
+      effects: [new BuildingStoreResourceEffect({
+          resources: [wood(10)],
+          period: time
+        })]
     });
     let goldBuilding = new CityBuilding({
       namespace: 'b2',
-      effects: [new BuildingStoreResourceEffect({resources: [gold(10)], period: time})]
+      effects: [new BuildingStoreResourceEffect({
+          resources: [gold(10)],
+          period: time
+        })]
     });
     let anotherBuilding = new CityBuilding({
       namespace: 'b3',
-      effects: [new BuildingStoreResourceEffect({resources: [gold(10)], period: time})]
+      effects: [new BuildingStoreResourceEffect({
+          resources: [gold(10)],
+          period: time
+        })]
     });
     player
-    .city
-    .planBuilding({building: woodBuilding});
+      .city
+      .planBuilding({building: woodBuilding});
     player
-    .city
-    .planBuilding({building: goldBuilding});
+      .city
+      .planBuilding({building: goldBuilding});
     player
-    .city
-    .planBuilding({building: anotherBuilding});
+      .city
+      .planBuilding({building: anotherBuilding});
     const plannedBuilding1 = Object.values(player.city.buildings)[0];
     const plannedBuilding2 = Object.values(player.city.buildings)[1];
     const plannedBuilding3 = Object.values(player.city.buildings)[2];
-    
+
     player.earnResources([character(3)]);
     player.updateTime(1);
     const char1 = Object.values(player.city.characters)[0];
     const char2 = Object.values(player.city.characters)[1];
     const char3 = Object.values(player.city.characters)[2];
-    
+
     char1.tasks = [new CollectBuildingResourcesEffect({
-      period: time,
-      allowedBuildings: [plannedBuilding1.namespace]
-    })];
+        period: time,
+        allowedBuildings: [plannedBuilding1.namespace]
+      })];
     char2.tasks = [new CollectBuildingResourcesEffect({
-      period: time,
-      allowedBuildings: [plannedBuilding2.namespace]
-    })];
-    char3.tasks = [new CollectBuildingResourcesEffect({
-      period: time,
-      allowedBuildings: ['a.different.namespace']
-    })];
+        period: time,
+        allowedBuildings: [plannedBuilding2.namespace]
+      })];
+    char3.tasks = [new CollectBuildingResourcesEffect({period: time, allowedBuildings: ['a.different.namespace']})];
     player.updateTime(1);
 
     /* Nothing to pickup */
@@ -313,7 +319,7 @@ describe('Player\'s Characters', () => {
     assert.isFalse(plannedBuilding1.getStoredResources());
     assert.isFalse(plannedBuilding2.getStoredResources());
     assert.isFalse(plannedBuilding3.getStoredResources());
-    
+
     /* CityBuilding finished production, picking up */
     player.updateTime(time);
     assert.isNotFalse(plannedBuilding1.getStoredResources());

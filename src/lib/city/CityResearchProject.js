@@ -51,9 +51,7 @@ export class PlayerEarnResearchEffect extends FrequencyEffect {
   trigger(parents) {
     let event = new CityEvent({type: CityEvent.kEarnResearchEvent, object: this, data: this.research});
     let updated = [event];
-    updated = updated.concat(parents
-      .player
-      .earnResearch(this.research));
+    updated = updated.concat(parents.player.earnResearch(this.research));
     return updated;
   }
   getDescription() {

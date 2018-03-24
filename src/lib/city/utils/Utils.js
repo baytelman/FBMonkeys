@@ -1,8 +1,6 @@
 import UUIDjs from 'uuid-js';
 
-export class ImmutableObjectError extends Error {
-
-}
+export class ImmutableObjectError extends Error {}
 export class MutableObject {
   static checkIsMutable(object) {
     if (!object.isMutable) {
@@ -16,7 +14,9 @@ export class MutableObject {
     let a = Object.create(Object.getPrototypeOf(obj))
     a = Object.assign(a, obj);
     a.isMutable = true;
-    a.id = UUIDjs.create().toString();
+    a.id = UUIDjs
+      .create()
+      .toString();
     a.originalId = a.originalId || obj.id;
     return a;
   }

@@ -1,8 +1,8 @@
 import {UnavailableActionError} from '../city/CityResource.js';
-import CitySerializer  from "../city/CitySerializer";
-import {CityPlayer}  from '../city/CityPlayer'
-import GameModule  from '../module/GameModule';
-import EventEmitter  from 'events';
+import CitySerializer from "../city/CitySerializer";
+import {CityPlayer} from '../city/CityPlayer'
+import GameModule from '../module/GameModule';
+import EventEmitter from 'events';
 
 export default class GameController extends EventEmitter {
   constructor() {
@@ -23,12 +23,20 @@ export default class GameController extends EventEmitter {
     if (!this.player) {
       this.player = new CityPlayer();
     }
-    Object.assign(this.player,  player);
+    Object.assign(this.player, player);
 
-    this.player.initialCapacity = this.module.getPlayerInitialCapacity();
-    this.player.characterFactories = this.module.getCharacterFactories();
-    this.player.seasonPeriod = this.player.city.seasonPeriod = this.module.getSeasonPeriod();
-    this.player.seasonAffectedResource = this.player.city.seasonAffectedResource =this.module.getSeasonAffectedResource();
+    this.player.initialCapacity = this
+      .module
+      .getPlayerInitialCapacity();
+    this.player.characterFactories = this
+      .module
+      .getCharacterFactories();
+    this.player.seasonPeriod = this.player.city.seasonPeriod = this
+      .module
+      .getSeasonPeriod();
+    this.player.seasonAffectedResource = this.player.city.seasonAffectedResource = this
+      .module
+      .getSeasonAffectedResource();
 
   }
 
@@ -42,19 +50,24 @@ export default class GameController extends EventEmitter {
 
   tick(delta) {
     let _this = this;
-    let events = this.player.updateTime(delta);
+    let events = this
+      .player
+      .updateTime(delta);
     events.forEach((event) => _this._emit(event));
     return events;
   }
 
   planBuilding(namespace) {
-    let b = this.module.allBuildings()[namespace];
+    let b = this
+      .module
+      .allBuildings()[namespace];
     if (!b) {
       throw new UnavailableActionError();
     }
-    let event = this.player.city.planBuilding({
-      building: b
-    });
+    let event = this
+      .player
+      .city
+      .planBuilding({building: b});
     this._emit(event);
     return event;
   }
@@ -81,11 +94,15 @@ export default class GameController extends EventEmitter {
   }
 
   scheduleResearch(namespace) {
-    let research = this.module.allResearch()[namespace];
+    let research = this
+      .module
+      .allResearch()[namespace];
     if (!research) {
       throw new UnavailableActionError();
     }
-    let event = this.player.scheduleResearch(research);
+    let event = this
+      .player
+      .scheduleResearch(research);
     return [event];
   }
 

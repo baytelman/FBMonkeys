@@ -57,7 +57,9 @@ describe('Resources', () => {
   it('cannot spend if dont have', () => {
     let player = new CityPlayer(playerCapacity);
     let resource = createResource(amount);
-    let spend = function() { player.spendResources([resource]); };
+    let spend = function () {
+      player.spendResources([resource]);
+    };
     assert.throw(spend);
     // assert.throw(spend, InsuficientResourcesError);
 
@@ -111,7 +113,8 @@ describe('Resource Consuming Actions', () => {
     assert.isTrue(action.isAvailable(player));
     assert.isFalse(action.isAffordable(player));
 
-    // assert.throw(() => action.executeForPlayer(player), InsuficientResourcesError);
+    // assert.throw(() => action.executeForPlayer(player),
+    // InsuficientResourcesError);
     assert.throw(() => action.executeForPlayer(player));
     assert.isFalse(actionCalled);
 

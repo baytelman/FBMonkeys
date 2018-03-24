@@ -1,15 +1,13 @@
-import GameController  from './controller/GameController';
-import GameModule  from './module/GameModule';
-
-import {PlayerEarnResourceEffect, CityPlayer}  from './city/CityPlayer'
-import {CityBuilding}  from './city/CityBuilding'
-import {CityResource}  from './city/CityResource'
+import GameController from './controller/GameController';
+import GameModule from './module/GameModule';
 
 let controller = GameController.instance;
+const setup = () => {
+  GameModule
+    .kDefaultBuildings
+    .forEach(namespace => {
+      controller.installCompletedBuilding(namespace);
+    })
+}
 
-GameModule.kDefaultBuildings.forEach(namespace => {
-    controller.installCompletedBuilding(namespace);
-});
-
-const demoData = controller.player
-export default demoData;
+export default setup;

@@ -6,7 +6,9 @@ import registerServiceWorker from './registerServiceWorker';
 import GameController from './lib/controller/GameController';
 import MainWindow from './components/MainWindowComponent';
 
-import DemoData from './lib/demo_data';
+import setupDemoData from './lib/demo_data';
+
+setupDemoData()
 
 ReactDOM.render(
   <MainWindow controller={GameController.instance}></MainWindow>, document.getElementById('root'));

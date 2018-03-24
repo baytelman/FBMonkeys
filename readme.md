@@ -53,43 +53,27 @@ This game is develop pure ES6 javascript for the game engine, and React for earl
 
 Check out the [Source Code](https://github.com/baytelman/FBMonkeys)!
 
-## To install and run
+### `npm start`
 
-`npm install`
+Runs the app in the development mode.<br>
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-`npm run gulp dev` to update the app script url in index.ejs, reversing the corresponding gulp production command
+The page will reload if you make edits.<br>
+You will also see any lint errors in the console.
 
-`npm run dev` will run webpack dev server at localhost:8080
+### `npm test`
 
-#### Run `node index.js` to start the application server on [localhost:5000](http://localhost:5000)
+Launches the test runner in the interactive watch mode.<br>
+See the section about [running tests](#running-tests) for more information.
 
-## Testing
+### `npm run build`
 
-In order to run Unit Tests use:
+Modify your `package.json` to point to the right `homepage`:
+If you are deploying to something like `https://baytelman.github.io/FBMonkeys/build/` then set `"homepage": "/FBMonkeys/build"`.
+If you are deploying to something like `https://your.domain.com` then set `"homepage": "/"`.
 
-`npm test`
-or
-`npm run watch`
-or run coverage with:
-`npm run coverage`
+Builds the app for production to the `build` folder.<br>
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-# Before deploying to production:
-
-The following steps should be executed by the CI engine. Currently, they must be executed manually.
-
-## Prepare HTML for production:
-
-Run `npm run gulp production`. This will change the following:
-
-##### 1: Inside `./views/index.ejs`:
-```
-<script src="http://localhost:8080/app.js" charset="utf-8"></script>
-```
-##### Will change to:
-```
-<script src="/js/app.js" charset="utf-8"></script>
-```
-
-## Compile Javascript for production:
-
-`npm run postinsall`
+The build is minified and the filenames include the hashes.<br>
+Your app is ready to be deployed!

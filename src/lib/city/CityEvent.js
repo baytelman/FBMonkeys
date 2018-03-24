@@ -3,8 +3,14 @@ import UUIDjs from 'uuid-js';
 import {MutableObject} from './utils/Utils';
 
 export default class CityEvent {
-  constructor({type = "event", object = null, data = {}} = {}) {
-    this.id = UUIDjs.create().toString();
+  constructor({
+    type = "event",
+    object = null,
+    data = {}
+  } = {}) {
+    this.id = UUIDjs
+      .create()
+      .toString();
 
     this.type = type;
     this.object = MutableObject.copy(object);

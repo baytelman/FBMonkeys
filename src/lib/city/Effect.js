@@ -1,5 +1,5 @@
 import CityEvent from './CityEvent';
-import UUIDjs  from 'uuid-js';
+import UUIDjs from 'uuid-js';
 
 const START_CHECK_SENSITIVITY = 0.01;
 

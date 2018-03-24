@@ -205,7 +205,7 @@ GameModule.kSawmill = new CityBuilding({
     }),
     new SpeedEnhancementEffect({
       namespaces: [GameModule.kWoodField.namespace],
-      enhancement: 0.05,
+      enhancement: 0.05
     })
   ]
 });

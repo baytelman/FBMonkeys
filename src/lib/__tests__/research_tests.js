@@ -8,7 +8,6 @@ import CityBuilding from '../city/CityBuilding';
 import CityCharacter from '../city/CityCharacter.js';
 import CityResearchProject, {ScheduleResearchProjectAction, PlayerEarnResearchEffect} from '../city/CityResearchProject';
 
-
 const kTestResourceType = "ResourceType";
 const createResource = (amount) => new CityResource(kTestResourceType, amount);
 
@@ -197,12 +196,9 @@ describe('Research Projects', () => {
     /* Character gets research task */
     let time = 3;
     const char = Object.values(player.city.characters)[0];
-    const task = new PlayerEarnResearchEffect({
-      research: 1,
-      period: time
-    });
+    const task = new PlayerEarnResearchEffect({research: 1, period: time});
     char.tasks = [task];
-    
+
     player.updateTime(time);
     assert.strictEqual(player.researchProjects.length, 1);
     assert.strictEqual(player.researchProjects[0].remainingTime(), researchTime - 1);

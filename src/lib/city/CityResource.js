@@ -2,11 +2,9 @@ import UUIDjs from 'uuid-js';
 
 export class ResourceError extends Error {}
 
-export class InsuficientResourcesError extends ResourceError {
-}
+export class InsuficientResourcesError extends ResourceError {}
 
-export class UnavailableActionError extends ResourceError {
-}
+export class UnavailableActionError extends ResourceError {}
 
 export class CityResource {
   constructor(namespace, amount) {

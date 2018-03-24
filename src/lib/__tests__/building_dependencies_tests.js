@@ -14,7 +14,9 @@ describe('Buildings Dependencies', () => {
     let resources = [resource];
     let time = 10;
     let building = new CityBuilding({
-      requirements: [[kGold, 5]]
+      requirements: [
+        [kGold, 5]
+      ]
     });
     let player = new CityPlayer({
       initialCapacity: {
