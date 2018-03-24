@@ -87,17 +87,17 @@ input:-moz-placeholder { /* Firefox 18- */
   background-size: contain;
 }
   .resource-icon.wood {
-    background-image: url(/images/resources/wood.png);
+    background-image: url('images/resources/wood.png');
   }
   .resource-icon.rock {
     background-color: grey;
-    background-image: url(/images/resources/rock.png);
+    background-image: url('images/resources/rock.png');
   }
   .resource-icon.banana {
-    background-image: url(/images/resources/banana.png);
+    background-image: url('images/resources/banana.png');
   }
   .resource-icon.monkey {
-    background-image: url(/images/resources/monkey.png);
+    background-image: url('images/resources/monkey.png');
   }
 
 
