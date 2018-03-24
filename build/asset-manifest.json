@@ -1,10 +1,17 @@
 {
-  "main.css": "static/css/main.375162bd.css",
-  "main.css.map": "static/css/main.375162bd.css.map",
-  "main.js": "static/js/main.bc2da72b.js",
-  "main.js.map": "static/js/main.bc2da72b.js.map",
+  "main.css": "static/css/main.03345f66.css",
+  "main.css.map": "static/css/main.03345f66.css.map",
+  "main.js": "static/js/main.05dffb9a.js",
+  "main.js.map": "static/js/main.05dffb9a.js.map",
   "static/media/banana.png": "static/media/banana.8bd183ab.png",
+  "static/media/banana_field.png": "static/media/banana_field.0b6622e6.png",
+  "static/media/banana_tree.png": "static/media/banana_tree.b81fc958.png",
+  "static/media/cabin.png": "static/media/cabin.3c405d36.png",
+  "static/media/crate.png": "static/media/crate.92350c9a.png",
+  "static/media/mine.png": "static/media/mine.8645a478.png",
   "static/media/monkey.png": "static/media/monkey.12fcbc04.png",
   "static/media/rock.png": "static/media/rock.05c511db.png",
-  "static/media/wood.png": "static/media/wood.9e78c7ed.png"
+  "static/media/sawmill.png": "static/media/sawmill.4556a2c0.png",
+  "static/media/wood.png": "static/media/wood.9e78c7ed.png",
+  "static/media/wood_field.png": "static/media/wood_field.0b6622e6.png"
 }

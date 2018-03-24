@@ -58,24 +58,23 @@ input:-moz-placeholder { /* Firefox 18- */
 }
 
 .resources > .resource {
-    display: block;
+  display: block;
 }
 .resource .wood {
-      color: brown;
-    }
-    .resource .rock {
-      background-color: grey;
-    }
-    .resource .banana {
-      background-color: yellow;
-    }
-    .resource-amount {
-      display: inline-block;
-      margin-right: 4px;
-      font-size: 11px;
-      vertical-align: middle;
-    }
-
+  color: brown;
+}
+.resource .rock {
+  background-color: grey;
+}
+.resource .banana {
+  background-color: yellow;
+}
+.resource-amount {
+  display: inline-block;
+  margin-right: 4px;
+  font-size: 11px;
+  vertical-align: middle;
+}
 
 .resource-icon {
   display: inline-block;
@@ -86,20 +85,61 @@ input:-moz-placeholder { /* Firefox 18- */
   vertical-align: middle;
   background-size: contain;
 }
-  .resource-icon.wood {
-    background-image: url('images/resources/wood.png');
-  }
-  .resource-icon.rock {
-    background-color: grey;
-    background-image: url('images/resources/rock.png');
-  }
-  .resource-icon.banana {
-    background-image: url('images/resources/banana.png');
-  }
-  .resource-icon.monkey {
-    background-image: url('images/resources/monkey.png');
-  }
+.resource-icon.wood {
+  background-image: url('images/resources/wood.png');
+}
+.resource-icon.rock {
+  background-color: grey;
+  background-image: url('images/resources/rock.png');
+}
+.resource-icon.banana {
+  background-image: url('images/resources/banana.png');
+}
+.resource-icon.monkey {
+  background-image: url('images/resources/monkey.png');
+}
 
+.resource-icon.wood {
+  background-image: url('images/resources/wood.png');
+}
+.resource-icon.rock {
+  background-color: grey;
+  background-image: url('images/resources/rock.png');
+}
+.resource-icon.banana {
+  background-image: url('images/resources/banana.png');
+}
+.resource-icon.monkey {
+  background-image: url('images/resources/monkey.png');
+}
+
+.building-basic-banana_field {
+  background-image: url('images/building/basic/banana_field.png');
+}
+
+.building-basic-banana_tree {
+  background-image: url('images/building/basic/banana_tree.png');
+}
+
+.building-basic-cabin {
+  background-image: url('images/building/basic/cabin.png');
+}
+
+.building-basic-crate {
+  background-image: url('images/building/basic/crate.png');
+}
+
+.building-basic-mine {
+  background-image: url('images/building/basic/mine.png');
+}
+
+.building-basic-sawmill {
+  background-image: url('images/building/basic/sawmill.png');
+}
+
+.building-basic-wood_field {
+  background-image: url('images/building/basic/wood_field.png');
+}
 
 collect {
   height: 32px;
