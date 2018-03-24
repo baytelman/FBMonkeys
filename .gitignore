@@ -12,3 +12,4 @@ npm-debug.log
 
 # Ignore public folder containing webpack-bundled js and css
 coverage
+yarn.lock
