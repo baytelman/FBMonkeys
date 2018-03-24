@@ -10,20 +10,36 @@ import CityDisplayComponent from "../components/CityDisplayComponent";
 var Player = (props) => {
   return (
     <div id={props.player.id}>
-      <div
+      <CityDisplayComponent player={props.player}/>
+      <ResourceDisplay
         style={{
-        'zIndex': 1,
-        'position': 'relative',
-        'background': 'white',
-        'width': 400
+        right: 0,
+        top: 0
+      }}
+        player={props.player}
+        data={props.player}/>
+      <div
+        className="hud-window"
+        style={{
+        right: 0,
+        bottom: 0
+      }}>
+        <ResearchMenuComponent player={props.player}/>
+      </div>
+      <div className="hud-window" style={{
+        left: 0,
+        top: 0
       }}>
         <SaveMenuComponent player={props.player}/>
         <BuildMenuComponent player={props.player}/>
-        <ResearchMenuComponent player={props.player}/>
-        <ResourceDisplay player={props.player} data={props.player}/>
-        <CharacterDisplay player={props.player} data={props.player}/>
       </div>
-      <CityDisplayComponent player={props.player}/>
+      <CharacterDisplay
+        style={{
+        left: 0,
+        bottom: 0
+      }}
+        player={props.player}
+        data={props.player}/>
     </div>
   )
 }

@@ -57,6 +57,19 @@ input:-moz-placeholder { /* Firefox 18- */
   min-width: 100%;
 }
 
+.hud-window {
+  z-index: 1;
+  display: inline-block;
+  position: fixed;
+  background: rgba(255,255,255,0.6);
+  border-radius: 5px;
+  padding: 5px;
+}
+
+#season {
+  font-size: 11px;
+}
+
 .resources > .resource {
   display: block;
 }
@@ -69,11 +82,19 @@ input:-moz-placeholder { /* Firefox 18- */
 .resource .banana {
   background-color: yellow;
 }
-.resource-amount {
+.resource-amount, .max-amount {
   display: inline-block;
-  margin-right: 4px;
-  font-size: 11px;
+  font-size: 13px;
   vertical-align: middle;
+}
+.resource-amount {
+  margin-left: 4px;
+  font-weight: bold;
+}
+
+.max-amount {
+  margin-left: 2px;
+  font-size: 11px;
 }
 
 .resource-icon {

@@ -21,9 +21,9 @@ export default class CityProject {
     this.id = UUIDjs
       .create()
       .toString();
-      this.name = name;
-      this.description = description;
-      this.namespace = (namespace || name.toLowerCase().replace(" ", "_") || this.id);
+    this.name = name;
+    this.description = description;
+    this.namespace = (namespace || name.toLowerCase().replace(" ", "_") || this.id);
     this.requirements = requirements;
     this.cost = cost;
     this.permanentEffects = permanentEffects;

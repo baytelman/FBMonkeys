@@ -74,7 +74,9 @@ var CityDisplay = (props) => {
         }}></div>
         <div
           key={b.id + "_icon"}
-          className={b.namespace.replace(/\./g, '-')}
+          className={b
+          .namespace
+          .replace(/\./g, '-')}
           style={{
           opacity: b.progress(),
           position: 'absolute',
@@ -154,6 +156,7 @@ var CityDisplay = (props) => {
     <div
       style={{
       position: 'absolute',
+      overflow: 'hidden',
       top: 0,
       left: 0,
       zIndex: 0,

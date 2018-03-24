@@ -17,9 +17,10 @@ var ResourceDisplay = (props) => {
       .description()
     : "";
   return (
-    <div id='resource-display' className='hud-window'>
-      <b>Resources ({season})</b>
-      <resources className='resources'>
+    <div id='resource-display' className='hud-window' style={props.style}>
+    <b>Resources</b>
+    <div id='season'>{season}</div>
+    <resources className='resources'>
         {resources.map((resource) => (resource.amount && <ResourceSummary
           key={resource.id}
           resource={resource}
