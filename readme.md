@@ -14,7 +14,7 @@ A village simulator inspired by [Kittens](http://bloodrizer.ru/games/kittens).
 - Recruit and manage monkeys.
 
 
-## Wanna try it? [Click here to play!](https://baytelman.github.io/FBMonkeys/public/)
+## Wanna try it? [Click here to play!](https://baytelman.github.io/FBMonkeys/build/)
 
 ## Why am I writing this game
 
