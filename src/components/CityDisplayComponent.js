@@ -74,6 +74,7 @@ var CityDisplay = (props) => {
         }}></div>
         <div
           key={b.id + "_icon"}
+          className={b.namespace.replace(/\./g, '-')}
           style={{
           opacity: b.progress(),
           position: 'absolute',
@@ -83,9 +84,6 @@ var CityDisplay = (props) => {
           width: kAssetWidth,
           height: kAssetWidth,
           zIndex: 1,
-          backgroundImage: 'url(./images/' + b
-            .namespace
-            .replace(/\./g, '/') + '.png)',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           backgroundSize: 'contain'

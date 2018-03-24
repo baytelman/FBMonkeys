@@ -249,7 +249,7 @@ GameModule.kCalendar = new CityResearchProject({
   ]
 });
 
-GameModule.kAgriculture = new CityResearchProject({name: "Agriculture", namespace: "research.basic.agriculture", time: 40, requirements: ["research.basic.calendar"]});
+GameModule.kAgriculture = new CityResearchProject({name: "Agriculture", description: "Allows planting trees and unlocks mining.", namespace: "research.basic.agriculture", time: 40, requirements: ["research.basic.calendar"]});
 
 GameModule.kMining = new CityResearchProject({
   name: "Mining",
@@ -261,6 +261,7 @@ GameModule.kMining = new CityResearchProject({
 
 GameModule.kMetalCasting = new CityResearchProject({
   name: "Metal casting",
+  description: "Reinforces crates and sawmills for more storage (+300% and +100% respectively).",
   namespace: "research.basic.metal_casting",
   time: 20,
   cost: [
@@ -269,7 +270,13 @@ GameModule.kMetalCasting = new CityResearchProject({
   requirements: [
     "research.basic.mining",
     [GameModule.kResourceRock, 20]
-  ]
+  ],
+  permanentEffects: [new CapacityGrantingEffect({
+      multipliers: {
+        [GameModule.kResourceBanana]: 3,
+        [GameModule.kResourceWood]: 1
+      }
+    })]
 });
 
 /* ROLES */

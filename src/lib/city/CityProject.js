@@ -9,6 +9,7 @@ export class ProjectAlreadyCompletedError extends Error {}
 export default class CityProject {
   constructor({
     name = "A project",
+    description = null,
     namespace = null,
     requirements = [],
     cost = [],
@@ -20,8 +21,9 @@ export default class CityProject {
     this.id = UUIDjs
       .create()
       .toString();
-    this.name = name;
-    this.namespace = (namespace || name.toLowerCase().replace(" ", "_") || this.id);
+      this.name = name;
+      this.description = description;
+      this.namespace = (namespace || name.toLowerCase().replace(" ", "_") || this.id);
     this.requirements = requirements;
     this.cost = cost;
     this.permanentEffects = permanentEffects;
@@ -39,13 +41,7 @@ export default class CityProject {
 
   getStatus() {
     if (this.isCompleted()) {
-      if (this.permanentEffects.length > 0) {
-        return this
-          .permanentEffects[0]
-          .toString();
-      } else {
-        return "";
-      }
+      return "";
     } else {
       return "[" + Math.round(this.progress() * 100) + "% Progress]";
     }

@@ -116,7 +116,13 @@ export class ResourceEffect {
     let additions = Object
       .keys(this.additions)
       .map(k => k + " x " + this.additions[k]);
-    return additions;
+    let multipliers = Object
+      .keys(this.multipliers)
+      .map(k => k + " + " + (this.multipliers[k] * 100) + '%');
+    return [
+      ...additions,
+      ...multipliers
+    ].join(', ')
   }
 }
 

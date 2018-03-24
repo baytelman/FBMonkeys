@@ -6,10 +6,12 @@ import {FrequencyEffect} from './Effect';
 export default class CityResearchProject extends CityProject {
   constructor({
     name = "Some research",
+    description = "Some research",
     namespace = 'research.name'
   } = {}) {
     let params = Object.assign(arguments[0] || {}, {
       name: name,
+      description: description,
       namespace: namespace,
       completionEventType: CityEvent.kProjectCompletedEvent,
       progressEventType: CityEvent.kProjectProgressEvent
