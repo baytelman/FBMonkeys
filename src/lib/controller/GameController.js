@@ -1,4 +1,5 @@
 import {UnavailableActionError} from '../city/CityResource.js';
+import {ScheduleResearchProjectAction} from '../city/CityResearchProject.js';
 import CitySerializer from "../city/CitySerializer";
 import {CityPlayer} from '../city/CityPlayer'
 import GameModule from '../module/GameModule';
@@ -114,6 +115,13 @@ export default class GameController extends EventEmitter {
     let tasks = taskNamespaces.map(n => this.module.availableTasks()[n]);
     let event = character.setTasks(tasks);
     return [event];
+  }
+
+  getAvailableResearchActions() {
+    return Object
+      .values(GameController.instance.module.allResearch())
+      .map((project) => new ScheduleResearchProjectAction({project: project}))
+      .filter(action => action.isAvailable(this.player))
   }
 }
 

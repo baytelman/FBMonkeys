@@ -13,12 +13,11 @@ var ResourceSummaryComponent = (props) => {
   const max = props.max
 
   return (
-    <resource id={id} className='resource' title={title}>
+    <div id={id} className='resource' title={title}>
       {ResourceIcon(props.resource.namespace)}
-      <amount className='resource-amount'>{amount}</amount>
-      <amount className='max-amount'>/
-      {max}</amount>
-    </resource>
+      <span className='amount resource-amount'>{amount}</span>
+      <span className='amount max-amount'>/ {max}</span>
+    </div>
   )
 }
 

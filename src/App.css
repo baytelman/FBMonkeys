@@ -162,7 +162,7 @@ input:-moz-placeholder { /* Firefox 18- */
   background-image: url('images/building/basic/wood_field.png');
 }
 
-collect {
+.collect {
   height: 32px;
   width: 32px;
   margin-left: auto;
@@ -172,7 +172,7 @@ collect {
   border-radius: 32px;
   overflow: hidden;
 }
-collect > .resource-icon {
+.collect > .resource-icon {
   height: 32px;
   width: 32px;
 }
