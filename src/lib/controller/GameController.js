@@ -137,9 +137,13 @@ export default class GameController extends EventEmitter {
       .filter(action => action.isAvailable(this.player))
   }
 
-  // MISSING:
-  // - User picks up resources (manually)
-  // - Listing of Characters (today done with inspection)
+  getCharactersAsJson() {
+    return CitySerializer.serialize(this.player.city.characters)
+  }
+
+  getCharacters() {
+    return JSON.parse(this.getCharactersAsJson())
+  }
 }
 
 GameController.instance = new GameController();
