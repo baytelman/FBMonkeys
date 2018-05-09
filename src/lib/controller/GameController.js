@@ -134,7 +134,7 @@ export default class GameController extends EventEmitter {
   }
 
   getAvailableResearchActions() {
-    return JSON.parse(getAvailableResearchActionsAsJson())
+    return JSON.parse(this.getAvailableResearchActionsAsJson())
   }
 
   // MISSING:
