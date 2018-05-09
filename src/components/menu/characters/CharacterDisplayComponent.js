@@ -56,7 +56,7 @@ class CharacterDisplay extends Component {
       return null;
     }
     return (
-      <div key="characters" id='character-display' className='hud-window'>
+      <div key="characters" id='character-display' className='hud-window' style={this.props.style}>
         <b key="title">Characters</b>
         <table key="list" className='characters'>
           <tbody>
