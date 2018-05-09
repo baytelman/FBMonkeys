@@ -127,14 +127,14 @@ export default class GameController extends EventEmitter {
   }
 
   getAvailableResearchActionsAsJson() {
-    return CitySerializer.serialize(Object
-      .values(GameController.instance.module.allResearch())
-      .map((project) => new ScheduleResearchProjectAction({project: project}))
-      .filter(action => action.isAvailable(this.player)))
+    return CitySerializer.serialize(this.getAvailableResearchActions())
   }
 
   getAvailableResearchActions() {
-    return JSON.parse(this.getAvailableResearchActionsAsJson())
+    return Object
+      .values(GameController.instance.module.allResearch())
+      .map((project) => new ScheduleResearchProjectAction({project: project}))
+      .filter(action => action.isAvailable(this.player))
   }
 
   // MISSING:
@@ -143,3 +143,5 @@ export default class GameController extends EventEmitter {
 }
 
 GameController.instance = new GameController();
+window.GameController = GameController
+window.CitySerializer = CitySerializer
