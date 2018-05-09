@@ -1,4 +1,5 @@
 import {UnavailableActionError} from '../city/CityResource.js';
+import {ScheduleResearchProjectAction} from '../city/CityResearchProject.js';
 import CitySerializer from "../city/CitySerializer";
 import {CityPlayer} from '../city/CityPlayer'
 import GameModule from '../module/GameModule';
@@ -40,12 +41,20 @@ export default class GameController extends EventEmitter {
 
   }
 
+  getAllMyBuildingAsJson() {
+    return CitySerializer.serialize(this.player.city.buildings);
+  }
+
   getAllMyBuilding() {
-    return JSON.parse(CitySerializer.serialize(this.player.city.buildings));
+    return JSON.parse(this.getAllMyBuildingAsJson());
+  }
+
+  getBuildingAsJson(id) {
+    return CitySerializer.serialize(this.player.city.buildings[id]);
   }
 
   getBuilding(id) {
-    return JSON.parse(CitySerializer.serialize(this.player.city.buildings[id]));
+    return JSON.parse(this.getBuildingAsJson(id));
   }
 
   tick(delta) {
@@ -82,6 +91,7 @@ export default class GameController extends EventEmitter {
     return event;
   }
 
+  // CHEATING
   installCompletedBuilding(namespace) {
     let event = this.planBuilding(namespace);
     let events = [event];
@@ -115,6 +125,21 @@ export default class GameController extends EventEmitter {
     let event = character.setTasks(tasks);
     return [event];
   }
+
+  getAvailableResearchActionsAsJson() {
+    return CitySerializer.serialize(Object
+      .values(GameController.instance.module.allResearch())
+      .map((project) => new ScheduleResearchProjectAction({project: project}))
+      .filter(action => action.isAvailable(this.player)))
+  }
+
+  getAvailableResearchActions() {
+    return JSON.parse(this.getAvailableResearchActionsAsJson())
+  }
+
+  // MISSING:
+  // - User picks up resources (manually)
+  // - Listing of Characters (today done with inspection)
 }
 
 GameController.instance = new GameController();

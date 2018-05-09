@@ -7,28 +7,31 @@ let freq = 0.05;
 class GameComponent extends Component {
   constructor(props) {
     super(props)
-    this.tick = this.tick.bind(this)
+    this.tick = this
+      .tick
+      .bind(this)
   }
   tick() {
-    this
+    let events = this
       .props
       .controller
-      .tick(freq);
-    this.forceUpdate();
+      .tick(freq)
+    events.forEach((event) => console.log(event))
+    this.forceUpdate()
   }
   componentDidMount() {
-    this.interval = setInterval(this.tick, 1000 * freq);
+    this.interval = setInterval(this.tick, 1000 * freq)
   }
   componentWillUnmount() {
-    clearInterval(this.interval);
+    clearInterval(this.interval)
   }
   render() {
     return (
-      <game id='game'>
+      <div id='game'>
         <Player player={this.props.player}/>
-      </game>
+      </div>
     );
   }
 }
 
-export default GameComponent;
+export default GameComponent

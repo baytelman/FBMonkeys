@@ -1,15 +1,10 @@
 import React from 'react';
 
 import GameController from '../../lib/controller/GameController.js';
-import {ScheduleResearchProjectAction} from '../../lib/city/CityResearchProject.js';
-
-const allResearchActions = Object
-  .values(GameController.instance.module.allResearch())
-  .map((project) => new ScheduleResearchProjectAction({project: project}));
 
 var ResearchMenu = () => {
   let controller = GameController.instance;
-  let availableResearch = allResearchActions.filter(action => action.isAvailable(controller.player));
+  let availableResearch = controller.getAvailableResearchActions()
   if (availableResearch.length + controller.player.researchedProjects.length + controller.player.researchProjects.length === 0) {
     return null;
   }
