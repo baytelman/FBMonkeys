@@ -41,12 +41,20 @@ export default class GameController extends EventEmitter {
 
   }
 
+  getAllMyBuildingAsJson() {
+    return CitySerializer.serialize(this.player.city.buildings);
+  }
+
   getAllMyBuilding() {
-    return JSON.parse(CitySerializer.serialize(this.player.city.buildings));
+    return JSON.parse(this.getAllMyBuildingAsJson());
+  }
+
+  getBuildingAsJson(id) {
+    return CitySerializer.serialize(this.player.city.buildings[id]);
   }
 
   getBuilding(id) {
-    return JSON.parse(CitySerializer.serialize(this.player.city.buildings[id]));
+    return JSON.parse(this.getBuildingAsJson(id));
   }
 
   tick(delta) {
@@ -83,6 +91,7 @@ export default class GameController extends EventEmitter {
     return event;
   }
 
+  // CHEATING
   installCompletedBuilding(namespace) {
     let event = this.planBuilding(namespace);
     let events = [event];
@@ -117,12 +126,20 @@ export default class GameController extends EventEmitter {
     return [event];
   }
 
-  getAvailableResearchActions() {
-    return Object
+  getAvailableResearchActionsAsJson() {
+    return CitySerializer.serialize(Object
       .values(GameController.instance.module.allResearch())
       .map((project) => new ScheduleResearchProjectAction({project: project}))
-      .filter(action => action.isAvailable(this.player))
+      .filter(action => action.isAvailable(this.player)))
   }
+
+  getAvailableResearchActions() {
+    return JSON.parse(getAvailableResearchActionsAsJson())
+  }
+
+  // MISSING:
+  // - User picks up resources (manually)
+  // - Listing of Characters (today done with inspection)
 }
 
 GameController.instance = new GameController();
