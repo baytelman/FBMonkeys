@@ -1,107 +1,130 @@
-import CityEvent from './CityEvent';
 import UUIDjs from 'uuid-js';
+
+import CityEvent, {
+  kTaskAbortedEvent,
+  kPeriodicEffectProgressEvent,
+  kPeriodicEffectBlockedEvent
+} from './CityEvent';
 
 const START_CHECK_SENSITIVITY = 0.01;
 
-export class FrequencyEffect {
-  constructor({
-    period = 1,
-    name,
-    namespace,
-    requirements = []
-  } = {}) {
-    this.id = UUIDjs
-      .create()
-      .toString();
+class Effect {
+  constructor({ name, namespace }) {
+    this.id = UUIDjs.create().toString();
     this.name = name;
     this.namespace = namespace;
+  }
+  getName() {
+    return this.name || this.constructor.name;
+  }
+}
+
+export class PeriodicEffect extends Effect {
+  constructor({ period = 1, requirements = [], ...params } = {}) {
+    super(params);
     this.requirements = requirements;
     this.period = period;
+    this.progress = 0;
 
     this.cycleStart = 0;
     this.time = 0;
 
     this.blocked = false;
   }
-  canBegin() {
-    return true;
+  shouldBeBlocked() {
+    return false;
   }
   missingTime() {
     return this.cycleStart + this.period - this.time;
   }
   updateTime(deltaSeconds, parents) {
     let updated = [];
-
-    while (deltaSeconds > 0) {
-      /* On effect start, let's check if we should get blocked */
-      if (Math.abs(this.cycleStart - this.time) < START_CHECK_SENSITIVITY) {
-        if (!this.canBegin(parents)) {
-          this.blocked = true;
-          break;
-        } else {
-          updated = updated.concat(this.began(parents));
+    if (this.isAvailable(parents.player)) {
+      while (deltaSeconds > 0) {
+        /* On effect start, let's check if we should get blocked */
+        if (Math.abs(this.cycleStart - this.time) < START_CHECK_SENSITIVITY) {
+          const wasItBlocked = this.blocked;
+          this.blocked = this.shouldBeBlocked(parents);
+          if (this.blocked) {
+            if (!wasItBlocked) {
+              const event = new CityEvent({
+                type: kPeriodicEffectBlockedEvent,
+                object: this,
+                data: parents
+              });
+              updated = updated.concat(event);
+            }
+            break;
+          } else {
+            updated = updated.concat(this.began(parents));
+          }
         }
-      }
-      this.blocked = false;
-      const nextStart = this.cycleStart + this.period;
-      const canComplete = deltaSeconds >= nextStart - this.time;
-      let partialDelta;
-      if (canComplete) {
-        partialDelta = nextStart - this.time;
-        deltaSeconds -= partialDelta;
-        this.time += partialDelta;
-        this.cycleStart += this.period;
-        updated = updated.concat(this.trigger(parents));
-      } else {
-        this.time += deltaSeconds;
-        deltaSeconds = 0;
+        this.blocked = false;
+        const nextStart = this.cycleStart + this.period;
+        const canComplete = deltaSeconds >= nextStart - this.time;
+        let partialDelta;
+        if (canComplete) {
+          partialDelta = nextStart - this.time;
+          deltaSeconds -= partialDelta;
+          this.time += partialDelta;
+          this.progress = (this.time - this.cycleStart) / this.period;
+          this.cycleStart += this.period;
+          updated = updated.concat(this.trigger(parents));
+        } else {
+          this.time += deltaSeconds;
+          this.progress = (this.time - this.cycleStart) / this.period;
+          const event = new CityEvent({
+            type: kPeriodicEffectProgressEvent,
+            object: this,
+            data: parents
+          });
+          updated = updated.concat(event);
+          deltaSeconds = 0;
+        }
       }
     }
     return updated;
   }
   getStatus() {
-    let progress = (this.time - this.cycleStart) / this.period;
-    return "[" + Math.round(progress * 100) + "% Producing]";
+    if (this.blocked) {
+      return '[Blocked]';
+    }
+    return '[' + Math.round(this.progress * 100) + '% Producing]';
   }
   isAvailable(player) {
-    return player.fulfillsRequirements(this.namespace, this.requirements);
+    return (
+      !this.requirements.length ||
+      (player ? player.fulfillsRequirements(this.namespace, this.requirements) : false)
+    );
   }
   began(parents) {
     return [];
   }
   trigger(parents) {
-    throw Error("Must be overriden – It should return an array of CityEvents");
+    throw Error('Must be overriden – It should return an array of CityEvents');
   }
   abort() {
-    let event = new CityEvent({type: CityEvent.kTaskAbortedEvent, object: this});
+    let event = new CityEvent({ type: kTaskAbortedEvent, object: this });
     return event;
   }
-
   toString() {
-    return this.constructor.name + " (" + this.id + ") " + this.getStatus();
+    return this.constructor.name + ' (' + this.id + ') ' + this.getStatus();
   }
   getDescription() {
     return this.toString();
   }
 }
 
-export class ResourceEffect {
-  constructor({
-    additions = 0,
-    multipliers = 0
-  } = {}) {
-    this.id = UUIDjs
-      .create()
-      .toString();
+export class ResourceEffect extends Effect {
+  constructor({ additions = 0, multipliers = 0, ...params } = {}) {
+    super(params);
     this.additions = additions;
     this.multipliers = multipliers;
   }
   _combine(combined, local) {
-    Object
-      .entries(local)
-      .forEach(([key, value]) => {
-        combined[key] = (combined[key] || 0) + value;
-      });
+    Object.entries(local).forEach(([key, value]) => {
+      combined[key] = (combined[key] || 0) + value;
+    });
     return combined;
   }
   combine(combinedUnits) {
@@ -109,36 +132,26 @@ export class ResourceEffect {
     combinedUnits.multipliers = this._combine(combinedUnits.multipliers || {}, this.multipliers);
     return combinedUnits;
   }
-  toString() {
-    return "ResourceEffect";
+  getName() {
+    return this.name || 'Generic resource effect';
   }
   getDescription() {
-    let additions = Object
-      .keys(this.additions)
-      .map(k => k + " x " + this.additions[k]);
-    let multipliers = Object
-      .keys(this.multipliers)
-      .map(k => k + " + " + (this.multipliers[k] * 100) + '%');
-    return [
-      ...additions,
-      ...multipliers
-    ].join(', ')
+    let additions = Object.keys(this.additions).map(k => k + ' x ' + this.additions[k]);
+    let multipliers = Object.keys(this.multipliers).map(
+      k => k + ' + ' + this.multipliers[k] * 100 + '%'
+    );
+    return this.getName() + ': ' + [...additions, ...multipliers].join(', ');
   }
 }
 
-export class SpeedEnhancementEffect {
-  constructor({
-    namespaces = [],
-    enhancement = 0
-  } = {}) {
-    this.id = UUIDjs
-      .create()
-      .toString();
+export class SpeedEnhancementEffect extends Effect {
+  constructor({ namespaces = [], enhancement = 0, ...params } = {}) {
+    super(params);
     this.enhancement = enhancement;
     this.namespaces = namespaces;
   }
   getDescription() {
-    return "Speed: +" + Math.round(this.enhancement * 100) + "%";
+    return 'Speed: +' + Math.round(this.enhancement * 100) + '%';
   }
   apply(target) {
     if (this.namespaces.indexOf(target.namespace) >= 0) {
@@ -151,8 +164,8 @@ export class SpeedEnhancementEffect {
     if (effects) {
       effects
         .filter(effect => effect instanceof SpeedEnhancementEffect)
-        .forEach(effect => timeMultiplier += effect.apply(target));
+        .forEach(effect => (timeMultiplier += effect.apply(target)));
     }
-    return 1 + timeMultiplier
+    return 1 + timeMultiplier;
   }
 }

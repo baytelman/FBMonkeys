@@ -1,29 +1,31 @@
 import UUIDjs from 'uuid-js';
 
-import {MutableObject} from './utils/Utils';
-import CityEvent from './CityEvent';
-import {SpeedEnhancementEffect} from './Effect';
+import { MutableObject } from './utils/Utils';
+import CityEvent, {
+  kProjectProgressEvent,
+  kProjectCompletedEvent
+} from './CityEvent';
+import { SpeedEnhancementEffect } from './Effect';
 
 export class ProjectAlreadyCompletedError extends Error {}
 
 export default class CityProject {
   constructor({
-    name = "A project",
+    name = 'A project',
     description = null,
     namespace = null,
     requirements = [],
     cost = [],
     time = 0,
     permanentEffects = [],
-    completionEventType = CityEvent.kProjectCompletedEvent,
-    progressEventType = CityEvent.kProjectProgressEvent
+    completionEventType = kProjectCompletedEvent,
+    progressEventType = kProjectProgressEvent
   } = {}) {
-    this.id = UUIDjs
-      .create()
-      .toString();
+    this.id = UUIDjs.create().toString();
     this.name = name;
     this.description = description;
-    this.namespace = (namespace || name.toLowerCase().replace(" ", "_") || this.id);
+    this.namespace =
+      namespace || name.toLowerCase().replace(' ', '_') || this.id;
     this.requirements = requirements;
     this.cost = cost;
     this.permanentEffects = permanentEffects;
@@ -36,25 +38,23 @@ export default class CityProject {
   }
 
   toString() {
-    return this.name + " (" + this.id + ") " + this.getStatus();
+    return this.name + ' (' + this.id + ') ' + this.getStatus();
   }
 
   getStatus() {
     if (this.isCompleted()) {
-      return "";
+      return '';
     } else {
-      return "[" + Math.round(this.progress() * 100) + "% Progress]";
+      return '[' + Math.round(this.progress() * 100) + '% Progress]';
     }
   }
 
   getDescription() {
-    return this.name + " " + this.getStatus();
+    return this.name + ' ' + this.getStatus();
   }
 
   remainingTime() {
-    return this.time >= this.setupTime
-      ? 0
-      : this.setupTime - this.time;
+    return this.time >= this.setupTime ? 0 : this.setupTime - this.time;
   }
 
   progress() {
@@ -68,7 +68,7 @@ export default class CityProject {
     return this.progress() >= 1;
   }
 
-  complete() {
+  onComplete() {
     /* To be overriden if needed */
   }
 
@@ -76,10 +76,20 @@ export default class CityProject {
     return [];
   }
 
+  complete() {
+    if (this.time < this.setupTime) {
+      return this.updateTime(this.setupTime - this.time, {});
+    }
+    throw new ProjectAlreadyCompletedError();
+  }
+
   updateTime(deltaSeconds, parents) {
     MutableObject.checkIsMutable(this);
 
-    let timeMultiplier = SpeedEnhancementEffect.apply(this, parents.permanentEffects);
+    let timeMultiplier = SpeedEnhancementEffect.apply(
+      this,
+      parents.permanentEffects
+    );
     deltaSeconds *= timeMultiplier;
     let updated = [];
 
@@ -91,13 +101,23 @@ export default class CityProject {
 
     if (this.isCompleted()) {
       if (!wasCompleted) {
-        updated.push(new CityEvent({type: this.completionEventType, object: this}));
+        updated.push(
+          new CityEvent({
+            type: this.completionEventType,
+            object: this,
+            data: parents
+          })
+        );
         deltaSeconds = this.time - this.setupTime;
-        this.complete();
+        this.onComplete();
       }
-      updated = updated.concat(this.postCompletionUpdateTime(deltaSeconds, parents));
+      updated = updated.concat(
+        this.postCompletionUpdateTime(deltaSeconds, parents)
+      );
     } else {
-      updated.push(new CityEvent({type: this.progressEventType, object: this}));
+      updated.push(
+        new CityEvent({ type: this.progressEventType, object: this })
+      );
     }
 
     return updated;

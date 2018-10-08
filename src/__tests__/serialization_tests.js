@@ -1,19 +1,22 @@
-import {assert} from 'chai';
+import { assert, expect } from 'chai';
 
-import CityProject from '../city/CityProject.js';
-import CityBuilding, {BuildingStoreResourceEffect, CollectBuildingResourcesEffect} from '../city/CityBuilding.js';
-import CitySerializer from "../city/CitySerializer.js";
+import CityProject from '../controller/CityProject.js';
+import CityBuilding, {
+  BuildingStoreResourceEffect,
+  CollectBuildingResourcesEffect
+} from '../controller/CityBuilding.js';
+import CitySerializer from '../controller/CitySerializer.js';
 
-import {CityPlayer} from '../city/CityPlayer.js';
-import {PlayerEarnResourceEffect} from '../city/CityPlayer.js';
-import {CityResource} from '../city/CityResource.js';
-import CityCharacter from '../city/CityCharacter.js';
-import City from '../city/City.js';
+import CityPlayer from '../controller/CityPlayer.js';
+import { PlayerEarnResourceEffect } from '../controller/CityPlayer.js';
+import { CityResource } from '../controller/CityResource.js';
+import CityCharacter from '../controller/CityCharacter.js';
+import City from '../controller/City.js';
 
 const kGold = 'gold';
-const gold = (amount) => new CityResource(kGold, amount);
+const gold = amount => new CityResource(kGold, amount);
 const kCharacter = 'character';
-const character = (amount) => new CityResource(kCharacter, amount);
+const character = amount => new CityResource(kCharacter, amount);
 
 describe('Serialization', () => {
   let time = 10;
@@ -22,14 +25,30 @@ describe('Serialization', () => {
   const amount = 100;
   let resource = gold(amount);
   let resources = [resource];
+  it('Deserialized player has same resources', () => {
+    let player = new CityPlayer({
+      initialCapacity: {
+        [kGold]: 1000
+      }, initialResources:[gold(123)]
+    });
+
+    let json = CitySerializer.serialize(player);
+    assert.include(json, player.id);
+    assert.include(json, kGold);
+    player = CitySerializer.deserialize(json);
+    expect(player)
+      .to.have.property('resources')
+      .to.have.property(kGold)
+      .to.have.property('amount', 123);
+  });
 
   it('Deserialized player continues building', () => {
     let construction = 10;
     let building = new CityBuilding({
       time: totalTime,
-      effects: [
-        new PlayerEarnResourceEffect({resources: resources, period: time}),
-        new BuildingStoreResourceEffect({resources: resources, period: time})
+      periodicEffects: [
+        new PlayerEarnResourceEffect({ resources: resources, period: time }),
+        new BuildingStoreResourceEffect({ resources: resources, period: time })
       ]
     });
 
@@ -38,17 +57,16 @@ describe('Serialization', () => {
       seasonAffectedResource: kGold,
       characterFactories: {
         [kCharacter]: {
-          factory: () => new CityCharacter({
-            name: 'Character',
-            tasks: [new CollectBuildingResourcesEffect({period: time})]
-          })
+          produceCharacter: () =>
+            new CityCharacter({
+              name: 'Character',
+              tasks: [new CollectBuildingResourcesEffect({ period: time })]
+            })
         }
-      }
+      },
+      initialResources: [character(1)] 
     });
-    player
-      .city
-      .planBuilding({building: building});
-    player.earnResources([character(1)]);
+    player.city.planBuilding({ building: building });
 
     let updates = player.updateTime(time);
 
@@ -56,7 +74,6 @@ describe('Serialization', () => {
     assert.closeTo(b.progress(), 0.1, 0.01);
 
     let json = CitySerializer.serialize(player);
-    assert.include(json, player.id);
     player = CitySerializer.deserialize(json);
 
     updates = player.updateTime(time);
@@ -79,15 +96,14 @@ describe('Serialization', () => {
     let a = {
       id: 'a',
       name: 'nameA',
-      children: [
-        b, c
-      ],
+      children: [b, c],
       favoriteChild: b
     };
     b.myself = b;
     b.mom = a;
     c.friend = a;
 
+    CitySerializer.registerKnownClass(Object);
     let json = CitySerializer.serialize(a);
     let deserializedA = CitySerializer.deserialize(json);
 

@@ -1,10 +1,17 @@
-import {CityResource} from '../city/CityResource';
-import {PlayerEarnResourceEffect, CapacityGrantingEffect} from '../city/CityPlayer';
-import CityCharacter, {CharacterConsumeResourceOrGetsRemovedEffect} from '../city/CityCharacter';
-import {FrequencyEffect, SpeedEnhancementEffect} from '../city/Effect';
+import { CityResource } from './CityResource';
+import { PlayerEarnResourceEffect, CapacityGrantingEffect } from './CityPlayer';
+import CityCharacter, {
+  CharacterConsumeResourceOrGetsRemovedEffect
+} from './CityCharacter';
+import { PeriodicEffect, SpeedEnhancementEffect } from './Effect';
 
-import CityBuilding, {BuildingStoreResourceEffect, CollectBuildingResourcesEffect} from '../city/CityBuilding';
-import CityResearchProject, {PlayerEarnResearchEffect} from '../city/CityResearchProject';
+import CityBuilding, {
+  BuildingStoreResourceEffect,
+  CollectBuildingResourcesEffect
+} from './CityBuilding';
+import CityResearchProject, {
+  PlayerEarnResearchEffect
+} from './CityResearchProject';
 
 const MONKEY_GIVEN_NAMES = [
   'Heather',
@@ -35,8 +42,9 @@ const MONKEY_SUR_NAMES = [
   'Langur'
 ];
 
-const randomElement = (list) => list[Math.floor(Math.random() * list.length)]
-const nameGenerator = () => randomElement(MONKEY_SUR_NAMES) + ', ' + randomElement(MONKEY_GIVEN_NAMES);
+const randomElement = list => list[Math.floor(Math.random() * list.length)];
+const nameGenerator = () =>
+  randomElement(MONKEY_SUR_NAMES) + ', ' + randomElement(MONKEY_GIVEN_NAMES);
 
 export default class GameModule {
   allBuildings() {
@@ -59,20 +67,20 @@ export default class GameModule {
       [GameModule.kResourceBanana]: 25,
       [GameModule.kResourceWood]: 20,
       [GameModule.kResourceRock]: 20
-    }
+    };
   }
   getCharacterFactories() {
     return {
       monkey: {
-        requirements: [
-          [GameModule.kResourceBanana, 5]
-        ],
-        factory: () => {
+        requirements: [[GameModule.kResourceBanana, 5]],
+        produceCharacter: () => {
           let char = new CityCharacter({
-            effects: [new CharacterConsumeResourceOrGetsRemovedEffect({
+            periodicEffects: [
+              new CharacterConsumeResourceOrGetsRemovedEffect({
                 resources: [banana(1)],
                 period: 1
-              })],
+              })
+            ],
             name: nameGenerator()
           });
           return char;
@@ -102,101 +110,98 @@ export function rock(amount) {
 /* BUILDINGS */
 
 GameModule.kBananaTree = new CityBuilding({
-  name: "Central Banana Tree",
-  requirements: ["never"],
-  namespace: "building.basic.banana_tree",
+  name: 'Central Banana Tree',
+  requirements: ['never'],
+  namespace: 'building.basic.banana_tree',
   time: 50,
   cost: [wood(9999)],
-  effects: [
+  periodicEffects: [
     new BuildingStoreResourceEffect({
       resources: [banana(1)],
       period: 2
     }),
     new PlayerEarnResourceEffect({
       resources: [monkey(1)],
-      period: 5
+      period: 5,
+      requirements: ['building.basic.cabin']
     })
   ]
 });
 
 GameModule.kBananaField = new CityBuilding({
-  name: "Banana Field",
-  namespace: "building.basic.banana_field",
+  name: 'Banana Field',
+  namespace: 'building.basic.banana_field',
   time: 10,
   cost: [banana(5)],
-  effects: [
+  periodicEffects: [
     new BuildingStoreResourceEffect({
-      resources: [
-        banana(7), wood(1)
-      ],
+      resources: [banana(7), wood(1)],
       period: 2
     }),
     new PlayerEarnResourceEffect({
       resources: [banana(1)],
-      period: 3
+      period: 30
     })
   ],
-  requirements: [
-    [GameModule.kResourceBanana, 2]
-  ]
+  requirements: [[GameModule.kResourceBanana, 2]]
 });
 
 GameModule.kCrate = new CityBuilding({
-  name: "Crate",
-  namespace: "building.basic.crate",
+  name: 'Crate',
+  namespace: 'building.basic.crate',
   time: 5,
   cost: [wood(5)],
   requirements: [
     GameModule.kBananaField.namespace,
     [GameModule.kResourceWood, 3]
   ],
-  permanentEffects: [new CapacityGrantingEffect({
+  permanentEffects: [
+    new CapacityGrantingEffect({
       additions: {
         [GameModule.kResourceBanana]: 50,
         [GameModule.kResourceWood]: 10,
         [GameModule.kResourceRock]: 10
       }
-    })]
-});
-
-GameModule.kCabin = new CityBuilding({
-  name: "Cabin",
-  namespace: "building.basic.cabin",
-  requirements: ["building.basic.crate"],
-  time: 10,
-  cost: [wood(5)],
-  permanentEffects: [new CapacityGrantingEffect({
-      additions: {
-        [GameModule.kResourceMonkey]: 1
-      }
-    })]
-});
-
-GameModule.kWoodField = new CityBuilding({
-  name: "Wood Field",
-  namespace: "building.basic.wood_field",
-  time: 10,
-  cost: [banana(25)],
-  effects: [new BuildingStoreResourceEffect({
-      resources: [wood(10)],
-      period: 4
-    })],
-  requirements: [
-    "research.basic.agriculture",
-    [GameModule.kResourceWood, 5]
+    })
   ]
 });
 
+GameModule.kCabin = new CityBuilding({
+  name: 'Cabin',
+  namespace: 'building.basic.cabin',
+  requirements: ['building.basic.crate'],
+  time: 10,
+  cost: [wood(5)],
+  permanentEffects: [
+    new CapacityGrantingEffect({
+      additions: {
+        [GameModule.kResourceMonkey]: 1
+      }
+    })
+  ]
+});
+
+GameModule.kWoodField = new CityBuilding({
+  name: 'Wood Field',
+  namespace: 'building.basic.wood_field',
+  time: 10,
+  cost: [banana(25)],
+  periodicEffects: [
+    new BuildingStoreResourceEffect({
+      resources: [wood(10)],
+      period: 4
+    })
+  ],
+  requirements: ['research.basic.agriculture', [GameModule.kResourceWood, 5]]
+});
+
 GameModule.kSawmill = new CityBuilding({
-  name: "Sawmill",
-  namespace: "building.basic.sawmill",
+  name: 'Sawmill',
+  namespace: 'building.basic.sawmill',
   time: 5,
   cost: [wood(20)],
   costFactor: 1.5,
-  requirements: [
-    "building.basic.crate",
-    [GameModule.kResourceWood, 15]
-  ],
+  requirements: ['building.basic.crate', [GameModule.kResourceWood, 15]],
   permanentEffects: [
     new CapacityGrantingEffect({
       additions: {
@@ -211,72 +216,76 @@ GameModule.kSawmill = new CityBuilding({
 });
 
 GameModule.kMine = new CityBuilding({
-  name: "Mine",
-  namespace: "building.basic.mine",
+  name: 'Mine',
+  namespace: 'building.basic.mine',
   time: 5,
   cost: [wood(20)],
   costFactor: 1.5,
-  requirements: ["research.basic.mining"],
-  effects: [new BuildingStoreResourceEffect({
+  requirements: ['research.basic.mining'],
+  periodicEffects: [
+    new BuildingStoreResourceEffect({
       resources: [rock(2)],
       period: 1
-    })]
+    })
+  ]
 });
 
 GameModule.kForge = new CityBuilding({
-  name: "Forge",
-  namespace: "building.basic.forge",
+  name: 'Forge',
+  namespace: 'building.basic.forge',
   time: 5,
-  cost: [
-    wood(50), rock(50)
-  ],
+  cost: [wood(50), rock(50)],
   costFactor: 1.5,
-  requirements: ["research.basic.metal_casting"],
-  effects: [new BuildingStoreResourceEffect({
+  requirements: ['research.basic.metal_casting'],
+  periodicEffects: [
+    new BuildingStoreResourceEffect({
       resources: [rock(2)],
       period: 1
-    })]
+    })
+  ]
 });
 
 /* RESEARCH */
 
 GameModule.kCalendar = new CityResearchProject({
-  name: "Calendar",
-  namespace: "research.basic.calendar",
+  name: 'Calendar',
+  namespace: 'research.basic.calendar',
   time: 15,
-  requirements: [
-    [GameModule.kResourceMonkey, 2]
-  ]
+  requirements: [[GameModule.kResourceMonkey, 2]]
 });
 
-GameModule.kAgriculture = new CityResearchProject({name: "Agriculture", description: "Allows planting trees and unlocks mining.", namespace: "research.basic.agriculture", time: 40, requirements: ["research.basic.calendar"]});
+GameModule.kAgriculture = new CityResearchProject({
+  name: 'Agriculture',
+  description: 'Allows planting trees and unlocks mining.',
+  namespace: 'research.basic.agriculture',
+  time: 40,
+  requirements: ['research.basic.calendar']
+});
 
 GameModule.kMining = new CityResearchProject({
-  name: "Mining",
-  namespace: "research.basic.mining",
+  name: 'Mining',
+  namespace: 'research.basic.mining',
   time: 20,
   cost: [wood(20)],
-  requirements: ["research.basic.agriculture"]
+  requirements: ['research.basic.agriculture']
 });
 
 GameModule.kMetalCasting = new CityResearchProject({
-  name: "Metal casting",
-  description: "Reinforces crates and sawmills for more storage (+300% and +100% respectively).",
-  namespace: "research.basic.metal_casting",
+  name: 'Metal casting',
+  description:
+    'Reinforces crates and sawmills for more storage (+300% and +100% respectively).',
+  namespace: 'research.basic.metal_casting',
   time: 20,
-  cost: [
-    wood(30), rock(50)
-  ],
-  requirements: [
-    "research.basic.mining",
-    [GameModule.kResourceRock, 20]
-  ],
-  permanentEffects: [new CapacityGrantingEffect({
+  cost: [wood(30), rock(50)],
+  requirements: ['research.basic.mining', [GameModule.kResourceRock, 20]],
+  permanentEffects: [
+    new CapacityGrantingEffect({
       multipliers: {
         [GameModule.kResourceBanana]: 3,
         [GameModule.kResourceWood]: 1
       }
-    })]
+    })
+  ]
 });
 
 /* ROLES */
@@ -285,7 +294,11 @@ GameModule.kTaskGather = new CollectBuildingResourcesEffect({
   name: 'Gather',
   namespace: 'role.basic.gather',
   time: 1,
-  allowedBuildings: [GameModule.kBananaTree.namespace, GameModule.kBananaField.namespace, GameModule.kWoodField.namespace]
+  allowedBuildings: [
+    GameModule.kBananaTree.namespace,
+    GameModule.kBananaField.namespace,
+    GameModule.kWoodField.namespace
+  ]
 });
 
 GameModule.kTaskLumberman = new CollectBuildingResourcesEffect({
@@ -315,51 +328,43 @@ GameModule.kTaskBlacksmith = new CollectBuildingResourcesEffect({
 GameModule.kTaskResearch = new PlayerEarnResearchEffect({
   name: 'Research',
   namespace: 'task.basic.researcher',
-  requirements: [
-    [GameModule.kResourceMonkey, 2]
-  ],
+  requirements: [[GameModule.kResourceMonkey, 2]],
   time: 1
 });
 
 /* LOADER */
 
 GameModule.kAvailableTasks = {};
-Object
-  .values(GameModule)
-  .forEach(value => {
-    if (value instanceof FrequencyEffect) {
-      GameModule.kAvailableTasks[value.namespace] = value;
-    }
-  });
+Object.values(GameModule).forEach(value => {
+  if (value instanceof PeriodicEffect) {
+    GameModule.kAvailableTasks[value.namespace] = value;
+  }
+});
 
 GameModule.kAvailableBuildings = {};
-Object
-  .values(GameModule)
-  .forEach(value => {
-    if (value instanceof CityBuilding) {
-      GameModule.kAvailableBuildings[value.namespace] = value;
-    }
-  });
+Object.values(GameModule).forEach(value => {
+  if (value instanceof CityBuilding) {
+    GameModule.kAvailableBuildings[value.namespace] = value;
+  }
+});
 
 GameModule.kAvailableResearch = {};
-Object
-  .values(GameModule)
-  .forEach(value => {
-    if (value instanceof CityResearchProject) {
-      GameModule.kAvailableResearch[value.namespace] = value;
-    }
-  });
+Object.values(GameModule).forEach(value => {
+  if (value instanceof CityResearchProject) {
+    GameModule.kAvailableResearch[value.namespace] = value;
+  }
+});
 
 GameModule.kDefaultBuildings = [
-  GameModule.kBananaTree.namespace,
-  GameModule.kBananaField.namespace,
-  GameModule.kBananaField.namespace,
-  GameModule.kWoodField.namespace,
-  GameModule.kWoodField.namespace,
-  GameModule.kCrate.namespace,
-  GameModule.kCrate.namespace,
-  GameModule.kSawmill.namespace,
-  GameModule.kCabin.namespace,
-  GameModule.kCabin.namespace,
-  GameModule.kBananaTree.namespace
+  { namespace: GameModule.kBananaTree.namespace, x: 0, y: 0 }
+  // GameModule.kBananaField.namespace,
+  // GameModule.kBananaField.namespace,
+  // GameModule.kWoodField.namespace,
+  // GameModule.kWoodField.namespace,
+  // GameModule.kCrate.namespace,
+  // GameModule.kCrate.namespace,
+  // GameModule.kSawmill.namespace,
+  // GameModule.kCabin.namespace,
+  // GameModule.kCabin.namespace,
+  // GameModule.kBananaTree.namespace
 ];

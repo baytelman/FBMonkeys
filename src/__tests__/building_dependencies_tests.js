@@ -1,8 +1,8 @@
 import {assert} from 'chai'
 
-import {CityResource} from '../city/CityResource';
-import CityBuilding, {BuildingConstructionAction} from '../city/CityBuilding';
-import {CityPlayer} from '../city/CityPlayer';
+import {CityResource} from '../controller/CityResource';
+import CityBuilding, {BuildingConstructionAction} from '../controller/CityBuilding';
+import CityPlayer from '../controller/CityPlayer';
 
 const kGold = 'gold';
 const gold = (amount) => new CityResource(kGold, amount);
@@ -36,8 +36,6 @@ describe('Buildings Dependencies', () => {
   });
 
   it('can be buildings', () => {
-    let resources = [resource];
-    let time = 10;
     let building1 = new CityBuilding();
     let building2 = new CityBuilding({
       requirements: [building1.namespace]
@@ -56,8 +54,6 @@ describe('Buildings Dependencies', () => {
   });
 
   it('can require multiple of same', () => {
-    let resources = [resource];
-    let time = 10;
     let building1 = new CityBuilding();
     let building2 = new CityBuilding({
       requirements: [
@@ -85,8 +81,6 @@ describe('Buildings Dependencies', () => {
   });
 
   it('once are unlocked, they stay, even if the requiremens become unmeant', () => {
-    let resources = [resource];
-    let time = 10;
     let building1 = new CityBuilding();
     let building2 = new CityBuilding({
       namespace: 'abc',

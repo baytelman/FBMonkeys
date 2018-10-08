@@ -1,51 +1,90 @@
-const City = require('./City.js').default;
-const {CityResource} = require('./CityResource.js');
-const CityBuilding = require("./CityBuilding.js").default;
-const {BuildingStoreResourceEffect, CollectBuildingResourcesEffect, ResourceStoringModifierEffect} = require("./CityBuilding.js");
+import City from './City';
+import { CityResource } from './CityResource';
+import CityBuilding from './CityBuilding';
+import {
+  BuildingStoreResourceEffect,
+  CollectBuildingResourcesEffect,
+  ResourceStoringModifierEffect
+} from './CityBuilding';
 
-const {FrequencyEffect, ResourceEffect, SpeedEnhancementEffect} = require('./Effect.js');
-const {CityPlayer, PlayerEarnResourceEffect, CapacityGrantingEffect} = require("./CityPlayer.js");
+import {
+  PeriodicEffect,
+  ResourceEffect,
+  SpeedEnhancementEffect
+} from './Effect';
+import CityPlayer, {
+  PlayerEarnResourceEffect,
+  CapacityGrantingEffect
+} from './CityPlayer';
 
-const CityCharacter = require("./CityCharacter.js").default;
-const {CharacterConsumeResourceOrGetsRemovedEffect} = require("./CityCharacter.js");
+import CityCharacter, {
+  CharacterConsumeResourceOrGetsRemovedEffect
+} from './CityCharacter';
 
-const CityResearchProject = require('./CityResearchProject.js').default;
-const {PlayerEarnResearchEffect} = require('./CityResearchProject.js');
+import CityResearchProject from './CityResearchProject';
+import { PlayerEarnResearchEffect } from './CityResearchProject';
+
+const KNOWN_CLASSES = {
+  BuildingStoreResourceEffect: BuildingStoreResourceEffect,
+  CapacityGrantingEffect: CapacityGrantingEffect,
+  CharacterConsumeResourceOrGetsRemovedEffect: CharacterConsumeResourceOrGetsRemovedEffect,
+  City: City,
+  CityBuilding: CityBuilding,
+  CityCharacter: CityCharacter,
+  CityPlayer: CityPlayer,
+  CityResearchProject: CityResearchProject,
+  CityResource: CityResource,
+  CollectBuildingResourcesEffect: CollectBuildingResourcesEffect,
+  PeriodicEffect: PeriodicEffect,
+  PlayerEarnResearchEffect: PlayerEarnResearchEffect,
+  PlayerEarnResourceEffect: PlayerEarnResourceEffect,
+  ResourceEffect: ResourceEffect,
+  ResourceStoringModifierEffect: ResourceStoringModifierEffect,
+  SpeedEnhancementEffect: SpeedEnhancementEffect
+};
 
 export default class CitySerializer {
   static serialize(obj) {
     let alreadySerialized = {};
-    return JSON.stringify(obj, (k, v) => {
+    const map = (k, v) => {
       if (v && v.constructor && v.id) {
         if (alreadySerialized[v.id]) {
-          return {id: v.id};
+          return { id: v.id };
         }
         alreadySerialized[v.id] = true;
-        return Object.assign({
-          "class": v.constructor.name
-        }, v);
+        return Object.assign(
+          {
+            class: v.constructor.name
+          },
+          v
+        );
       }
       return v;
-    }, '  ');
+    };
+    return JSON.stringify(obj, map, '  ');
   }
+
   static deserialize(string) {
-    let knownObjects = {}
+    let knownObjects = {};
     let secondPass = false;
     const parseAndRecreateHierarchy = (k, v) => {
-      if (v && v.id && !v["class"] && (secondPass || knownObjects[v.id])) {
+      if (v && v.id && !v['class'] && (secondPass || knownObjects[v.id])) {
         if (!knownObjects[v.id]) {
           throw new Error("Should know object '" + v.id);
         }
         return knownObjects[v.id];
-      } else if (v && v.id && v["class"]) {
-        try {
-          let class_ = eval(v["class"]);
-          let o = Object.assign(Object.create(class_.prototype), v);
-          knownObjects[v.id] = o;
-          return o;
-        } catch (error) {
-          throw new Error("Cannot deserialize class '" + v["class"] + "': " + error);
+      } else if (v && v.id && v['class']) {
+        let class_ = KNOWN_CLASSES[v['class']];
+        if (!class_) {
+          throw new Error(
+            `Cannot deserializer class: ${
+              v['class']
+            }. Known classes: ${Object.keys(KNOWN_CLASSES).join(', ')}`
+          );
         }
+        let o = Object.assign(Object.create(class_.prototype), v);
+        knownObjects[v.id] = o;
+        return o;
       }
       return v;
     };
@@ -56,4 +95,8 @@ export default class CitySerializer {
     secondPass = true;
     return JSON.parse(string, parseAndRecreateHierarchy);
   }
+
+  static registerKnownClass = klass => {
+    KNOWN_CLASSES[klass.name] = klass;
+  };
 }

@@ -1,23 +1,25 @@
-import {assert} from 'chai'
+import { assert } from 'chai';
 
-import {CityPlayer} from '../city/CityPlayer';
-import {CityResource, ResourceConsumingAction, InsuficientResourcesError, UnavailableActionError} from '../city/CityResource';
+import CityPlayer from '../controller/CityPlayer';
+import {
+  CityResource,
+  ResourceConsumingAction,
+  InsuficientResourcesError,
+  UnavailableActionError
+} from '../controller/CityResource';
 
-const resourceType = "kTestResourceType";
-const resourceType2 = "kTestResourceType2";
-const createResource = (amount) => new CityResource(resourceType, amount);
-const createResource2 = (amount) => new CityResource(resourceType2, amount);
+const resourceType = 'kTestResourceType';
+const resourceType2 = 'kTestResourceType2';
+const createResource = amount => new CityResource(resourceType, amount);
+const createResource2 = amount => new CityResource(resourceType2, amount);
 
 let amount = 100;
 let playerCapacity = {
-  initialCapacity: {
-    [resourceType]: amount * 10,
-    [resourceType2]: amount * 10
-  }
+  [resourceType]: amount * 10,
+  [resourceType2]: amount * 10
 };
 
 describe('Resources', () => {
-
   let multiplier = 10;
 
   it('can be multiplied', () => {
@@ -27,7 +29,7 @@ describe('Resources', () => {
   });
 
   it('can be earned', () => {
-    let player = new CityPlayer(playerCapacity);
+    let player = new CityPlayer({ initialCapacity: playerCapacity });
     let resource = createResource(amount);
     assert.strictEqual(player.getResourceAmountForType(resourceType), 0);
 
@@ -47,45 +49,57 @@ describe('Resources', () => {
     let needResources = [createResource(aLot), createResource2(more)];
 
     // Have 15 (5 + 10) of 30 (20 + 10) needed
-    assert.equal(0.5, CityResource.resourcesCoverCosts(haveResources, needResources));
+    assert.equal(
+      0.5,
+      CityResource.resourcesCoverCosts(haveResources, needResources)
+    );
 
     // Have 30 (20 + 10) of 30 (20 + 10) needed
     let nowHaveMore = [createResource(aLot), createResource2(aLot)];
-    assert.equal(1, CityResource.resourcesCoverCosts(nowHaveMore, needResources));
+    assert.equal(
+      1,
+      CityResource.resourcesCoverCosts(nowHaveMore, needResources)
+    );
   });
 
   it('cannot spend if dont have', () => {
-    let player = new CityPlayer(playerCapacity);
+    let player = new CityPlayer({ initialCapacity: playerCapacity });
     let resource = createResource(amount);
-    let spend = function () {
+    let spend = function() {
       player.spendResources([resource]);
     };
     assert.throw(spend);
     // assert.throw(spend, InsuficientResourcesError);
 
-    player.earnResources([resource.resourceWithMultiplier(.5)]);
+    player.earnResources([resource.resourceWithMultiplier(0.5)]);
     assert.throw(spend);
     // assert.throw(spend, InsuficientResourcesError);
 
-    player.earnResources([resource.resourceWithMultiplier(.5)]);
+    player.earnResources([resource.resourceWithMultiplier(0.5)]);
     spend();
   });
-
 });
 
 describe('Resource Consuming Actions', () => {
-  let kActionName = "kActionName";
+  let kActionName = 'kActionName';
   let amount = 100;
   let resources = [createResource(amount)];
 
   it('can become available', () => {
-    let player = new CityPlayer(playerCapacity);
-    player.earnResources(resources);
+    let player = new CityPlayer({
+      initialCapacity: playerCapacity,
+      initialResources: resources
+    });
 
     let available = false;
     let actionCalled = false;
 
-    let action = new ResourceConsumingAction(() => kActionName, () => available, () => resources, () => actionCalled = true);
+    let action = new ResourceConsumingAction(
+      () => kActionName,
+      () => available,
+      () => resources,
+      () => (actionCalled = true)
+    );
 
     assert.equal(kActionName, action.displayName());
 
@@ -101,12 +115,17 @@ describe('Resource Consuming Actions', () => {
   });
 
   it('consume resources', () => {
-    let player = new CityPlayer(playerCapacity);
+    let player = new CityPlayer({ initialCapacity: playerCapacity });
     let actionCalled = false;
     let resources = [createResource(amount)];
 
-    let kActionName = "kActionName";
-    let action = new ResourceConsumingAction(() => kActionName, () => true, () => resources, () => actionCalled = true);
+    let kActionName = 'kActionName';
+    let action = new ResourceConsumingAction(
+      () => kActionName,
+      () => true,
+      () => resources,
+      () => (actionCalled = true)
+    );
 
     assert.equal(kActionName, action.displayName());
 
@@ -123,9 +142,12 @@ describe('Resource Consuming Actions', () => {
 
     action.executeForPlayer(player);
     assert.isTrue(actionCalled);
-    assert.isTrue(action.isAffordable(player), "Player can affort twice");
+    assert.isTrue(action.isAffordable(player), 'Player can affort twice');
 
     action.executeForPlayer(player);
-    assert.isFalse(action.isAffordable(player), "Player cannot afford it thrice");
+    assert.isFalse(
+      action.isAffordable(player),
+      'Player cannot afford it thrice'
+    );
   });
 });

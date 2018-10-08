@@ -1,56 +1,57 @@
 import UUIDjs from 'uuid-js';
 
-import {MutableObject} from './utils/Utils';
-import CityEvent from './CityEvent';
-import {FrequencyEffect} from './Effect';
+import { MutableObject } from './utils/Utils';
+import CityEvent, { kCharacterTasksAssigned, kSpendResourceEvent } from './CityEvent';
+import { PeriodicEffect } from './Effect';
 
 export default class CityCharacter {
-  constructor({
-    name = "Unnamed Character",
-    effects = [],
-    tasks = []
-  } = {}) {
-    this.id = UUIDjs
-      .create()
-      .toString();
+  constructor({ name = 'Unnamed Character', periodicEffects = [], tasks = [] } = {}) {
+    this.id = UUIDjs.create().toString();
     this.name = name;
 
     this.time = 0;
-    this.effects = effects;
+    this.periodicEffects = periodicEffects;
     this.tasks = tasks;
     this.activeTask = null;
   }
 
   toString() {
-    return this.name + " (" + this.id + ")";
+    return this.name + ' (' + this.id + ')';
   }
 
   setTasks(tasks) {
     this.tasks = tasks;
-    let event = new CityEvent({type: CityEvent.kCharacterTasksAssigned, object: this, data: tasks});
+    let event = new CityEvent({
+      type: kCharacterTasksAssigned,
+      object: this,
+      data: tasks
+    });
     return event;
   }
 
   updateTime(deltaSeconds, parents) {
     MutableObject.checkIsMutable(this);
-    parents = Object.assign(parents, {character: this});
+    parents = Object.assign(parents, { character: this });
     let updated = [];
     this.time += deltaSeconds;
 
-    this
-      .effects
-      .forEach(e => {
-        let events = e.updateTime(deltaSeconds, parents);
-        updated = updated.concat(events);
-      });
+    this.periodicEffects.forEach(e => {
+      let events = e.updateTime(deltaSeconds, parents);
+      updated = updated.concat(events);
+    });
 
     while (deltaSeconds > 0) {
       if (!this.activeTask) {
-        const unblockedTasks = this
-          .tasks
-          .filter(t => t.canBegin(parents));
+        const unblockedTasks = this.tasks.filter(t => !t.shouldBeBlocked(parents));
         if (unblockedTasks.length > 0) {
           this.activeTask = MutableObject.mutableCopy(unblockedTasks[0]);
+          updated.push(
+            new CityEvent({
+              type: kCharacterTasksAssigned,
+              object: this,
+              data: this.tasks
+            })
+          );
         }
       }
       if (this.activeTask) {
@@ -73,11 +74,8 @@ export default class CityCharacter {
   }
 }
 
-export class CharacterConsumeResourceOrGetsRemovedEffect extends FrequencyEffect {
-  constructor({
-    resources = [],
-    period = 1
-  } = {}) {
+export class CharacterConsumeResourceOrGetsRemovedEffect extends PeriodicEffect {
+  constructor({ resources = [], period = 1 } = {}) {
     super(arguments[0]);
     this.resources = resources;
   }
@@ -85,22 +83,24 @@ export class CharacterConsumeResourceOrGetsRemovedEffect extends FrequencyEffect
     let character = parents.character;
     let event;
     if (parents.player.canAfford(this.resources)) {
-      event = new CityEvent({type: CityEvent.kSpendResourceEvent, object: this, data: character});
-      parents
-        .player
-        .spendResources(this.resources);
+      event = new CityEvent({
+        type: kSpendResourceEvent,
+        object: this,
+        data: character
+      });
+      parents.player.spendResources(this.resources);
     } else {
-      event = parents
-        .player
-        .city
-        .removeCharacter(character.id)
+      event = parents.player.city.removeCharacter(character.id);
     }
     return [event];
   }
   getDescription() {
-    return "Gives " + this
-      .resources
-      .map(r => r.toString())
-      .join(" + ") + " every " + this.period + " sec";
+    return (
+      'Gives ' +
+      this.resources.map(r => r.toString()).join(' + ') +
+      ' every ' +
+      this.period +
+      ' sec'
+    );
   }
 }

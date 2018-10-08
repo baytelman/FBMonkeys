@@ -1,62 +1,76 @@
 import CityProject from './CityProject';
-import CityEvent from './CityEvent';
-import {ResourceConsumingAction} from './CityResource';
-import {FrequencyEffect} from './Effect';
+import CityEvent, {
+  kResearchProjectProgressEvent,
+  kResearchProjectCompletedEvent,
+  kEarnResearchEvent
+} from './CityEvent';
+import { ResourceConsumingAction } from './CityResource';
+import { PeriodicEffect } from './Effect';
 
 export default class CityResearchProject extends CityProject {
   constructor({
-    name = "Some research",
-    description = "Some research",
+    name = 'Some research',
+    description = 'Some research',
     namespace = 'research.name'
   } = {}) {
     let params = Object.assign(arguments[0] || {}, {
       name: name,
       description: description,
       namespace: namespace,
-      completionEventType: CityEvent.kProjectCompletedEvent,
-      progressEventType: CityEvent.kProjectProgressEvent
+      completionEventType: kResearchProjectCompletedEvent,
+      progressEventType: kResearchProjectProgressEvent
     });
     super(params);
   }
 }
 
 export class ScheduleResearchProjectAction extends ResourceConsumingAction {
-  constructor({project}) {
-    super("Project", function (player) {
-      let unallResearch = player
-        .researchProjects
-        .map(r => r.namespace)
-        .concat(player.researchedProjects.map(r => r.namespace));
-      return unallResearch.indexOf(this.project.namespace) < 0 && player.fulfillsRequirements(this.project.namespace, this.project.requirements);
-    }, function (player) {
-      return this.project.cost
-    }, function (player) {
-      player.scheduleResearch(this.project)
-    });
+  constructor({ project }) {
+    super(
+      'Project',
+      function(player) {
+        let unallResearch = player.researchProjects
+          .map(r => r.namespace)
+          .concat(player.researchedProjects.map(r => r.namespace));
+        return (
+          unallResearch.indexOf(this.project.namespace) < 0 &&
+          player.fulfillsRequirements(
+            this.project.namespace,
+            this.project.requirements
+          )
+        );
+      },
+      function(player) {
+        return this.project.cost;
+      },
+      function(player) {
+        player.scheduleResearch(this.project);
+      }
+    );
     this.project = project;
   }
 }
 
-export class PlayerEarnResearchEffect extends FrequencyEffect {
-  constructor({
-    research = 1,
-    period = 1
-  } = {}) {
-    super(arguments[0]);
-    this.research = 1;
+const BLOCKED_ALREADY_RESEARCHING = 'Another project is ongoing';
+export class PlayerEarnResearchEffect extends PeriodicEffect {
+  constructor({ research = 1, ...params } = {}) {
+    super(params);
+    this.research = research;
   }
-  canBegin(parents) {
-    return parents
-      .player
-      .canEarnAnyResearch();
+  shouldBeBlocked(parents) {
+    return !parents.player.canEarnAnyResearch() && BLOCKED_ALREADY_RESEARCHING;
   }
   trigger(parents) {
-    let event = new CityEvent({type: CityEvent.kEarnResearchEvent, object: this, data: this.research});
+    let event = new CityEvent({
+      type: kEarnResearchEvent,
+      object: this,
+      data: this.research
+    });
     let updated = [event];
     updated = updated.concat(parents.player.earnResearch(this.research));
     return updated;
   }
   getDescription() {
-    return "Researches " + this.research + " every " + this.period + " sec";
+    return 'Researches ' + this.research + ' every ' + this.period + ' sec';
   }
 }

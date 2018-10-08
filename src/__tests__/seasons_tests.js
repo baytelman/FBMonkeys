@@ -1,9 +1,9 @@
 import {assert} from 'chai';
 
-import {CityResource} from '../city/CityResource.js';
-import {CityPlayer} from '../city/CityPlayer.js';
-import CityBuilding, {CollectBuildingResourcesEffect, BuildingStoreResourceEffect, ResourceStoringModifierEffect} from '../city/CityBuilding.js';
-import CityCharacter, {CharacterConsumeResourceOrGetsRemovedEffect} from '../city/CityCharacter.js';
+import {CityResource} from '../controller/CityResource.js';
+import CityPlayer from '../controller/CityPlayer.js';
+import CityBuilding, {CollectBuildingResourcesEffect, BuildingStoreResourceEffect, ResourceStoringModifierEffect} from '../controller/CityBuilding.js';
+import CityCharacter, {CharacterConsumeResourceOrGetsRemovedEffect} from '../controller/CityCharacter.js';
 
 describe('City\'s seasons', () => {
 
@@ -21,7 +21,7 @@ describe('City\'s seasons', () => {
     },
     characterFactories: {
       [kCharacter]: {
-        factory: () => new CityCharacter({})
+        produceCharacter: () => new CityCharacter({})
       }
     },
     seasonPeriod: seasonPeriod,
@@ -61,7 +61,7 @@ describe('City\'s seasons', () => {
     let time = 1;
 
     let storingBuilding = new CityBuilding({
-      effects: [new BuildingStoreResourceEffect({resources: resources, period: time})]
+      periodicEffects: [new BuildingStoreResourceEffect({resources: resources, period: time})]
     });
     player
       .city

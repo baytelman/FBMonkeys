@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 
-import {MutableObject, ImmutableObjectError} from "../city/utils/Utils";
+import {MutableObject, ImmutableObjectError} from "../controller/utils/Utils";
 
 export class A {
   constructor() {}
