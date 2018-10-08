@@ -59,9 +59,6 @@ describe('Game Controller', () => {
 
     /* Producing food by a farm takes 5. Expect food on 6: */
     let events2 = controller.updateTime(30);
-    console.log(
-      events2.map(e => e.type).filter(e => e !== kPeriodicEffectProgressEvent)
-    );
     assert.strictEqual(
       events2.filter(e => e.type === kStoreResourceEvent).length,
       1 /* Banana fields store 7 banana every 2, but it becomes blocked until gathered */

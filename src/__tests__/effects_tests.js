@@ -45,7 +45,6 @@ describe('Frequency Effects', () => {
     let eventsBeforeTrigger = event
       .updateTime(kTime / 2, parents)
       .filter(e => e.type !== kPeriodicEffectProgressEvent);
-    console.log({ eventsBeforeTrigger });
     assert.strictEqual(eventsBeforeTrigger.length, 0);
     assert.strictEqual(parents.time, 0);
 
